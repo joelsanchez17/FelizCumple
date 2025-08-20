@@ -114,12 +114,39 @@
       position:absolute; user-select:none; cursor:pointer; opacity:0.85; transition: transform .08s ease;
     }
     .decoy:active{ transform: scale(1.15); }
+    .catch-area{ touch-action: manipulation; }     /* quita retrasos en iOS */
+    .catch-heart{ z-index: 2; }                    /* por encima de señuelos */
+    .decoy{ z-index: 1; }  
+    .meetbar{height:10px;border-radius:999px;background:rgba(255,255,255,.6);overflow:hidden}
+    .meetbar #meetProgress{height:100%;width:0%;background:#e91e63;transition:width .6s ease;border-radius:999px}
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:9999}
+    .lightbox img{max-width:92vw;max-height:92vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+
+
   </style>
+  <!-- Favicon (emoji corazón) -->
+    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
+
+    <!-- Open Graph / WhatsApp / Facebook -->
+    <meta property="og:title" content="Feliz Cumple, amor 💖">
+    <meta property="og:description" content="Te hice esta sorpresa con todo mi corazón. Ábrela en tu cel.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg">
+    <meta property="og:image" content="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Feliz Cumple, amor 💖">
+    <meta name="twitter:description" content="Te hice esta sorpresa con todo mi corazón.">
+    <meta name="twitter:image" content="https://i.imgur.com/tQ7vAwV.jpeg">
+
 </head>
 <body>
 
-  <h1>Feliz Cumpleaños amor 🎉🎂💖</h1>
-  <h2 class="muted">Que este día esté lleno de sonrisas y de nosotros 🥰 te extraño mucho </h2>
+  <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
+  <h2 class="muted">Que este día esté lleno de sonrisas y de nosotros 🥰 <br>Te extraño mucho </h2>
 
   <div class="panel" aria-live="polite">
     <div class="title">Tiempo desde la ultima vez que nos vimos (12 ago 2025, 06:30 – Frankfurt)</div>
@@ -138,6 +165,12 @@
       <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
     </div>
   </div>
+    <div class="panel">
+    <div class="title">Progreso hacia nuestro reencuentro</div>
+    <div class="meetbar"><div id="meetProgress"></div></div>
+    <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
+    </div>
+
 
   <div class="panel">
     <div class="title">Nuestros Bellos Momentos ✨</div>
@@ -153,19 +186,7 @@
     <button id="playSongBtn" class="action-button">▶️ Escuchar nuestra canción</button>
   </div>
 
-  <div class="panel">
-    <button id="revealMsgBtn" class="action-button">Presioná acá para una sorpresa final...</button>
-    <p id="secretMessage" style="display: none; margin-top: 15px; font-size: 1.1em; color: #c2185b; font-weight: bold;">
-      Hola mi pingüinita 🐧<br><br>
-      Te escribo algo con mi corazón en las manos.
-      Quiero desearte un muy feliz cumpleaños! 🎉🎂 Eres una persona que irradia alegría, felicidad y paz en cada paso que das. No dejes jamás que nadie borre esa sonrisa tan linda que tenés, ni esa mirada que tanto me gusta.<br><br>
-      Te extraño mucho. Me gustaría estar a tu lado para darte un fuerte abrazo y decirte cuánto te quiero y aprecio que estés en mi vida 💖<br><br>
-      Sé que llegará el día en que nos reencontremos y que toda la espera habrá valido la pena.<br><br>
-      Hasta entonces, a la distancia quiero decirte:<br><br>
-      TE AMO ❤️<br><br>
-      Tu Joel
-    </p>
-  </div>
+
 
   <div id="player-container" style="display: none; margin-top: 15px; text-align: center;">
     <iframe
@@ -204,6 +225,21 @@
     <p id="twTarget" class="muted" style="min-height:1.6em"></p>
     <button id="twBtn" class="action-button">✍️ Escribir de nuevo</button>
   </div>
+    <div class="panel">
+    <button id="revealMsgBtn" class="action-button">Presioná acá para una sorpresa final...</button>
+    <p id="secretMessage" style="display: none; margin-top: 15px; font-size: 1.1em; color: #c2185b; font-weight: bold;">
+      Hola mi pingüinita 🐧<br><br>
+      Te escribo algo con mi corazón en las manos.
+      Quiero desearte un muy feliz cumpleaños! 🎉🎂 Eres una persona que irradia alegría, felicidad y paz en cada paso que das. No dejes jamás que nadie borre esa sonrisa tan linda que tenés, ni esa mirada que tanto me gusta.<br><br>
+      Te extraño mucho. Me gustaría estar a tu lado para darte un fuerte abrazo y decirte cuánto te quiero y aprecio que estés en mi vida 💖<br><br>
+      Sé que llegará el día en que nos reencontremos y que toda la espera habrá valido la pena.<br><br>
+      Hasta entonces, a la distancia quiero decirte:<br><br>
+      TE AMO ❤️<br><br>
+      Tu Joel
+    </p>
+  </div>
+  <div id="lightbox" class="lightbox" aria-hidden="true"><img id="lightImg" alt=""></div>
+
 
   <script>
     // --- Contadores up/down ---
@@ -296,7 +332,7 @@
       if (typeof dropHearts === 'function') dropHearts(5 + Math.floor(Math.random() * 8));
       if (navigator.vibrate) navigator.vibrate([20, 20, 20]);
       updateLoveMsg();
-      if ([5,10,25,35,50].includes(clicks)) { if (typeof dropHearts === 'function') dropHearts(25); alert('🎁 Sorpresa: Vale por una cena conmigo🤗'); }
+      if ([10,25,35,50].includes(clicks)) { if (typeof dropHearts === 'function') dropHearts(25); alert('🎁 Sorpresa: Vale por una cena conmigo🤗'); }
     });
 
     // Confeti y animaciones del botón
@@ -324,110 +360,148 @@
     /* =======================
        Mini-juego mejorado
        ======================= */
-    (function(){
-      const area     = document.getElementById('catchArea');
-      const heart    = document.getElementById('catchHeart');
-      const startBtn = document.getElementById('startCatch');
-      const scoreEl  = document.getElementById('score');
-      const timeEl   = document.getElementById('time');
-      if(!area || !heart || !startBtn || !scoreEl || !timeEl) return;
+    // Mini-juego: Atrapa el corazón (ajustado para móvil + ganable)
+  // Mini-juego: anti-multitap, salto mínimo y ganable
+  (function(){
+    const area     = document.getElementById('catchArea');
+    const heart    = document.getElementById('catchHeart');
+    const startBtn = document.getElementById('startCatch');
+    const scoreEl  = document.getElementById('score');
+    const timeEl   = document.getElementById('time');
+    if(!area || !heart || !startBtn || !scoreEl || !timeEl) return;
 
-      // Config: misma meta/tiempo que tu UI
-      const TARGET    = 20;
-      const DURATION  = 45;
-      const BASE_MS   = 700;
-      const MIN_MS    = 240;
-      const STEP_MS   = 18;
+    // Config (ajústalo si quieres)
+    const TARGET    = 20;  // meta (pon 15 si aún cuesta)
+    const DURATION  = 60;  // segundos
+    const BASE_MS   = 700; // intervalo base de movimiento
+    const MIN_MS    = 260; // velocidad máxima (menor = más rápido)
+    const STEP_MS   = 15;  // cuánto acelera por acierto
+    const MIN_JUMP  = 70;  // salto mínimo (px) entre posiciones
 
-      let score = 0, running = false, moveTimer = null, countdownTimer = null, decoyTimer = null;
-      let timeLeft = DURATION, msPerMove = BASE_MS;
+    // Estado
+    let score = 0, running = false;
+    let moveTimer = null, countdownTimer = null, decoyTimer = null;
+    let timeLeft = DURATION, msPerMove = BASE_MS;
+    let pointerActive = false;     // si el dedo está apoyado, no hacemos dash
+    let lastMove = 0;              // para enfriar el dash
+    let catchLock = true;          // evita sumar varias veces sin moverse
+    let prev = {x:0, y:0};         // centro anterior
 
-      function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-      function formatMMSS(sec){ const m = Math.floor(sec/60), s = sec%60; return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
-      function updateTimerUI(){ timeEl.textContent = formatMMSS(timeLeft); timeEl.style.color = (timeLeft <= 5) ? '#c2185b' : ''; }
+    function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+    function formatMMSS(s){ const m=Math.floor(s/60), x=s%60; return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'); }
+    function updateTimerUI(){ timeEl.textContent = formatMMSS(timeLeft); timeEl.style.color = (timeLeft<=5)?'#c2185b':''; }
 
-      // 🔥 Dificultad por tramos (más agresiva al subir)
-      function applyDifficulty(){
-        const k = (score < 8) ? STEP_MS : (score < 15) ? STEP_MS * 1.6 : STEP_MS * 2.2;
-        msPerMove = Math.max(BASE_MS - score * k, MIN_MS);
-      }
+    function applyDifficulty(){
+      const k = (score < 8) ? STEP_MS : (score < 15) ? STEP_MS*1.6 : STEP_MS*2.2;
+      msPerMove = Math.max(BASE_MS - score*k, MIN_MS);
+    }
+    function scheduleMoveLoop(){ clearInterval(moveTimer); moveTimer = setInterval(moveHeart, msPerMove); }
 
-      function scheduleMoveLoop(){ clearInterval(moveTimer); moveTimer = setInterval(moveHeart, msPerMove); }
+    function moveHeart(){
+      const rect = area.getBoundingClientRect();
+      const w = rect.width, h = rect.height;
 
-      function moveHeart(){
-        const rect = area.getBoundingClientRect(), w = rect.width, h = rect.height;
-        const maxSize = 40, minSize = 16; // más pequeño con el tiempo
-        const size = Math.max(minSize, maxSize - score * 1.0) + Math.random()*4;
-        heart.style.fontSize = size + 'px';
-        const x = rnd(10, Math.max(10, w - size - 10));
-        const y = rnd(10, Math.max(10, h - size - 10));
-        heart.style.left = x + 'px'; heart.style.top  = y + 'px';
-        const blinkProb = Math.min(0.45, 0.08 + score * 0.02);
-        if (Math.random() < blinkProb) { heart.style.opacity = '0'; setTimeout(() => heart.style.opacity = '1', 140); }
-      }
+      // tamaño baja con score
+      const maxSize = 40, minSize = 16;
+      const size = Math.max(minSize, maxSize - score*1.0) + Math.random()*4;
+      heart.style.fontSize = size + 'px';
 
-      // 👾 Señuelos (decoys) que restan tiempo
-      function spawnDecoy(){
-        if (!running) return;
-        const d = document.createElement('div'); d.className = 'decoy';
-        d.textContent = (Math.random() < 0.5) ? '💔' : '🩷';
-        const rect = area.getBoundingClientRect(); const size = 22 + Math.random()*8;
-        d.style.fontSize = size + 'px';
-        d.style.left = Math.floor(Math.random()*(rect.width - size - 10)) + 5 + 'px';
-        d.style.top  = Math.floor(Math.random()*(rect.height - size - 10)) + 5 + 'px';
-        d.addEventListener('click', () => { timeLeft = Math.max(0, timeLeft - 2); updateTimerUI(); if (navigator.vibrate) navigator.vibrate(30); d.remove(); });
-        area.appendChild(d); setTimeout(() => d.remove(), 1200);
-      }
-      function scheduleDecoys(){ clearInterval(decoyTimer); const gap = Math.max(900, 1800 - score * 35); decoyTimer = setInterval(spawnDecoy, gap); }
+      // posición nueva con salto mínimo respecto a la anterior
+      let tries = 0, x, y, cx, cy;
+      do {
+        x = rnd(10, Math.max(10, w - size - 10));
+        y = rnd(10, Math.max(10, h - size - 10));
+        cx = x + size/2; cy = y + size/2;
+        tries++;
+      } while (Math.hypot(cx - prev.x, cy - prev.y) < MIN_JUMP && tries < 12);
 
-      // ⚡ Rush (sprint) de 1 segundo
-      function rush(){
-        const prev = msPerMove;
-        msPerMove = Math.min(msPerMove, 120);
-        scheduleMoveLoop();
-        setTimeout(() => { msPerMove = prev; scheduleMoveLoop(); }, 1000);
-      }
+      heart.style.left = x + 'px';
+      heart.style.top  = y + 'px';
+      prev = {x: cx, y: cy};
 
-      function start(){
-        score = 0; scoreEl.textContent = score; running = true;
-        timeLeft = DURATION; updateTimerUI();
-        applyDifficulty(); moveHeart(); scheduleMoveLoop(); scheduleDecoys();
+      // parpadeo moderado
+      const blinkProb = Math.min(0.30, 0.06 + score*0.015);
+      if (Math.random() < blinkProb) { heart.style.opacity = '0'; setTimeout(()=> heart.style.opacity='1', 110); }
 
-        clearInterval(countdownTimer);
-        countdownTimer = setInterval(() => {
-          timeLeft--; updateTimerUI(); if (timeLeft <= 0) end(false);
-        }, 1000);
+      lastMove = Date.now();
+      catchLock = false; // ahora sí puede volver a sumar (una vez)
+    }
 
-        if (typeof window.confettiBurst === 'function') window.confettiBurst(8);
-      }
+    // señuelos que restan tiempo (empiezan tras 6 puntos)
+    function spawnDecoy(){
+      if (!running || score < 6) return;
+      const d = document.createElement('div');
+      d.className = 'decoy';
+      d.textContent = (Math.random()<0.5) ? '💔' : '🩷';
+      const rect = area.getBoundingClientRect();
+      const size = 22 + Math.random()*8;
+      d.style.fontSize = size + 'px';
+      d.style.left = Math.floor(Math.random()*(rect.width - size - 10)) + 5 + 'px';
+      d.style.top  = Math.floor(Math.random()*(rect.height - size - 10)) + 5 + 'px';
+      d.addEventListener('pointerdown', () => { timeLeft = Math.max(0, timeLeft - 2); updateTimerUI(); if (navigator.vibrate) navigator.vibrate(30); d.remove(); });
+      area.appendChild(d); setTimeout(()=> d.remove(), 1400);
+    }
+    function scheduleDecoys(){ clearInterval(decoyTimer); const gap = Math.max(1200, 2200 - score*60); decoyTimer = setInterval(spawnDecoy, gap); }
 
-      function end(won){
-        running = false; clearInterval(moveTimer); clearInterval(countdownTimer); clearInterval(decoyTimer);
-        if (won){ if (typeof dropHearts === 'function') dropHearts(60); alert('¡Ganaste Hermosa! sabia que me rescatarias. Puntos: ' + score + ' 💖'); }
-        else { alert('⏳ Se acabó el tiempo linda. Puntos: ' + score + ' — Intentalo de nuevo limona!'); }
-      }
+    // sprint corto
+    function rush(){
+      const prevMs = msPerMove;
+      msPerMove = Math.min(msPerMove, 140);
+      scheduleMoveLoop();
+      setTimeout(()=>{ msPerMove = prevMs; scheduleMoveLoop(); }, 900);
+    }
 
-      heart.addEventListener('click', () => {
-        if (!running) return;
-        score++; scoreEl.textContent = score;
-        if (navigator.vibrate) navigator.vibrate(20);
-        if (typeof dropHearts === 'function') dropHearts(6);
-        if (score >= TARGET) { end(true); return; }
-        applyDifficulty(); scheduleMoveLoop(); scheduleDecoys(); moveHeart();
-        if (score >= 10 && Math.random() < 0.25) rush(); // sprints aleatorios
-      });
+    function start(){
+      score = 0; scoreEl.textContent = score; running = true;
+      timeLeft = DURATION; updateTimerUI();
+      applyDifficulty(); moveHeart(); scheduleMoveLoop(); scheduleDecoys();
 
-      // 🏃‍♂️ “Dash” cuando el puntero se acerca
-      area.addEventListener('pointermove', (e) => {
-        if (!running || score < 6) return;
-        const r = heart.getBoundingClientRect();
-        const dx = e.clientX - (r.left + r.width/2);
-        const dy = e.clientY - (r.top  + r.height/2);
-        if (Math.hypot(dx, dy) < 48 && Math.random() < 0.35) moveHeart();
-      });
+      clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        timeLeft--; updateTimerUI(); if (timeLeft <= 0) end(false);
+      }, 1000);
 
-      startBtn.addEventListener('click', start);
-    })();
+      if (typeof window.confettiBurst === 'function') window.confettiBurst(8);
+    }
+
+    function end(won){
+      running = false; clearInterval(moveTimer); clearInterval(countdownTimer); clearInterval(decoyTimer);
+      if (won){ if (typeof dropHearts==='function') dropHearts(60); alert('¡Me has salvado amor, eres mi heroina 🦸‍♀️' + score + ' 💖'); }
+      else { alert('⏳ Noooh mi ciela💅 se te acabó el tiempo. Atrapaste: ' + score + ' — ¡Salvame limona🍋!'); }
+    }
+
+    // contar SIEMPRE una sola vez por movimiento
+    function onCatch(){
+      if (!running || catchLock) return;   // bloquea multitoque en el mismo lugar
+      catchLock = true;                    // se libera en moveHeart()
+      score++; scoreEl.textContent = score;
+      if (navigator.vibrate) navigator.vibrate(20);
+      if (typeof dropHearts==='function') dropHearts(6);
+      if (score >= TARGET) { end(true); return; }
+      applyDifficulty(); scheduleMoveLoop(); scheduleDecoys();
+      moveHeart();
+      if (score >= 10 && Math.random() < 0.2) rush();
+    }
+
+    // dash menos agresivo: no con el dedo apoyado, ni muy seguido
+    area.addEventListener('pointermove', (e) => {
+      if (!running || pointerActive || score < 8) return;
+      if (Date.now() - lastMove < 200) return;
+      const r = heart.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width/2);
+      const dy = e.clientY - (r.top  + r.height/2);
+      if (Math.hypot(dx, dy) < 40 && Math.random() < 0.2) moveHeart();
+    });
+
+    area.addEventListener('pointerdown', ()=> pointerActive = true);
+    area.addEventListener('pointerup',   ()=> pointerActive = false);
+    area.addEventListener('pointercancel',()=> pointerActive = false);
+
+    heart.addEventListener('pointerdown', onCatch);
+    startBtn.addEventListener('click', start);
+  })();
+
+
 
     // (Opcional) typewriter
     (function(){
@@ -441,6 +515,33 @@
       }
       b.addEventListener('click', ()=> typewrite(t, TEXT));
     })();
+    (function(){
+  const bar = document.getElementById('meetProgress');
+  const pct = document.getElementById('meetPct');
+  if(!bar || !pct) return;
+  function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+  function updateProgress(){
+    const now = new Date();
+    const total = meetingBerlin - startBerlin;
+    const done  = now - startBerlin;
+    const p = clamp(done/total, 0, 1);
+    const percent = Math.round(p*100);
+    bar.style.width = percent + '%';
+    pct.textContent = percent + '%';
+  }
+  updateProgress();
+  setInterval(updateProgress, 60*1000); // actualiza cada minuto
+})();
+(function(){
+  const box = document.getElementById('lightbox');
+  const img = document.getElementById('lightImg');
+  const thumbs = document.querySelectorAll('.photo-gallery img');
+  if(!box || !img || !thumbs.length) return;
+  thumbs.forEach(t => t.addEventListener('click', () => { img.src = t.src; box.style.display='flex'; }));
+  box.addEventListener('click', () => { box.style.display='none'; img.src=''; });
+})();
+
+
   </script>
 </body>
 </html>
