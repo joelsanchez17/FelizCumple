@@ -363,69 +363,69 @@
     // Mini-juego: Atrapa el corazón (ajustado para móvil + ganable)
   // Mini-juego: anti-multitap, salto mínimo y ganable
   (function(){
-    const area     = document.getElementById('catchArea');
-    const heart    = document.getElementById('catchHeart');
-    const startBtn = document.getElementById('startCatch');
-    const scoreEl  = document.getElementById('score');
-    const timeEl   = document.getElementById('time');
-    if(!area || !heart || !startBtn || !scoreEl || !timeEl) return;
+        const area     = document.getElementById('catchArea');
+        const heart    = document.getElementById('catchHeart');
+        const startBtn = document.getElementById('startCatch');
+        const scoreEl  = document.getElementById('score');
+        const timeEl   = document.getElementById('time');
+        if(!area || !heart || !startBtn || !scoreEl || !timeEl) return;
 
-    // Config (ajústalo si quieres)
-    const TARGET    = 20;  // meta (pon 15 si aún cuesta)
-    const DURATION  = 80;  // segundos
-    const BASE_MS   = 700; // intervalo base de movimiento
-    const MIN_MS    = 290; // velocidad máxima (menor = más rápido)
-    const STEP_MS   = 12;  // cuánto acelera por acierto
-    const MIN_JUMP  = 70;  // salto mínimo (px) entre posiciones
+        // Config (ajústalo si quieres)
+        const TARGET    = 20;  // meta (pon 15 si aún cuesta)
+        const DURATION  = 80;  // segundos
+        const BASE_MS   = 700; // intervalo base de movimiento
+        const MIN_MS    = 290; // velocidad máxima (menor = más rápido)
+        const STEP_MS   = 12;  // cuánto acelera por acierto
+        const MIN_JUMP  = 70;  // salto mínimo (px) entre posiciones
 
-    // Estado
-    let score = 0, running = false;
-    let moveTimer = null, countdownTimer = null, decoyTimer = null;
-    let timeLeft = DURATION, msPerMove = BASE_MS;
-    let pointerActive = false;     // si el dedo está apoyado, no hacemos dash
-    let lastMove = 0;              // para enfriar el dash
-    let catchLock = true;          // evita sumar varias veces sin moverse
-    let prev = {x:0, y:0};         // centro anterior
+        // Estado
+        let score = 0, running = false;
+        let moveTimer = null, countdownTimer = null, decoyTimer = null;
+        let timeLeft = DURATION, msPerMove = BASE_MS;
+        let pointerActive = false;     // si el dedo está apoyado, no hacemos dash
+        let lastMove = 0;              // para enfriar el dash
+        let catchLock = true;          // evita sumar varias veces sin moverse
+        let prev = {x:0, y:0};         // centro anterior
 
-    function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-    function formatMMSS(s){ const m=Math.floor(s/60), x=s%60; return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'); }
-    function updateTimerUI(){ timeEl.textContent = formatMMSS(timeLeft); timeEl.style.color = (timeLeft<=5)?'#c2185b':''; }
+        function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+        function formatMMSS(s){ const m=Math.floor(s/60), x=s%60; return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'); }
+        function updateTimerUI(){ timeEl.textContent = formatMMSS(timeLeft); timeEl.style.color = (timeLeft<=5)?'#c2185b':''; }
 
-    function applyDifficulty(){
-      const k = (score < 8) ? STEP_MS : (score < 15) ? STEP_MS*1.6 : STEP_MS*2.2;
-      msPerMove = Math.max(BASE_MS - score*k, MIN_MS);
-    }
-    function scheduleMoveLoop(){ clearInterval(moveTimer); moveTimer = setInterval(moveHeart, msPerMove); }
+        function applyDifficulty(){
+        const k = (score < 8) ? STEP_MS : (score < 15) ? STEP_MS*1.6 : STEP_MS*2.2;
+        msPerMove = Math.max(BASE_MS - score*k, MIN_MS);
+        }
+        function scheduleMoveLoop(){ clearInterval(moveTimer); moveTimer = setInterval(moveHeart, msPerMove); }
 
-    function moveHeart(){
-      const rect = area.getBoundingClientRect();
-      const w = rect.width, h = rect.height;
+        function moveHeart(){
+        const rect = area.getBoundingClientRect();
+        const w = rect.width, h = rect.height;
 
-      // tamaño baja con score
-      const maxSize = 40, minSize = 16;
-      const size = Math.max(minSize, maxSize - score*1.0) + Math.random()*4;
-      heart.style.fontSize = size + 'px';
+        // tamaño baja con score
+        const maxSize = 40, minSize = 16;
+        const size = Math.max(minSize, maxSize - score*1.0) + Math.random()*4;
+        heart.style.fontSize = size + 'px';
 
-      // posición nueva con salto mínimo respecto a la anterior
-      let tries = 0, x, y, cx, cy;
-      do {
-        x = rnd(10, Math.max(10, w - size - 10));
-        y = rnd(10, Math.max(10, h - size - 10));
-        cx = x + size/2; cy = y + size/2;
-        tries++;
-      } while (Math.hypot(cx - prev.x, cy - prev.y) < MIN_JUMP && tries < 12);
+        // posición nueva con salto mínimo respecto a la anterior
+        let tries = 0, x, y, cx, cy;
+        do {
+            x = rnd(10, Math.max(10, w - size - 10));
+            y = rnd(10, Math.max(10, h - size - 10));
+            cx = x + size/2; cy = y + size/2;
+            tries++;
+        } while (Math.hypot(cx - prev.x, cy - prev.y) < MIN_JUMP && tries < 12);
 
-      heart.style.left = x + 'px';
-      heart.style.top  = y + 'px';
-      prev = {x: cx, y: cy};
+        heart.style.left = x + 'px';
+        heart.style.top  = y + 'px';
+        prev = {x: cx, y: cy};
 
-      // parpadeo moderado
-      const blinkProb = Math.min(0.30, 0.06 + score*0.015);
-      if (Math.random() < blinkProb) { heart.style.opacity = '0'; setTimeout(()=> heart.style.opacity='1', 110); }
+        // parpadeo moderado
+        const blinkProb = Math.min(0.30, 0.06 + score*0.015);
+        if (Math.random() < blinkProb) { heart.style.opacity = '0'; setTimeout(()=> heart.style.opacity='1', 110); }
 
-      lastMove = Date.now();
-      catchLock = false; // ahora sí puede volver a sumar (una vez)
-    }
+        lastMove = Date.now();
+        catchLock = false; // ahora sí puede volver a sumar (una vez)
+        }
 
     // señuelos que restan tiempo (empiezan tras 6 puntos)
     function spawnDecoy(){
@@ -480,18 +480,28 @@
       if (score >= TARGET) { end(true); return; }
       applyDifficulty(); scheduleMoveLoop(); scheduleDecoys();
       moveHeart();
-      if (score >= 10 && Math.random() < 0.2) rush();
+      if (score >= 13 && Math.random() < 0.08 && msPerMove > 220) rush();
+
     }
 
     // dash menos agresivo: no con el dedo apoyado, ni muy seguido
     area.addEventListener('pointermove', (e) => {
-      if (!running || pointerActive || score < 8) return;
-      if (Date.now() - lastMove < 200) return;
-      const r = heart.getBoundingClientRect();
-      const dx = e.clientX - (r.left + r.width/2);
-      const dy = e.clientY - (r.top  + r.height/2);
-      if (Math.hypot(dx, dy) < 40 && Math.random() < 0.2) moveHeart();
-    });
+        if (!running || pointerActive) return;
+
+        // Después de 15, apagamos el dash para no subir la sensación de velocidad
+        if (score >= 15) return;
+
+        const r = heart.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width/2);
+        const dy = e.clientY - (r.top  + r.height/2);
+        const dist = Math.hypot(dx, dy);
+
+        const rad = (score < 10) ? 42 : 36;   // radio de “peligro”
+        const p   = (score < 10) ? 0.12 : 0.08; // prob de dash
+        const cool = (Date.now() - lastMove) > 240;
+
+        if (dist < rad && cool && Math.random() < p) moveHeart();
+        });
 
     area.addEventListener('pointerdown', ()=> pointerActive = true);
     area.addEventListener('pointerup',   ()=> pointerActive = false);
@@ -542,8 +552,12 @@
 })();
 
 function applyDifficulty(){
-  // score efectivo: hasta 15 normal, luego sólo 35% del incremento
-  const eff = (score <= 13) ? score : 12 + (score - 12) * 0.35;
+  // Hasta 12: acelera normal. De 13 en adelante: solo cuenta el 20%.
+  const CAP = 12;
+  const SLOPE = 0.20; // 20% del extra
+  const extra = Math.max(0, score - CAP);
+  const eff = (score <= CAP) ? score : CAP + extra * SLOPE;
+
   msPerMove = Math.max(BASE_MS - eff * STEP_MS, MIN_MS);
 }
 
