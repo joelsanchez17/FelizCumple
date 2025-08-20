@@ -17,7 +17,7 @@
       align-items: center;
       min-height: 100vh;
       background: linear-gradient(to right, #ff9a9e, #fad0c4);
-      font-family: 'Quicksand', sans-serif; /* Nueva fuente base */
+      font-family: 'Quicksand', sans-serif;
       color: #333;
       flex-direction: column;
       padding: 16px;
@@ -32,14 +32,12 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.12);
       max-width: 700px;
       width: 100%;
-      /* Animación de aparición */
       opacity: 0;
       animation: fadeIn 0.8s ease-out forwards;
     }
-    
     /* Títulos y textos */
     h1 {
-      font-family: 'Pacifico', cursive; /* Nueva fuente para el título */
+      font-family: 'Pacifico', cursive;
       font-size: 2.8em;
       margin: 0 0 6px 0;
       opacity: 0;
@@ -52,153 +50,70 @@
       opacity: 0;
       animation: fadeIn 0.5s ease-out 0.2s forwards;
     }
-    .title {
-      font-size: 1.1em;
-      color: #222;
-      margin-bottom: 8px;
-    }
-    .big {
-      font-size: 2.2em;
-      font-weight: bold;
-      color: #222;
-      letter-spacing: .5px;
-    }
+    .title { font-size: 1.1em; color: #222; margin-bottom: 8px; }
+    .big { font-size: 2.2em; font-weight: bold; color: #222; letter-spacing: .5px; }
     .muted { color: #555; }
 
-    /* Estilos para contadores */
     .row {
-      display: inline-flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 6px;
+      display: inline-flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px;
     }
     .chip {
-      background: #fff;
-      border: 1px solid #f1b6c2;
-      border-radius: 10px;
-      padding: 6px 10px;
-      font-size: 0.95em;
-      color: #444;
+      background: #fff; border: 1px solid #f1b6c2; border-radius: 10px; padding: 6px 10px; font-size: 0.95em; color: #444;
     }
-    
-    /* 2. Estilos para la galería de fotos */
-    .photo-gallery {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
+    /* Galería */
+    .photo-gallery { display: flex; gap: 10px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
     .photo-gallery img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 2px solid #fff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
+      width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease;
     }
-    .photo-gallery img:hover {
-      transform: scale(1.1) rotate(3deg);
-    }
-
-    /* 3. Estilos para los botones de acción */
+    .photo-gallery img:hover { transform: scale(1.1) rotate(3deg); }
+    /* Botones */
     .action-button {
-      background-color: #e91e63;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      font-family: 'Quicksand', sans-serif;
-      font-weight: bold;
-      margin-top: 5px;
+      background-color: #e91e63; color: white; border: none; padding: 10px 20px; border-radius: 8px;
+      font-size: 1em; cursor: pointer; transition: background-color 0.3s; font-family: 'Quicksand', sans-serif; font-weight: bold; margin-top: 5px;
     }
-    .action-button:hover {
-      background-color: #c2185b;
-    }
-
-    /* 4. Animaciones */
-    .heart {
-      color: #e91e63;
-      display: inline-block;
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
-
-    /* Retraso en la animación para un efecto escalonado */
+    .action-button:hover { background-color: #c2185b; }
+    /* Animaciones */
+    .heart { color: #e91e63; display: inline-block; animation: pulse 1.5s infinite; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
     .panel:nth-of-type(1) { animation-delay: 0.4s; }
     .panel:nth-of-type(2) { animation-delay: 0.6s; }
     .panel:nth-of-type(3) { animation-delay: 0.8s; }
     .panel:nth-of-type(4) { animation-delay: 1.0s; }
     .panel:nth-of-type(5) { animation-delay: 1.2s; }
 
-    /* ❤️ NUEVO: capa de corazones en pantalla */
-    .hearts {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 9999;
-    }
-    .heart-fall {
-      position: absolute;
-      top: -10vh;
-      transform: translateY(-10vh);
-      animation: heart-fall var(--dur, 4s) linear forwards;
-      font-size: var(--size, 24px);
-    }
-    @keyframes heart-fall {
-      to { transform: translateY(110vh) rotate(360deg); }
-    }
-    /* 🎊 Confeti + animaciones del botón */
-    .confetti{
-    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9998;
-    }
-    .confetti-piece{
-    position:absolute; top:-10px; width:10px; height:14px; opacity:.9;
-    animation:confetti-fall var(--dur,2.8s) linear forwards;
-    transform: rotate(var(--rot,0deg));
-    }
-    @keyframes confetti-fall{ to{ transform: translateY(110vh) rotate(720deg); } }
+    /* ❤️ Corazones */
+    .hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
+    .heart-fall { position: absolute; top: -10vh; transform: translateY(-10vh); animation: heart-fall var(--dur, 4s) linear forwards; font-size: var(--size, 24px); }
+    @keyframes heart-fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-    /* Latido sutil (pulse) y brillo */
+    /* 🎊 Confeti + animaciones botón */
+    .confetti{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9998; }
+    .confetti-piece{ position:absolute; top:-10px; width:10px; height:14px; opacity:.9; animation:confetti-fall var(--dur,2.8s) linear forwards; transform: rotate(var(--rot,0deg)); }
+    @keyframes confetti-fall{ to{ transform: translateY(110vh) rotate(720deg); } }
     .action-button.btn-pulse{ animation:btn-pulse 2s ease-in-out infinite; }
     @keyframes btn-pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
-
-    .action-button.btn-glow{
-    box-shadow:0 0 0 rgba(233,30,99,0.0);
-    animation:btn-glow 2.2s ease-in-out infinite;
-    }
+    .action-button.btn-glow{ box-shadow:0 0 0 rgba(233,30,99,0.0); animation:btn-glow 2.2s ease-in-out infinite; }
     @keyframes btn-glow{ 0%,100%{box-shadow:0 0 0 rgba(233,30,99,.0)} 50%{box-shadow:0 0 18px rgba(233,30,99,.45)} }
-
-    /* Giro corto al hacer clic */
     .action-button.spin-once{ animation:spin .5s ease-out 1; }
     @keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
 
+    /* Juego */
     .catch-area{
-        position:relative; margin:10px auto; width:min(540px,90vw); height:220px;
-        background:rgba(255,255,255,.6); border:1px solid #f1b6c2; border-radius:12px;
-        overflow:hidden;
-        }
-        .catch-heart{
-        position:absolute; left:20px; top:20px; font-size:28px; cursor:pointer;
-        user-select:none; transition: transform .08s ease;
-        }
-        .catch-heart:active{ transform: scale(1.2); }
+      position:relative; margin:10px auto; width:min(540px,90vw); height:220px;
+      background:rgba(255,255,255,.6); border:1px solid #f1b6c2; border-radius:12px; overflow:hidden;
+    }
+    .catch-heart{
+      position:absolute; left:20px; top:20px; font-size:28px; cursor:pointer; user-select:none; transition: transform .08s ease;
+    }
+    .catch-heart:active{ transform: scale(1.2); }
 
-
+    /* 👾 Señuelos (decoys) */
+    .decoy{
+      position:absolute; user-select:none; cursor:pointer; opacity:0.85; transition: transform .08s ease;
+    }
+    .decoy:active{ transform: scale(1.15); }
   </style>
 </head>
 <body>
@@ -219,7 +134,7 @@
     <div class="title">⏳ Tiempo para reencontrarnos en Frankfurt ❤️</div>
     <div id="countdown" class="big">00d 00h 00m 00s</div>
     <div class="row">
-      <div class="chip">Objetivo (Franfurt): 2025-09-01 19:30</div>
+      <div class="chip">Objetivo (Frankfurt): 2025-09-01 19:30</div>
       <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
     </div>
   </div>
@@ -241,65 +156,61 @@
   <div class="panel">
     <button id="revealMsgBtn" class="action-button">Presioná acá para una sorpresa final...</button>
     <p id="secretMessage" style="display: none; margin-top: 15px; font-size: 1.1em; color: #c2185b; font-weight: bold;">
-      Hola mi pingüinita 🐧<br>
-
-        Te escribo algo con mi corazón en las manos.
-
-        Quiero desearte un muy feliz cumpleaños! 🎉🎂 Eres una persona que irradia alegría, felicidad y paz en cada paso que das. No dejes jamás que nadie borre esa sonrisa tan linda que tenés, ni esa mirada que tanto me gusta.<br>
-
-        Te extraño mucho. Me gustaría estar a tu lado para darte un fuerte abrazo y decirte cuánto te quiero y aprecio que estés en mi vida 💖<br>
-
-        Sé que llegará el día en que nos reencontremos y que toda la espera habrá valido la pena.<br>
-
-        Hasta entonces, a la distancia quiero decirte:<br>
-
-        TE AMO ❤️<br>
-
-        Tu Joel
+      Hola mi pingüinita 🐧<br><br>
+      Te escribo algo con mi corazón en las manos.
+      Quiero desearte un muy feliz cumpleaños! 🎉🎂 Eres una persona que irradia alegría, felicidad y paz en cada paso que das. No dejes jamás que nadie borre esa sonrisa tan linda que tenés, ni esa mirada que tanto me gusta.<br><br>
+      Te extraño mucho. Me gustaría estar a tu lado para darte un fuerte abrazo y decirte cuánto te quiero y aprecio que estés en mi vida 💖<br><br>
+      Sé que llegará el día en que nos reencontremos y que toda la espera habrá valido la pena.<br><br>
+      Hasta entonces, a la distancia quiero decirte:<br><br>
+      TE AMO ❤️<br><br>
+      Tu Joel
     </p>
   </div>
 
   <div id="player-container" style="display: none; margin-top: 15px; text-align: center;">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/lp-EO5I60KA?si=DLCe90L6gYqNGF8m" title="YouTube video player" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    <iframe
+      id="youtube-player"
+      width="560" height="315"
+      src="https://www.youtube.com/embed/lp-EO5I60KA?enablejsapi=1&playsinline=1&modestbranding=1&rel=0"
+      title="YouTube video player"
+      frameborder="0"
+      allow="autoplay; encrypted-media; picture-in-picture"
+      allowfullscreen></iframe>
   </div>
 
-  <!-- ❤️ NUEVO: contenedor de corazones -->
+  <!-- Corazones -->
   <div id="hearts" class="hearts" aria-hidden="true"></div>
 
-    <div class="panel">
-        <div class="title">Botón de mimos</div>
-        <button id="loveBtn" class="action-button">Más amor ❤️</button>
-        <p id="loveMsg" class="muted" style="margin-top:8px"></p>
-    </div>
-    <div class="panel">
-    <div class="title">Atrapa 15 corazones sino muero 💘</div>
-    
+  <div class="panel">
+    <div class="title">Botón de mimos</div>
+    <button id="loveBtn" class="action-button">Más amor ❤️</button>
+    <p id="loveMsg" class="muted" style="margin-top:8px"></p>
+  </div>
+
+  <div class="panel">
+    <div class="title">Atrapa 20 corazones antes que muera 💘</div>
     <div class="catch-area" id="catchArea">
-        <div class="catch-heart" id="catchHeart">💖</div>
+      <div class="catch-heart" id="catchHeart">💖</div>
     </div>
     <div class="row">
-        <button id="startCatch" class="action-button">🎯 Empezar / Reiniciar</button>
-        <div class="chip">Puntos: <span id="score">0</span></div>
-        <div class="chip">Tiempo: <span id="time">00:45</span></div>
-
-
+      <button id="startCatch" class="action-button">🎯 Empezar / Reiniciar</button>
+      <div class="chip">Puntos: <span id="score">0</span></div>
+      <div class="chip">Tiempo: <span id="time">00:45</span></div>
     </div>
-    </div>
+  </div>
 
-    <div class="panel">
+  <div class="panel">
     <div class="title">Un mensajito especial 💌</div>
     <p id="twTarget" class="muted" style="min-height:1.6em"></p>
     <button id="twBtn" class="action-button">✍️ Escribir de nuevo</button>
-    </div>
-
+  </div>
 
   <script>
-    // --- Lógica de los contadores (sin cambios) ---
+    // --- Contadores up/down ---
     const startBerlin = new Date("2025-08-12T06:30:00+02:00");
     const meetingBerlin = new Date("2025-09-01T19:30:00+02:00");
     const elUp = document.getElementById("countup");
     const elDown = document.getElementById("countdown");
-
     function fmtDHMS(totalSeconds) {
       const days = Math.floor(totalSeconds / 86400);
       const hours = Math.floor((totalSeconds % 86400) / 3600);
@@ -308,7 +219,6 @@
       const pad = n => String(n).padStart(2, "0");
       return `${pad(days)}d ${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`;
     }
-
     function tick() {
       const now = new Date();
       let diffUpMs = now - startBerlin;
@@ -330,13 +240,12 @@
     tick();
     setInterval(tick, 1000);
 
-    // --- Lógica de los botones (sin cambios previos) ---
+    // --- Mensaje secreto + corazones ---
     const playBtn = document.getElementById('playSongBtn');
     const revealBtn = document.getElementById('revealMsgBtn');
     const secretMsg = document.getElementById('secretMessage');
     const playerContainer = document.getElementById('player-container');
 
-    // ❤️ NUEVO: función para soltar corazones
     function dropHearts(count = 80) {
       const box = document.getElementById('hearts');
       for (let i = 0; i < count; i++) {
@@ -352,250 +261,186 @@
       }
     }
 
-    // Lógica del mensaje secreto + corazones
     revealBtn.addEventListener('click', () => {
       secretMsg.style.display = 'block';
       revealBtn.style.display = 'none';
-      dropHearts(90); // ❤️ lanza los corazones al presionar el botón final
+      dropHearts(90);
     });
 
-    // Lógica del reproductor
+    // Música
     playBtn.addEventListener('click', () => {
       playerContainer.style.display = 'block';
+      const player = document.getElementById('youtube-player');
+      player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}','*');
+      setTimeout(() => { window.open("https://youtu.be/lp-EO5I60KA", "_blank"); }, 800);
       playBtn.textContent = '🎶 ¡Espero que te guste princesa! ❤️';
       playBtn.style.backgroundColor = '#c2185b';
     });
-    // --- Botón de mimos: clics infinitos con corazones, frases y sorpresas ---
+
+    // Botón de mimos
     const loveBtn = document.getElementById('loveBtn');
     const loveMsg = document.getElementById('loveMsg');
-
     const phrases = [
-    'Te amo hasta la luna y de regreso 🌙',
-    'Eres mi lugar favorito en el mundo 🏡',
-    'Gracias por existir camarada ✨',
-    'Haces que KL sea un lugar mas lindo ☺️',
-    'Cada clic, te doy un beso virtual 😘',
-    'Te elijo hoy y siempre 💍',
-    'Mi corazón baila por ti 💃🕺',
-    'Los 15 son mi fecha preferida🥰',
-    'Tú + yo = 💯',
-    'Eres la reina de mi corazon 👸 ',
-    'Contigo todo es mejor mi limoncita💖',
-    'Eres mi persona favorita 🌟',
-    'Te debo un abrazo bien largo 🤗',
-    'No te pases de mimos que me conoces😯',
-    'Che detenete amor🤭',
-    'Esto esta yendo muy lejos😅',
-    'Castigada por exceso de mimos 👮‍♂️',
-    'Cada click me debes un beso mas💋'
-
+      'Te amo hasta la luna y de regreso 🌙','Eres mi lugar favorito en el mundo 🏡','Gracias por existir camarada ✨',
+      'Haces que KL sea un lugar mas lindo ☺️','Cada clic, te doy un beso virtual 😘','Te elijo hoy y siempre 💍',
+      'Mi corazón baila por ti 💃🕺','Los 15 son mi fecha preferida🥰','Tú + yo = 💯','Eres la reina de mi corazon 👸 ',
+      'Contigo todo es mejor mi limoncita💖','Eres mi persona favorita 🌟','Te debo un abrazo bien largo 🤗',
+      'No te pases de mimos que me conoces😯','Che detenete amor🤭','Esto esta yendo muy lejos😅',
+      'Castigada por exceso de mimos 👮‍♂️','Cada click me debes un beso mas💋'
     ];
-
     let clicks = Number(localStorage.getItem('loveClicks') || 0);
-
-    function updateLoveMsg(){
-    const text = `${phrases[clicks % phrases.length]}  •  Clics: ${clicks}`;
-    if (loveMsg) loveMsg.textContent = text;
-    }
+    function updateLoveMsg(){ const text = `${phrases[clicks % phrases.length]}  •  Clics: ${clicks}`; if (loveMsg) loveMsg.textContent = text; }
     updateLoveMsg();
-
     loveBtn?.addEventListener('click', () => {
-    clicks++;
-    localStorage.setItem('loveClicks', String(clicks));
-
-    // Mini lluvia de corazones (reutiliza tu dropHearts existente)
-    if (typeof dropHearts === 'function') {
-        dropHearts(5 + Math.floor(Math.random() * 8)); // 5–12 corazones
-    }
-
-    // Vibración sutil en móviles (si está disponible)
-    if (navigator.vibrate) navigator.vibrate([20, 20, 20]);
-
-    // Actualiza frase
-    updateLoveMsg();
-
-    // Sorpresas en hitos
-    if (clicks === 5 || clicks === 10 || clicks === 25|| clicks === 35 || clicks === 50 ) {
-        if (typeof dropHearts === 'function') dropHearts(25); // lluvia grande
-        alert('🎁 Sorpresa: Vale por una cena conmigo🤗');
-    }
+      clicks++; localStorage.setItem('loveClicks', String(clicks));
+      if (typeof dropHearts === 'function') dropHearts(5 + Math.floor(Math.random() * 8));
+      if (navigator.vibrate) navigator.vibrate([20, 20, 20]);
+      updateLoveMsg();
+      if ([5,10,25,35,50].includes(clicks)) { if (typeof dropHearts === 'function') dropHearts(25); alert('🎁 Sorpresa: Vale por una cena conmigo🤗'); }
     });
-        // 🎊 Confeti al abrir + animaciones en el botón (latido, brillo, giro)
+
+    // Confeti y animaciones del botón
     (function () {
-    // Crea el contenedor de confeti si no existe
-    const confettiBox = document.getElementById('confetti') || (function(){
-        const d = document.createElement('div');
-        d.id = 'confetti';
-        d.className = 'confetti';
-        document.body.appendChild(d);
-        return d;
-    })();
-
-    // Lanza un pequeño estallido de confeti
-    function confettiBurst(n = 40){
+      const confettiBox = document.getElementById('confetti') || (function(){
+        const d = document.createElement('div'); d.id = 'confetti'; d.className = 'confetti'; document.body.appendChild(d); return d;
+      })();
+      function confettiBurst(n = 40){
         for (let i = 0; i < n; i++){
-        const p = document.createElement('div');
-        p.className = 'confetti-piece';
-        p.style.left = (Math.random()*100) + 'vw';
-        p.style.background = `hsl(${Math.random()*360}, 90%, 60%)`;
-        p.style.animationDelay = (Math.random()*0.8) + 's';
-        p.style.setProperty('--dur', (2.4 + Math.random()*1.6) + 's');
-        p.style.setProperty('--rot', (Math.random()*360) + 'deg');
-        confettiBox.appendChild(p);
-        setTimeout(() => p.remove(), 4000);
+          const p = document.createElement('div'); p.className = 'confetti-piece';
+          p.style.left = (Math.random()*100) + 'vw'; p.style.background = `hsl(${Math.random()*360}, 90%, 60%)`;
+          p.style.animationDelay = (Math.random()*0.8) + 's'; p.style.setProperty('--dur', (2.4 + Math.random()*1.6) + 's');
+          p.style.setProperty('--rot', (Math.random()*360) + 'deg'); confettiBox.appendChild(p); setTimeout(() => p.remove(), 4000);
         }
-    }
-
-    // Confeti suave al abrir
-    window.addEventListener('load', () => confettiBurst(55));
-
-    // Animaciones en el botón “de mimos” (si existe en tu HTML)
-    const loveBtn = document.getElementById('loveBtn');
-    if (loveBtn){
-        // Latido + brillo siempre activos
+      }
+      window.addEventListener('load', () => confettiBurst(55));
+      if (loveBtn){
         loveBtn.classList.add('btn-pulse', 'btn-glow');
-
-        // Al hacer clic: giro corto + mini confeti extra
-        loveBtn.addEventListener('click', () => {
-        loveBtn.classList.add('spin-once');
-        setTimeout(() => loveBtn.classList.remove('spin-once'), 520);
-        confettiBurst(12);
-        });
-    }
+        loveBtn.addEventListener('click', () => { loveBtn.classList.add('spin-once'); setTimeout(() => loveBtn.classList.remove('spin-once'), 520); confettiBurst(12); });
+      }
+      // Expose for the game (optional)
+      window.confettiBurst = confettiBurst;
     })();
 
-// Mini-juego: Atrapa el corazón
-// Mini-juego: Atrapa el corazón (con dificultad progresiva + cuenta regresiva)
-(function(){
-  const area     = document.getElementById('catchArea');
-  const heart    = document.getElementById('catchHeart');
-  const startBtn = document.getElementById('startCatch');
-  const scoreEl  = document.getElementById('score');
-  const timeEl   = document.getElementById('time');
-  if(!area || !heart || !startBtn || !scoreEl || !timeEl) return;
+    /* =======================
+       Mini-juego mejorado
+       ======================= */
+    (function(){
+      const area     = document.getElementById('catchArea');
+      const heart    = document.getElementById('catchHeart');
+      const startBtn = document.getElementById('startCatch');
+      const scoreEl  = document.getElementById('score');
+      const timeEl   = document.getElementById('time');
+      if(!area || !heart || !startBtn || !scoreEl || !timeEl) return;
 
-  // Configurables:
-  const TARGET    = 15; // meta de corazones (coincide con tu título)
-  const DURATION  = 45; // segundos de juego
-  const BASE_MS   = 700; // intervalo base de movimiento (ms)
-  const MIN_MS    = 240; // mínimo (más rápido)
-  const STEP_MS   = 18;  // cuánto se acelera por corazón atrapado
+      // Config: misma meta/tiempo que tu UI
+      const TARGET    = 20;
+      const DURATION  = 45;
+      const BASE_MS   = 700;
+      const MIN_MS    = 240;
+      const STEP_MS   = 18;
 
-  let score = 0;
-  let running = false;
-  let moveTimer = null;
-  let countdownTimer = null;
-  let timeLeft = DURATION;
-  let msPerMove = BASE_MS;
+      let score = 0, running = false, moveTimer = null, countdownTimer = null, decoyTimer = null;
+      let timeLeft = DURATION, msPerMove = BASE_MS;
 
-  function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+      function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+      function formatMMSS(sec){ const m = Math.floor(sec/60), s = sec%60; return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
+      function updateTimerUI(){ timeEl.textContent = formatMMSS(timeLeft); timeEl.style.color = (timeLeft <= 5) ? '#c2185b' : ''; }
 
-  function formatMMSS(sec){
-    const m = Math.floor(sec/60), s = sec%60;
-    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  }
-
-  function updateTimerUI(){
-    timeEl.textContent = formatMMSS(timeLeft);
-    // Colorcito cuando queda poco tiempo
-    timeEl.style.color = (timeLeft <= 5) ? '#c2185b' : '';
-  }
-
-  function applyDifficulty(){
-    // A cada corazón atrapado, reduce el intervalo (más rápido)
-    msPerMove = Math.max(BASE_MS - score * STEP_MS, MIN_MS);
-  }
-
-  function scheduleMoveLoop(){
-    clearInterval(moveTimer);
-    moveTimer = setInterval(moveHeart, msPerMove);
-  }
-
-  function moveHeart(){
-    const rect = area.getBoundingClientRect();
-    const w = rect.width, h = rect.height;
-
-    // Tamaño va bajando un poco con la puntuación (pero con límite)
-    const maxSize = 42, minSize = 18;
-    const size = Math.max(minSize, maxSize - score * 0.8) + Math.random()*6;
-    heart.style.fontSize = size + 'px';
-
-    const x = rnd(10, Math.max(10, w - size - 10));
-    const y = rnd(10, Math.max(10, h - size - 10));
-    heart.style.left = x + 'px';
-    heart.style.top  = y + 'px';
-
-    // A partir de cierto puntaje, a veces "parpadea" (truco visual)
-    if (score >= 8 && Math.random() < 0.20) {
-      heart.style.opacity = '0';
-      setTimeout(() => heart.style.opacity = '1', 160);
-    }
-  }
-
-  function start(){
-    score = 0;
-    scoreEl.textContent = score;
-    running = true;
-
-    timeLeft = DURATION;
-    updateTimerUI();
-
-    applyDifficulty();
-    moveHeart();
-    scheduleMoveLoop();
-
-    clearInterval(countdownTimer);
-    countdownTimer = setInterval(() => {
-      timeLeft--;
-      updateTimerUI();
-      if (timeLeft <= 0) {
-        end(false); // se acabó el tiempo
+      // 🔥 Dificultad por tramos (más agresiva al subir)
+      function applyDifficulty(){
+        const k = (score < 8) ? STEP_MS : (score < 15) ? STEP_MS * 1.6 : STEP_MS * 2.2;
+        msPerMove = Math.max(BASE_MS - score * k, MIN_MS);
       }
-    }, 1000);
 
-    // confeti suave si existe esa función en tu página
-    if (typeof confettiBurst === 'function') confettiBurst(8);
-  }
+      function scheduleMoveLoop(){ clearInterval(moveTimer); moveTimer = setInterval(moveHeart, msPerMove); }
 
-  function end(won){
-    running = false;
-    clearInterval(moveTimer);
-    clearInterval(countdownTimer);
+      function moveHeart(){
+        const rect = area.getBoundingClientRect(), w = rect.width, h = rect.height;
+        const maxSize = 40, minSize = 16; // más pequeño con el tiempo
+        const size = Math.max(minSize, maxSize - score * 1.0) + Math.random()*4;
+        heart.style.fontSize = size + 'px';
+        const x = rnd(10, Math.max(10, w - size - 10));
+        const y = rnd(10, Math.max(10, h - size - 10));
+        heart.style.left = x + 'px'; heart.style.top  = y + 'px';
+        const blinkProb = Math.min(0.45, 0.08 + score * 0.02);
+        if (Math.random() < blinkProb) { heart.style.opacity = '0'; setTimeout(() => heart.style.opacity = '1', 140); }
+      }
 
-    if (won){
-      if (typeof dropHearts === 'function') dropHearts(60);
-      alert('¡Ganaste! Puntos: ' + score + ' 💖');
-    } else {
-      alert('⏳ Se acabó el tiempo. Puntos: ' + score + ' — ¡Inténtalo de nuevo!');
-    }
-  }
+      // 👾 Señuelos (decoys) que restan tiempo
+      function spawnDecoy(){
+        if (!running) return;
+        const d = document.createElement('div'); d.className = 'decoy';
+        d.textContent = (Math.random() < 0.5) ? '💔' : '🩷';
+        const rect = area.getBoundingClientRect(); const size = 22 + Math.random()*8;
+        d.style.fontSize = size + 'px';
+        d.style.left = Math.floor(Math.random()*(rect.width - size - 10)) + 5 + 'px';
+        d.style.top  = Math.floor(Math.random()*(rect.height - size - 10)) + 5 + 'px';
+        d.addEventListener('click', () => { timeLeft = Math.max(0, timeLeft - 2); updateTimerUI(); if (navigator.vibrate) navigator.vibrate(30); d.remove(); });
+        area.appendChild(d); setTimeout(() => d.remove(), 1200);
+      }
+      function scheduleDecoys(){ clearInterval(decoyTimer); const gap = Math.max(900, 1800 - score * 35); decoyTimer = setInterval(spawnDecoy, gap); }
 
-  heart.addEventListener('click', () => {
-    if (!running) return;
+      // ⚡ Rush (sprint) de 1 segundo
+      function rush(){
+        const prev = msPerMove;
+        msPerMove = Math.min(msPerMove, 120);
+        scheduleMoveLoop();
+        setTimeout(() => { msPerMove = prev; scheduleMoveLoop(); }, 1000);
+      }
 
-    score++;
-    scoreEl.textContent = score;
+      function start(){
+        score = 0; scoreEl.textContent = score; running = true;
+        timeLeft = DURATION; updateTimerUI();
+        applyDifficulty(); moveHeart(); scheduleMoveLoop(); scheduleDecoys();
 
-    // Vibración + mini corazones
-    if (navigator.vibrate) navigator.vibrate(20);
-    if (typeof dropHearts === 'function') dropHearts(6);
+        clearInterval(countdownTimer);
+        countdownTimer = setInterval(() => {
+          timeLeft--; updateTimerUI(); if (timeLeft <= 0) end(false);
+        }, 1000);
 
-    // ¿Ganó?
-    if (score >= TARGET) { end(true); return; }
+        if (typeof window.confettiBurst === 'function') window.confettiBurst(8);
+      }
 
-    // Sube dificultad y acelera el bucle de movimiento
-    applyDifficulty();
-    scheduleMoveLoop();
+      function end(won){
+        running = false; clearInterval(moveTimer); clearInterval(countdownTimer); clearInterval(decoyTimer);
+        if (won){ if (typeof dropHearts === 'function') dropHearts(60); alert('¡Ganaste Hermosa! sabia que me rescatarias. Puntos: ' + score + ' 💖'); }
+        else { alert('⏳ Se acabó el tiempo linda. Puntos: ' + score + ' — Intentalo de nuevo limona!'); }
+      }
 
-    // Reposiciona inmediatamente para que se sienta ágil
-    moveHeart();
-  });
+      heart.addEventListener('click', () => {
+        if (!running) return;
+        score++; scoreEl.textContent = score;
+        if (navigator.vibrate) navigator.vibrate(20);
+        if (typeof dropHearts === 'function') dropHearts(6);
+        if (score >= TARGET) { end(true); return; }
+        applyDifficulty(); scheduleMoveLoop(); scheduleDecoys(); moveHeart();
+        if (score >= 10 && Math.random() < 0.25) rush(); // sprints aleatorios
+      });
 
-  startBtn.addEventListener('click', start);
-})();
+      // 🏃‍♂️ “Dash” cuando el puntero se acerca
+      area.addEventListener('pointermove', (e) => {
+        if (!running || score < 6) return;
+        const r = heart.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width/2);
+        const dy = e.clientY - (r.top  + r.height/2);
+        if (Math.hypot(dx, dy) < 48 && Math.random() < 0.35) moveHeart();
+      });
 
+      startBtn.addEventListener('click', start);
+    })();
 
-
+    // (Opcional) typewriter
+    (function(){
+      const t = document.getElementById('twTarget');
+      const b = document.getElementById('twBtn');
+      if(!t || !b) return;
+      const TEXT = 'Eres mi siempre. Gracias por existir en mi vida 💖';
+      function typewrite(el, text, speed=28){
+        el.textContent = ''; let i=0;
+        const id = setInterval(()=>{ el.textContent += text[i] || ''; i++; if(i>text.length) clearInterval(id); }, speed);
+      }
+      b.addEventListener('click', ()=> typewrite(t, TEXT));
+    })();
   </script>
 </body>
 </html>
