@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feliz Cumple ❤️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.youtube.com/iframe_api"></script>
+  
+  <style>
+    /* Estilos base */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(to right, #ff9a9e, #fad0c4);
+      font-family: 'Quicksand', sans-serif; /* Nueva fuente base */
+      color: #333;
+      flex-direction: column;
+      padding: 16px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    .panel {
+      background: rgba(255,255,255,0.75);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin: 10px 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      max-width: 700px;
+      width: 100%;
+      /* Animación de aparición */
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    /* Títulos y textos */
+    h1 {
+      font-family: 'Pacifico', cursive; /* Nueva fuente para el título */
+      font-size: 2.8em;
+      margin: 0 0 6px 0;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    h2 {
+      margin: 0 0 14px 0;
+      font-weight: normal;
+      color: #111;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 0.2s forwards;
+    }
+    .title {
+      font-size: 1.1em;
+      color: #222;
+      margin-bottom: 8px;
+    }
+    .big {
+      font-size: 2.2em;
+      font-weight: bold;
+      color: #222;
+      letter-spacing: .5px;
+    }
+    .muted { color: #555; }
+
+    /* Estilos para contadores */
+    .row {
+      display: inline-flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 6px;
+    }
+    .chip {
+      background: #fff;
+      border: 1px solid #f1b6c2;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 0.95em;
+      color: #444;
+    }
+    
+    /* 2. Estilos para la galería de fotos */
+    .photo-gallery {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .photo-gallery img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .photo-gallery img:hover {
+      transform: scale(1.1) rotate(3deg);
+    }
+
+    /* 3. Estilos para los botones de acción */
+    .action-button {
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .action-button:hover {
+      background-color: #c2185b;
+    }
+
+    /* 4. Animaciones */
+    .heart {
+      color: #e91e63;
+      display: inline-block;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* Retraso en la animación para un efecto escalonado */
+    .panel:nth-of-type(1) { animation-delay: 0.4s; }
+    .panel:nth-of-type(2) { animation-delay: 0.6s; }
+    .panel:nth-of-type(3) { animation-delay: 0.8s; }
+    .panel:nth-of-type(4) { animation-delay: 1.0s; }
+    .panel:nth-of-type(5) { animation-delay: 1.2s; }
+
+    /* ❤️ NUEVO: capa de corazones en pantalla */
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9999;
+    }
+    .heart-fall {
+      position: absolute;
+      top: -10vh;
+      transform: translateY(-10vh);
+      animation: heart-fall var(--dur, 4s) linear forwards;
+      font-size: var(--size, 24px);
+    }
+    @keyframes heart-fall {
+      to { transform: translateY(110vh) rotate(360deg); }
+    }
+    /* 🎊 Confeti + animaciones del botón */
+    .confetti{
+    position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9998;
+    }
+    .confetti-piece{
+    position:absolute; top:-10px; width:10px; height:14px; opacity:.9;
+    animation:confetti-fall var(--dur,2.8s) linear forwards;
+    transform: rotate(var(--rot,0deg));
+    }
+    @keyframes confetti-fall{ to{ transform: translateY(110vh) rotate(720deg); } }
+
+    /* Latido sutil (pulse) y brillo */
+    .action-button.btn-pulse{ animation:btn-pulse 2s ease-in-out infinite; }
+    @keyframes btn-pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+    .action-button.btn-glow{
+    box-shadow:0 0 0 rgba(233,30,99,0.0);
+    animation:btn-glow 2.2s ease-in-out infinite;
+    }
+    @keyframes btn-glow{ 0%,100%{box-shadow:0 0 0 rgba(233,30,99,.0)} 50%{box-shadow:0 0 18px rgba(233,30,99,.45)} }
+
+    /* Giro corto al hacer clic */
+    .action-button.spin-once{ animation:spin .5s ease-out 1; }
+    @keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+    .catch-area{
+        position:relative; margin:10px auto; width:min(540px,90vw); height:220px;
+        background:rgba(255,255,255,.6); border:1px solid #f1b6c2; border-radius:12px;
+        overflow:hidden;
+        }
+        .catch-heart{
+        position:absolute; left:20px; top:20px; font-size:28px; cursor:pointer;
+        user-select:none; transition: transform .08s ease;
+        }
+        .catch-heart:active{ transform: scale(1.2); }
+
+
+  </style>
+</head>
+<body>
+
+  <h1>Feliz Cumpleaños amor 🎉🎂💖</h1>
+  <h2 class="muted">Que este día esté lleno de sonrisas y de nosotros 🥰 te extraño mucho </h2>
+
+  <div class="panel" aria-live="polite">
+    <div class="title">Tiempo desde la ultima vez que nos vimos (12 ago 2025, 06:30 – Frankfurt)</div>
+    <div id="countup" class="big">00d 00h 00m 00s</div>
+    <div class="row">
+      <div class="chip">Cuenta ↑ desde: 2025-08-12 06:30 (CEST)</div>
+      <div class="chip">Zona: Frankfurt</div>
+    </div>
+  </div>
+
+  <div class="panel" aria-live="polite">
+    <div class="title">⏳ Tiempo para reencontrarnos en Frankfurt ❤️</div>
+    <div id="countdown" class="big">00d 00h 00m 00s</div>
+    <div class="row">
+      <div class="chip">Objetivo (Franfurt): 2025-09-01 19:30</div>
+      <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="title">Nuestros Bellos Momentos ✨</div>
+    <div class="photo-gallery">
+      <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Recuerdo bonito 1">
+      <img src="https://i.imgur.com/CSPi1DN.jpeg" alt="Recuerdo bonito 2">
+      <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Recuerdo bonito 3">
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="title">Dale play a nuestra canción 🎶</div>
+    <button id="playSongBtn" class="action-button">▶️ Escuchar nuestra canción</button>
+  </div>
+
+  <div class="panel">
+    <button id="revealMsgBtn" class="action-button">Presioná acá para una sorpresa final...</button>
+    <p id="secretMessage" style="display: none; margin-top: 15px; font-size: 1.1em; color: #c2185b; font-weight: bold;">
+      Hola mi pingüinita 🐧<br>
+
+        Te escribo algo con mi corazón en las manos.
+
+        Quiero desearte un muy feliz cumpleaños! 🎉🎂 Eres una persona que irradia alegría, felicidad y paz en cada paso que das. No dejes jamás que nadie borre esa sonrisa tan linda que tenés, ni esa mirada que tanto me gusta.<br>
+
+        Te extraño mucho. Me gustaría estar a tu lado para darte un fuerte abrazo y decirte cuánto te quiero y aprecio que estés en mi vida 💖<br>
+
+        Sé que llegará el día en que nos reencontremos y que toda la espera habrá valido la pena.<br>
+
+        Hasta entonces, a la distancia quiero decirte:<br>
+
+        TE AMO ❤️<br>
+
+        Tu Joel
+    </p>
+  </div>
+
+  <div id="player-container" style="display: none; margin-top: 15px; text-align: center;">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/lp-EO5I60KA?si=DLCe90L6gYqNGF8m" title="YouTube video player" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+  </div>
+
+  <!-- ❤️ NUEVO: contenedor de corazones -->
+  <div id="hearts" class="hearts" aria-hidden="true"></div>
+
+    <div class="panel">
+        <div class="title">Botón de mimos</div>
+        <button id="loveBtn" class="action-button">Más amor ❤️</button>
+        <p id="loveMsg" class="muted" style="margin-top:8px"></p>
+    </div>
+    <div class="panel">
+    <div class="title">Atrapa 15 corazones sino muero 💘</div>
+    
+    <div class="catch-area" id="catchArea">
+        <div class="catch-heart" id="catchHeart">💖</div>
+    </div>
+    <div class="row">
+        <button id="startCatch" class="action-button">🎯 Empezar / Reiniciar</button>
+        <div class="chip">Puntos: <span id="score">0</span></div>
+        <div class="chip">Tiempo: <span id="time">00:45</span></div>
+
+
+    </div>
+    </div>
+
+    <div class="panel">
+    <div class="title">Un mensajito especial 💌</div>
+    <p id="twTarget" class="muted" style="min-height:1.6em"></p>
+    <button id="twBtn" class="action-button">✍️ Escribir de nuevo</button>
+    </div>
+
+
+  <script>
+    // --- Lógica de los contadores (sin cambios) ---
+    const startBerlin = new Date("2025-08-12T06:30:00+02:00");
+    const meetingBerlin = new Date("2025-09-01T19:30:00+02:00");
+    const elUp = document.getElementById("countup");
+    const elDown = document.getElementById("countdown");
+
+    function fmtDHMS(totalSeconds) {
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+      const pad = n => String(n).padStart(2, "0");
+      return `${pad(days)}d ${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`;
+    }
+
+    function tick() {
+      const now = new Date();
+      let diffUpMs = now - startBerlin;
+      if (diffUpMs < 0) {
+        const secsToStart = Math.floor((-diffUpMs) / 1000);
+        elUp.textContent = "Empieza en " + fmtDHMS(secsToStart);
+      } else {
+        const secsUp = Math.floor(diffUpMs / 1000);
+        elUp.textContent = fmtDHMS(secsUp);
+      }
+      let diffDownMs = meetingBerlin - now;
+      if (diffDownMs <= 0) {
+        elDown.textContent = "🎉 ¡Es el momento de vernos! ❤️";
+      } else {
+        const secsDown = Math.floor(diffDownMs / 1000);
+        elDown.textContent = fmtDHMS(secsDown);
+      }
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    // --- Lógica de los botones (sin cambios previos) ---
+    const playBtn = document.getElementById('playSongBtn');
+    const revealBtn = document.getElementById('revealMsgBtn');
+    const secretMsg = document.getElementById('secretMessage');
+    const playerContainer = document.getElementById('player-container');
+
+    // ❤️ NUEVO: función para soltar corazones
+    function dropHearts(count = 80) {
+      const box = document.getElementById('hearts');
+      for (let i = 0; i < count; i++) {
+        const d = document.createElement('div');
+        d.className = 'heart-fall';
+        d.textContent = Math.random() < 0.5 ? '💖' : '❤️';
+        d.style.left = (Math.random() * 100) + 'vw';
+        d.style.animationDelay = (Math.random() * 1.5) + 's';
+        d.style.setProperty('--dur', (3 + Math.random() * 3) + 's');
+        d.style.setProperty('--size', (18 + Math.random() * 28) + 'px');
+        box.appendChild(d);
+        setTimeout(() => d.remove(), 7000);
+      }
+    }
+
+    // Lógica del mensaje secreto + corazones
+    revealBtn.addEventListener('click', () => {
+      secretMsg.style.display = 'block';
+      revealBtn.style.display = 'none';
+      dropHearts(90); // ❤️ lanza los corazones al presionar el botón final
+    });
+
+    // Lógica del reproductor
+    playBtn.addEventListener('click', () => {
+      playerContainer.style.display = 'block';
+      playBtn.textContent = '🎶 ¡Espero que te guste princesa! ❤️';
+      playBtn.style.backgroundColor = '#c2185b';
+    });
+    // --- Botón de mimos: clics infinitos con corazones, frases y sorpresas ---
+    const loveBtn = document.getElementById('loveBtn');
+    const loveMsg = document.getElementById('loveMsg');
+
+    const phrases = [
+    'Te amo hasta la luna y de regreso 🌙',
+    'Eres mi lugar favorito en el mundo 🏡',
+    'Gracias por existir camarada ✨',
+    'Haces que KL sea un lugar mas lindo ☺️',
+    'Cada clic, te doy un beso virtual 😘',
+    'Te elijo hoy y siempre 💍',
+    'Mi corazón baila por ti 💃🕺',
+    'Los 15 son mi fecha preferida🥰',
+    'Tú + yo = 💯',
+    'Eres la reina de mi corazon 👸 ',
+    'Contigo todo es mejor mi limoncita💖',
+    'Eres mi persona favorita 🌟',
+    'Te debo un abrazo bien largo 🤗',
+    'No te pases de mimos que me conoces😯',
+    'Che detenete amor🤭',
+    'Esto esta yendo muy lejos😅',
+    'Castigada por exceso de mimos 👮‍♂️',
+    'Cada click me debes un beso mas💋'
+
+    ];
+
+    let clicks = Number(localStorage.getItem('loveClicks') || 0);
+
+    function updateLoveMsg(){
+    const text = `${phrases[clicks % phrases.length]}  •  Clics: ${clicks}`;
+    if (loveMsg) loveMsg.textContent = text;
+    }
+    updateLoveMsg();
+
+    loveBtn?.addEventListener('click', () => {
+    clicks++;
+    localStorage.setItem('loveClicks', String(clicks));
+
+    // Mini lluvia de corazones (reutiliza tu dropHearts existente)
+    if (typeof dropHearts === 'function') {
+        dropHearts(5 + Math.floor(Math.random() * 8)); // 5–12 corazones
+    }
+
+    // Vibración sutil en móviles (si está disponible)
+    if (navigator.vibrate) navigator.vibrate([20, 20, 20]);
+
+    // Actualiza frase
+    updateLoveMsg();
+
+    // Sorpresas en hitos
+    if (clicks === 5 || clicks === 10 || clicks === 25|| clicks === 35 || clicks === 50 ) {
+        if (typeof dropHearts === 'function') dropHearts(25); // lluvia grande
+        alert('🎁 Sorpresa: Vale por una cena conmigo🤗');
+    }
+    });
+        // 🎊 Confeti al abrir + animaciones en el botón (latido, brillo, giro)
+    (function () {
+    // Crea el contenedor de confeti si no existe
+    const confettiBox = document.getElementById('confetti') || (function(){
+        const d = document.createElement('div');
+        d.id = 'confetti';
+        d.className = 'confetti';
+        document.body.appendChild(d);
+        return d;
+    })();
+
+    // Lanza un pequeño estallido de confeti
+    function confettiBurst(n = 40){
+        for (let i = 0; i < n; i++){
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = (Math.random()*100) + 'vw';
+        p.style.background = `hsl(${Math.random()*360}, 90%, 60%)`;
+        p.style.animationDelay = (Math.random()*0.8) + 's';
+        p.style.setProperty('--dur', (2.4 + Math.random()*1.6) + 's');
+        p.style.setProperty('--rot', (Math.random()*360) + 'deg');
+        confettiBox.appendChild(p);
+        setTimeout(() => p.remove(), 4000);
+        }
+    }
+
+    // Confeti suave al abrir
+    window.addEventListener('load', () => confettiBurst(55));
+
+    // Animaciones en el botón “de mimos” (si existe en tu HTML)
+    const loveBtn = document.getElementById('loveBtn');
+    if (loveBtn){
+        // Latido + brillo siempre activos
+        loveBtn.classList.add('btn-pulse', 'btn-glow');
+
+        // Al hacer clic: giro corto + mini confeti extra
+        loveBtn.addEventListener('click', () => {
+        loveBtn.classList.add('spin-once');
+        setTimeout(() => loveBtn.classList.remove('spin-once'), 520);
+        confettiBurst(12);
+        });
+    }
+    })();
+
+// Mini-juego: Atrapa el corazón
+// Mini-juego: Atrapa el corazón (con dificultad progresiva + cuenta regresiva)
+(function(){
+  const area     = document.getElementById('catchArea');
+  const heart    = document.getElementById('catchHeart');
+  const startBtn = document.getElementById('startCatch');
+  const scoreEl  = document.getElementById('score');
+  const timeEl   = document.getElementById('time');
+  if(!area || !heart || !startBtn || !scoreEl || !timeEl) return;
+
+  // Configurables:
+  const TARGET    = 15; // meta de corazones (coincide con tu título)
+  const DURATION  = 45; // segundos de juego
+  const BASE_MS   = 700; // intervalo base de movimiento (ms)
+  const MIN_MS    = 240; // mínimo (más rápido)
+  const STEP_MS   = 18;  // cuánto se acelera por corazón atrapado
+
+  let score = 0;
+  let running = false;
+  let moveTimer = null;
+  let countdownTimer = null;
+  let timeLeft = DURATION;
+  let msPerMove = BASE_MS;
+
+  function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function formatMMSS(sec){
+    const m = Math.floor(sec/60), s = sec%60;
+    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+
+  function updateTimerUI(){
+    timeEl.textContent = formatMMSS(timeLeft);
+    // Colorcito cuando queda poco tiempo
+    timeEl.style.color = (timeLeft <= 5) ? '#c2185b' : '';
+  }
+
+  function applyDifficulty(){
+    // A cada corazón atrapado, reduce el intervalo (más rápido)
+    msPerMove = Math.max(BASE_MS - score * STEP_MS, MIN_MS);
+  }
+
+  function scheduleMoveLoop(){
+    clearInterval(moveTimer);
+    moveTimer = setInterval(moveHeart, msPerMove);
+  }
+
+  function moveHeart(){
+    const rect = area.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+
+    // Tamaño va bajando un poco con la puntuación (pero con límite)
+    const maxSize = 42, minSize = 18;
+    const size = Math.max(minSize, maxSize - score * 0.8) + Math.random()*6;
+    heart.style.fontSize = size + 'px';
+
+    const x = rnd(10, Math.max(10, w - size - 10));
+    const y = rnd(10, Math.max(10, h - size - 10));
+    heart.style.left = x + 'px';
+    heart.style.top  = y + 'px';
+
+    // A partir de cierto puntaje, a veces "parpadea" (truco visual)
+    if (score >= 8 && Math.random() < 0.20) {
+      heart.style.opacity = '0';
+      setTimeout(() => heart.style.opacity = '1', 160);
+    }
+  }
+
+  function start(){
+    score = 0;
+    scoreEl.textContent = score;
+    running = true;
+
+    timeLeft = DURATION;
+    updateTimerUI();
+
+    applyDifficulty();
+    moveHeart();
+    scheduleMoveLoop();
+
+    clearInterval(countdownTimer);
+    countdownTimer = setInterval(() => {
+      timeLeft--;
+      updateTimerUI();
+      if (timeLeft <= 0) {
+        end(false); // se acabó el tiempo
+      }
+    }, 1000);
+
+    // confeti suave si existe esa función en tu página
+    if (typeof confettiBurst === 'function') confettiBurst(8);
+  }
+
+  function end(won){
+    running = false;
+    clearInterval(moveTimer);
+    clearInterval(countdownTimer);
+
+    if (won){
+      if (typeof dropHearts === 'function') dropHearts(60);
+      alert('¡Ganaste! Puntos: ' + score + ' 💖');
+    } else {
+      alert('⏳ Se acabó el tiempo. Puntos: ' + score + ' — ¡Inténtalo de nuevo!');
+    }
+  }
+
+  heart.addEventListener('click', () => {
+    if (!running) return;
+
+    score++;
+    scoreEl.textContent = score;
+
+    // Vibración + mini corazones
+    if (navigator.vibrate) navigator.vibrate(20);
+    if (typeof dropHearts === 'function') dropHearts(6);
+
+    // ¿Ganó?
+    if (score >= TARGET) { end(true); return; }
+
+    // Sube dificultad y acelera el bucle de movimiento
+    applyDifficulty();
+    scheduleMoveLoop();
+
+    // Reposiciona inmediatamente para que se sienta ágil
+    moveHeart();
+  });
+
+  startBtn.addEventListener('click', start);
+})();
+
+
+
+  </script>
+</body>
+</html>
