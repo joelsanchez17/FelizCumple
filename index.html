@@ -374,8 +374,8 @@
     const TARGET    = 20;  // meta (pon 15 si aún cuesta)
     const DURATION  = 80;  // segundos
     const BASE_MS   = 700; // intervalo base de movimiento
-    const MIN_MS    = 270; // velocidad máxima (menor = más rápido)
-    const STEP_MS   = 13;  // cuánto acelera por acierto
+    const MIN_MS    = 290; // velocidad máxima (menor = más rápido)
+    const STEP_MS   = 12;  // cuánto acelera por acierto
     const MIN_JUMP  = 70;  // salto mínimo (px) entre posiciones
 
     // Estado
@@ -540,6 +540,12 @@
   thumbs.forEach(t => t.addEventListener('click', () => { img.src = t.src; box.style.display='flex'; }));
   box.addEventListener('click', () => { box.style.display='none'; img.src=''; });
 })();
+
+function applyDifficulty(){
+  // score efectivo: hasta 15 normal, luego sólo 35% del incremento
+  const eff = (score <= 13) ? score : 12 + (score - 12) * 0.35;
+  msPerMove = Math.max(BASE_MS - eff * STEP_MS, MIN_MS);
+}
 
 
   </script>
