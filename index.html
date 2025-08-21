@@ -350,7 +350,7 @@
       'Mi corazón baila por ti 💃🕺','Los 15 son mi fecha preferida🥰','Tú + yo = 💯','Eres la reina de mi corazon 👸 ',
       'Contigo todo es mejor mi limoncita💖','Eres mi persona favorita 🌟','Te debo un abrazo bien largo 🤗',
       'No te pases de mimos que me conoces😯','Che detenete amor🤭','Esto esta yendo muy lejos😅',
-      'Castigada por exceso de mimos 👮‍♂️','Cada click me debes un beso mas💋'
+      'Castigada por exceso de mimos 👮‍♂️','Cada click me debes un beso mas💋','Cada día te amo más','Cuantos mimos🥰 ','Regresa pronto🥺'
     ];
     let clicks = Number(localStorage.getItem('loveClicks') || 0);
     function updateLoveMsg(){ const text = `${phrases[clicks % phrases.length]}  •  Clics: ${clicks}`; if (loveMsg) loveMsg.textContent = text; }
@@ -494,7 +494,7 @@
 
     function end(won){
       running = false; clearInterval(moveTimer); clearInterval(countdownTimer); clearInterval(decoyTimer);
-      if (won){ if (typeof dropHearts==='function') dropHearts(60); alert('¡Me has salvado amor, eres mi heroina 🦸‍♀️' + score + ' 💖'); }
+      if (won){ if (typeof dropHearts==='function') dropHearts(60); alert('¡Me salvaste linda, eres mi heroina 🦸‍♀️ Tu premio te espera en KL 🥳🎁' + score + ' 💖'); }
       else { alert('⏳ Noooh mi ciela💅 se te acabó el tiempo. Atrapaste: ' + score + ' — ¡Salvame limona🍋!'); }
     }
 
@@ -606,8 +606,6 @@ function applyDifficulty(){
     }
   });
 })();
-
-
 
   </script>
 </body>
