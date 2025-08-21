@@ -121,6 +121,14 @@
     .meetbar #meetProgress{height:100%;width:0%;background:#e91e63;transition:width .6s ease;border-radius:999px}
     .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:9999}
     .lightbox img{max-width:92vw;max-height:92vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+/* Imagen del saludito */
+    .saludo-img{
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    animation: fadeIn .35s ease-out both;
+    }
 
 
   </style>
@@ -176,9 +184,10 @@
     <div class="title">Nuestros Bellos Momentos ✨</div>
     <div class="photo-gallery">
       <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Recuerdo bonito 1">
-      <img src="https://i.imgur.com/CSPi1DN.jpeg" alt="Recuerdo bonito 2">
+      <img src="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg" alt="Recuerdo bonito 2">
       <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Recuerdo bonito 3">
     </div>
+    <div class="title"> presiona  💌</div>
   </div>
 
   <div class="panel">
@@ -224,6 +233,24 @@
     <div class="title">Un mensajito especial 💌</div>
     <p id="twTarget" class="muted" style="min-height:1.6em"></p>
     <button id="twBtn" class="action-button">✍️ Escribir de nuevo</button>
+    </div>
+ <div class="panel">
+    <div class="title">Alguien más quiso ser parte …</div>
+    <button id="saludoBtn" class="action-button">Un saludito especial</button>
+    <div id="saludoBox" style="display:none; margin-top:12px;">
+        <img
+        id="saludoImg"
+        class="saludo-img"
+        src="https://joelsanchez17.github.io/FelizCumple/saludito.jpg"
+        alt="Saludito especial"
+        loading="lazy">
+        <p id="saludoText" class="muted" style="margin-top:8px;">
+        Un fuerte abrazo fraterno Compatriota,<br> ¡Feliz Cumpleaños! Que tengas mucha salud, alegría y que nunca falte la esperanza en un Ecuador mejor 🇪🇨
+        </p>
+    </div>
+    
+
+        
   </div>
     <div class="panel">
     <button id="revealMsgBtn" class="action-button">Presioná acá para una sorpresa final...</button>
@@ -560,6 +587,25 @@ function applyDifficulty(){
 
   msPerMove = Math.max(BASE_MS - eff * STEP_MS, MIN_MS);
 }
+// Botón "un saludito especial": revela una imagen una sola vez
+    (function(){
+  const btn = document.getElementById('saludoBtn');
+  const box = document.getElementById('saludoBox');
+  if(!btn || !box) return;
+
+  btn.addEventListener('click', () => {
+    const isHidden = (box.style.display === 'none' || box.style.display === '');
+    box.style.display = isHidden ? 'block' : 'none';
+
+    // Efectos SOLO cuando pasa a visible
+    if (isHidden) {
+      if (typeof dropHearts === 'function') dropHearts(50);
+      if (typeof window.confettiBurst === 'function') window.confettiBurst(20);
+      if (navigator.vibrate) navigator.vibrate(20);
+    }
+  });
+})();
+
 
 
   </script>
