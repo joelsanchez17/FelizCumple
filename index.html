@@ -193,6 +193,7 @@
   <div class="panel">
     <div class="title">Dale play a nuestra canción 🎶</div>
     <button id="playSongBtn" class="action-button">▶️ Escuchar nuestra canción</button>
+    <div class="title"> para que escuches de fondo 🎤🎵</div>
   </div>
 
 
@@ -201,7 +202,7 @@
     <iframe
       id="youtube-player"
       width="560" height="315"
-      src="https://www.youtube.com/embed/lp-EO5I60KA?enablejsapi=1&playsinline=1&modestbranding=1&rel=0"
+      src="https://www.youtube.com/embed/450p7goxZqg?si=U8xQUahZ3uw4mHt_"
       title="YouTube video player"
       frameborder="0"
       allow="autoplay; encrypted-media; picture-in-picture"
@@ -335,7 +336,7 @@
       playerContainer.style.display = 'block';
       const player = document.getElementById('youtube-player');
       player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}','*');
-      setTimeout(() => { window.open("https://youtu.be/lp-EO5I60KA", "_blank"); }, 800);
+      setTimeout(() => { window.open("https://youtu.be/450p7goxZqg", "_blank"); }, 800);
       playBtn.textContent = '🎶 ¡Espero que te guste princesa! ❤️';
       playBtn.style.backgroundColor = '#c2185b';
     });
