@@ -129,6 +129,71 @@
     box-shadow: 0 8px 24px rgba(0,0,0,.15);
     animation: fadeIn .35s ease-out both;
     }
+    /* Quiz */
+.quiz-grid{ display:grid; gap:8px; grid-template-columns:1fr; }
+  @media (min-width:480px){ .quiz-grid{ grid-template-columns:1fr 1fr; } }
+
+  .quiz-btn{
+    display:block; width:100%;
+    background:#fff; color:#333; border:1px solid #f1b6c2;
+    padding:10px 12px; border-radius:10px; cursor:pointer;
+    text-align:center; transition:transform .06s ease, background-color .2s ease, border-color .2s ease;
+  }
+  .quiz-btn:active{ transform:scale(0.98); }
+  .quiz-btn.correct{ background:#e8f5e9; border-color:#43a047; }
+  .quiz-btn.wrong{ background:#ffebee; border-color:#c62828; }
+
+  .shake{ animation:quiz-shake .28s ease; }
+  @keyframes quiz-shake{
+    10%, 90% {transform:translateX(-2px)}
+    20%, 80% {transform:translateX(4px)}
+    30%, 50%, 70% {transform:translateX(-6px)}
+    40%, 60% {transform:translateX(6px)}
+  }
+  /* Cartel que cae (update banner) */
+.update-drop{
+  position: fixed;
+  left: 50%;
+  top: 0;                      /* ✅ empieza desde 0 */
+  transform: translateX(-50%);
+  z-index: 10000;
+  background: linear-gradient(90deg,#fff3cd,#ffe0b2);
+  color: #5d4037;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 12px 30px rgba(0,0,0,.2);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0;
+}
+
+.update-drop .update-close{
+  margin-left: 8px; border: none; background: #e91e63; color: #fff;
+  font-weight: 700; padding: 4px 10px; border-radius: 10px; cursor: pointer;
+}
+.update-drop .update-close:active{ transform: translateY(1px); }
+
+/* Animación de caída + pequeño rebote */
+.update-drop.show{
+  animation: update-drop-in 900ms cubic-bezier(.2,.8,.2,1) forwards;
+  opacity: 1; /* <-- stay visible after the animation ends */
+}
+@keyframes update-drop-in{
+  0%   { transform: translate(-50%,-200px) rotate(-3deg); opacity: 0; }
+  60%  { transform: translate(-50%,16vh)  rotate(1deg);  opacity: 1; }
+  80%  { transform: translate(-50%,13vh)  rotate(0deg);  }
+  100% { transform: translate(-50%,14.5vh) rotate(0deg); }
+}
+
+/* Desvanecer al cerrar */
+.update-drop.fade{ transition: opacity .35s ease, transform .35s ease; opacity: 0; transform: translate(-50%, -40px); }
+
+/* Respeta “Reducir movimiento” en iOS/Android */
+@media (prefers-reduced-motion: reduce){
+  .update-drop.show{ animation: none; top: 14.5vh; opacity: 1; }
+}
+
+
 
 
   </style>
@@ -152,6 +217,15 @@
 
 </head>
 <body>
+    <!-- Cartel de actualización -->
+  <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
+    <span style="font-size:1.3em">🍋</span>
+    <div>
+      <strong>Nueva actualización, limoncita</strong><br>
+      <small>¡Mira las sorpresas al final!</small>
+    </div>
+    <button class="update-close" aria-label="Cerrar">✕</button>
+  </div>
 
   <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
   <h2 class="muted">Que este día esté lleno de sonrisas y de nosotros 🥰 <br>Te extraño mucho </h2>
@@ -232,6 +306,9 @@
     </div>
   </div>
 
+
+
+
   <div class="panel">
     <div class="title">Un mensajito especial 💌</div>
     <p id="twTarget" class="muted" style="min-height:1.6em"></p>
@@ -270,7 +347,24 @@
   </div>
   <div id="lightbox" class="lightbox" aria-hidden="true"><img id="lightImg" alt=""></div>
 
+    <div class="panel" id="quizPanel" aria-live="polite">
+      <div class="title">Mini-quiz de nosotros 💞</div>
 
+      <div class="chip">Pregunta <span id="quizNum">1</span> de <span id="quizTotal">1</span> •
+        Aciertos: <span id="quizScore">0</span>
+      </div>
+
+      <h3 id="quizQ" class="muted" style="margin:10px 0 8px 0">Cargando…</h3>
+
+      <div id="quizOpts" class="quiz-grid" role="listbox" aria-labelledby="quizQ"></div>
+
+      <p id="quizFeedback" class="muted" style="min-height:1.6em; margin-top:8px;"></p>
+
+        <div class="row" style="margin-top:10px;">
+          <button id="quizNext" class="action-button" style="display:none;">Siguiente ➜</button>
+          <button id="quizRestart" class="action-button" style="display:none;">Reiniciar 🔁</button>
+        </div>
+            </div>
   <script>
     // --- Contadores up/down ---
     const startBerlin = new Date("2025-08-12T06:30:00+02:00");
@@ -548,7 +642,7 @@
       const t = document.getElementById('twTarget');
       const b = document.getElementById('twBtn');
       if(!t || !b) return;
-      const TEXT = 'Eres mi siempre. Gracias por existir en mi vida 💖';
+      const TEXT = 'Eres mi siempre. Gracias por existir en mi vida 💖 Vamos por muchos más cumpleaños juntos';
       function typewrite(el, text, speed=28){
         el.textContent = ''; let i=0;
         const id = setInterval(()=>{ el.textContent += text[i] || ''; i++; if(i>text.length) clearInterval(id); }, speed);
@@ -608,6 +702,256 @@ function applyDifficulty(){
     }
   });
 })();
+
+// =======================
+// Mini-quiz de la relación
+// =======================
+(function(){
+  // 1) Edita estas preguntas a tu gusto (texto y opciones)
+  //    - correct: índice de la respuesta correcta en 'options' (empezando en 0)
+  const QUESTIONS = [
+    {
+      q: "¿Cuando fué nuestra primera cita pingüinita ?",
+      options: ["5 de noviemnbre", "9 de noviembre", "12 de noviembre", "23 de noviembre"],
+      correct: 1,
+      msgOk: "Siiii, esa fue nuestra primera cita! ❤️",
+      msgNo: "Casi tortuguita… acordate de esa hamburguesa 🍔 "
+    },
+    {
+      q: "¿Qué día del mes es especial para nosotros?",
+      options: ["5", "9", "15", "25"],
+      correct: 2,
+      msgOk: "Obvio princesa que el 15 es nuestra fecha 💘",
+      msgNo: "Cerca… piensa en la mitad del mes 😄"
+    },
+    {
+      q: "¿Cuál es nuestra canción preferida?",
+      options: ["Lover - Taylor Swift", "The First Time - Damiano David", "Ordinary-Alex Warren", "King of my heart - Taylor Swift "],
+      correct: 0,
+      msgOk: "Sii limoncita, define nuestro amor 🎶",
+      msgNo: "Awww… era Lover limona! 💖"
+    },
+        {
+      q: "¿Cuando nos dimos nuestro 1° beso 😘💋?",
+      options: ["15 de febrero", "9 de noviembre", "21 de Julio", "3 de Agosto"],
+      correct: 2,
+      msgOk: "Wow! me sorprendes camarada😌 que noche mágica",
+      msgNo: "Como pudiste olvidarlo cielito 😂 "
+    },
+    {
+      q: "¿Cual fue el primer regalo que te dí 🎁?",
+      options: ["Una rosa 🌹", "Unos aritos", "Un chocolate 🍫", "Un huevo kinder"],
+      correct: 1,
+      msgOk: "Ya estaba enamoradísimo 🥰",
+      msgNo: "Noo camarada, eso fue despues"
+    },
+    {
+      q: "Que día nos conocimos?",
+      options: ["15 de Julio", "16 de Julio", "15 de Junio", "16 de Junio"],
+      correct: 0,
+      msgOk: "Esta no era la correcta",
+      msgNo: "Bromita!! si tenes razón amor, el 16 de Junio"
+    },
+       {
+      q: "¿Cuándo me enamoré de vos 👀?",
+      options: ["Cuando nos dimos nuestro primer beso", "Cuando me trajiste un regalo de 🇪🇨", "Cuando me quebré el pié 😭", "Cuando te vi por primera vez 🤩"],
+      correct: 3,
+      msgOk: "La primera vez que te vi dije esa mujer radiante tiene mi corazón",
+      msgNo: "Mmm… no linda.. la primera vez que te ví 😉"
+    },
+           {
+      q: "¿Que es lo que más me gusta de vos fisicamente 😍💘?",
+      options: ["tu cabello 💇‍♀️", "tu sonrisa 😁", "tu mirada 🥹", "tus manos 🫶 "],
+      correct: 2,
+      msgOk: "Tu mirada puede ver mi alma",
+      msgNo: "Tu mirada linda mia 😉"
+    },
+    {
+      q: "¿Cuanto tiempo vamos a estar juntos?",
+      options: ["Toda tu vida", "Toda mi vida", "Hasta el ♾️", "Todas son correctas "],
+      correct: 3,
+      msgOk: "Ni aunque nuestros corazones dejaran de latir",
+      msgNo: "Nuestro amor rompe la barrera del tiempo mi reina"
+    },
+    {
+      q: "Ultima y curiosa 😉¿Cuantas veces hemos dormido juntos 😴💤?",
+      options: ["29", "35", "42", "47"],
+      correct: 3,
+      msgOk: "47 noches y vamos por miles!",
+      msgNo: "MAS, MAS, MAS!!!  "
+    }
+  ];
+
+  // 2) Referencias a elementos
+  const panel = document.getElementById('quizPanel');
+  const qNum  = document.getElementById('quizNum');
+  const qTot  = document.getElementById('quizTotal');
+  const qText = document.getElementById('quizQ');
+  const opts  = document.getElementById('quizOpts');
+  const feed  = document.getElementById('quizFeedback');
+  const btnNext = document.getElementById('quizNext');
+  const btnRestart = document.getElementById('quizRestart');
+  const scoreEl = document.getElementById('quizScore');
+  const MAX_ATTEMPTS = 2; // cantidad de intentos antes de revelar la correcta
+  let attempts = 0;       // intentos en la pregunta actual
+  let busy = false;       // evita dobles clics muy rápidos
+  if(!panel || !qNum || !qTot || !qText || !opts || !feed || !btnNext || !btnRestart || !scoreEl) return;
+
+  // 3) Estado del quiz
+  let idx = 0, score = 0, locked = false;
+
+  qTot.textContent = QUESTIONS.length;
+
+  // 4) Utilidades
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function renderQuestion(){
+    attempts = 0;
+    busy = false;
+    btnNext.style.display = 'none';
+    feed.textContent = '';
+    qNum.textContent = (idx+1);
+    scoreEl.textContent = score;
+
+    const { q, options } = QUESTIONS[idx];
+    qText.textContent = q;
+
+    // Limpia opciones previas
+    opts.innerHTML = '';
+
+    // Construye botones de opción (barajados)
+    const order = shuffle(options.map((_,i)=>i));
+    order.forEach(i=>{
+      const b = document.createElement('button');
+      b.className = 'quiz-btn';
+      b.setAttribute('role','option');
+      b.textContent = options[i];
+      b.addEventListener('click', ()=> pick(i, b));
+      opts.appendChild(b);
+    });
+  }
+
+  function pick(choiceIndex, btn){
+    if (busy) return;
+    busy = true;
+
+    const q = QUESTIONS[idx];
+    // Puedes usar 'answer' (texto) o 'correct' (índice)
+    const correctText = (q.answer !== undefined) ? q.answer : q.options[q.correct];
+    const chosenText  = btn.textContent.trim();
+    const isCorrect   = (chosenText === correctText);
+
+    // Deshabilita solo el clic actual, el resto queda para reintentar
+    btn.disabled = true;
+
+    if (isCorrect){
+      btn.classList.add('correct');
+      feed.textContent = q.msgOk || "¡Correcto! ❤️";
+      score++; scoreEl.textContent = score;
+
+      // deshabilita todas y muestra "Siguiente"
+      [...opts.children].forEach(b => b.disabled = true);
+      btnNext.style.display = 'inline-block';
+      btnNext.textContent = (idx === QUESTIONS.length - 1) ? 'Ver resultado' : 'Siguiente ➜';
+
+      // efectos (si los tienes)
+      if (typeof dropHearts === 'function') dropHearts(20);
+      if (typeof window.confettiBurst === 'function') window.confettiBurst(10);
+      if (navigator.vibrate) navigator.vibrate(20);
+
+      busy = false;
+      return;
+    }
+
+    // Incorrecto: NO revelamos la correcta todavía
+    attempts++;
+    btn.classList.add('wrong');
+    feed.textContent = (q.msgNo || "Incorrecto") + " • ¡Intentá de nuevo!";
+
+    // pequeño shake + vibración
+    panel.classList.add('shake');
+    setTimeout(()=> panel.classList.remove('shake'), 300);
+    if (navigator.vibrate) navigator.vibrate([20, 20]);
+
+    if (attempts >= MAX_ATTEMPTS){
+      // Ahora sí: muestra la correcta y permite continuar
+      const rightBtn = [...opts.children].find(b => b.textContent.trim() === correctText);
+      if (rightBtn) rightBtn.classList.add('correct');
+      [...opts.children].forEach(b => b.disabled = true);
+      btnNext.style.display = 'inline-block';
+      btnNext.textContent = (idx === QUESTIONS.length - 1) ? 'Ver resultado' : 'Siguiente ➜';
+    }
+
+    busy = false;
+  }
+
+  btnNext.addEventListener('click', ()=>{
+    if (idx < QUESTIONS.length - 1){
+      idx++;
+      renderQuestion();
+    } else {
+      // Fin del quiz
+      qText.textContent = `¡Listo! Aciertos: ${score}/${QUESTIONS.length}`;
+      opts.innerHTML = '';
+      feed.textContent = (score === QUESTIONS.length)
+        ? "¡Perfecto! Sabes todo sobre nosotros 😍"
+        : (score >= Math.ceil(QUESTIONS.length*0.7))
+          ? "¡Muy bien! Se nota que te acordás de mucho 💖"
+          : "Lo importante es que sigamos sumando recuerdos juntos 🥰";
+      btnNext.style.display = 'none';
+      btnRestart.style.display = 'inline-block';
+
+      // Extra de celebración
+      if (typeof dropHearts === 'function') dropHearts(60);
+      if (typeof window.confettiBurst === 'function') window.confettiBurst(30);
+    }
+  });
+
+  btnRestart.addEventListener('click', ()=>{
+    idx = 0; score = 0;
+    btnRestart.style.display = 'none';
+    renderQuestion();
+  });
+
+  // ¡Arranca!
+  renderQuestion();
+})();
+
+(function(){
+  const box = document.getElementById('updateBanner');
+  if (!box) return;
+
+  // 0 = no se cierra solo; o un valor grande (p. ej. 15000 = 15 s)
+  const AUTO_CLOSE_MS = 4000;
+
+  const close = () => {
+    box.classList.add('fade');
+    setTimeout(() => box.remove(), 380);
+  };
+
+  box.querySelector('.update-close')?.addEventListener('click', close);
+
+  const show = () => {
+    box.style.display = 'flex';
+    requestAnimationFrame(() => box.classList.add('show'));
+    if (typeof window.confettiBurst === 'function') setTimeout(() => window.confettiBurst(16), 600);
+    if (typeof window.dropHearts === 'function')   setTimeout(() => window.dropHearts(12),   900);
+    if (AUTO_CLOSE_MS > 0) setTimeout(close, AUTO_CLOSE_MS);
+  };
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', show);
+  } else {
+    show();
+  }
+})();
+
 
   </script>
 </body>
