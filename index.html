@@ -771,7 +771,7 @@ function applyDifficulty(){
     },
     {
       q: "¿Cuanto tiempo vamos a estar juntos?",
-      options: ["Toda tu vida", "Toda mi vida", "Hasta el ♾️", "Todas son correctas "],
+      options: ["Toda tu vida", "Toda mi vida", "Hasta el ♾️", "Todas son correctas"],
       correct: 3,
       msgOk: "Ni aunque nuestros corazones dejaran de latir",
       msgNo: "Nuestro amor rompe la barrera del tiempo mi reina"
@@ -875,7 +875,7 @@ function applyDifficulty(){
     // Incorrecto: NO revelamos la correcta todavía
     attempts++;
     btn.classList.add('wrong');
-    feed.textContent = (q.msgNo || "Incorrecto") + " • ¡Intentá de nuevo!";
+    feed.textContent = (q.msgNo || "Incorrecto") + " • ¡Intentalo de nuevo bella!";
 
     // pequeño shake + vibración
     panel.classList.add('shake');
@@ -905,7 +905,7 @@ function applyDifficulty(){
       feed.textContent = (score === QUESTIONS.length)
         ? "¡Perfecto! Sabes todo sobre nosotros 😍"
         : (score >= Math.ceil(QUESTIONS.length*0.7))
-          ? "¡Muy bien! Se nota que te acordás de mucho 💖"
+          ? "¡De maravilla amor. Se nota que te acordás de mucho 💖 TE AMO"
           : "Lo importante es que sigamos sumando recuerdos juntos 🥰";
       btnNext.style.display = 'none';
       btnRestart.style.display = 'inline-block';
