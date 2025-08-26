@@ -212,6 +212,19 @@
     padding:8px 14px; border-radius:999px;
     box-shadow:0 4px 12px rgba(0,0,0,.08);
   }
+/* --- Stickers sobre la foto --- */
+    .sticker-wrap{ position:relative; display:inline-block; }
+    .sticker-board{
+    position:absolute; inset:0; overflow:hidden; border-radius:50%; /* igual que la foto circular */
+    pointer-events:none; /* solo los stickers aceptan eventos */
+    }
+    .sticker{
+    position:absolute; font-size:28px; line-height:1; user-select:none;
+    cursor:grab; touch-action:none; pointer-events:auto; /* sí recibe eventos */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.25));
+    }
+    .sticker:active{ cursor:grabbing; transform:scale(1.05); }
+    .sticker-toolbar .action-button{ padding:6px 10px; }
 
 
 
@@ -253,8 +266,24 @@
   <h2 class="muted">Que este día esté lleno de sonrisas y de nosotros 🥰 <br>Te extraño mucho </h2>
 
   <div class="intro-hero">
-    <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa">
-    <p class="intro-subtitle">Bienvenida a tu web, mi princesa ✨</p>
+    <div class="sticker-wrap">
+        <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa">
+        <div id="stickerBoard" class="sticker-board" aria-label="Tablero de stickers"></div>
+    </div>
+
+  <p class="intro-subtitle">Bienvenida a tu web, mi princesa ✨</p>
+
+  <div class="row sticker-toolbar">
+    <button class="action-button sticker-add" data-emoji="👩🏻‍🔬">👩🏻‍🔬</button>
+
+    <!-- Intermedios: pon los que quieras y en el orden que quieras -->
+    <button class="action-button sticker-add" data-emoji="🐧">🐧</button>
+    <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
+    <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
+    <button class="action-button sticker-add" data-emoji="🍄">🍄</button>
+
+    <!-- Último -->
+    <button class="action-button sticker-add" data-emoji="🧬">🧬</button>
   </div>
 
   <div class="panel" aria-live="polite">
@@ -789,6 +818,14 @@ function applyDifficulty(){
       msgOk: "La primera vez que te vi dije esa mujer radiante tiene mi corazón",
       msgNo: "Mmm… no linda.. intenta de nuevo 😉"
     },
+      
+    {
+      q: "¿Qué significa la A en Gas5A 🍄?",
+      options: ["Nada, solo fue añadida 🤷‍♂️", "Arabidopsis", "Aspergillus", "Agent"],
+      correct: 0,
+      msgOk: "Por supuesto, vos me enseñaste 🤓 y me acuerdo",
+      msgNo: "Noo, desaprobada la tesis 🥺"
+    },
            {
       q: "¿Que es lo que más me gusta de vos fisicamente 😍💘?",
       options: ["tu cabello 💇‍♀️", "tu sonrisa 😁", "tu mirada 🥹", "tus manos 🫶 "],
@@ -981,15 +1018,114 @@ function applyDifficulty(){
     show();
   }
 })();
+// --- Tablero de stickers (sin botón borrar + doble tap para eliminar) ---
 (function(){
-  const p = document.querySelector('.intro-photo');
-  if(!p) return;
-  p.addEventListener('click', () => {
-    dropHearts?.(20);
-    window.confettiBurst?.(10);
-    navigator.vibrate?.(15);
+  const board = document.getElementById('stickerBoard');
+  const addButtons = document.querySelectorAll('.sticker-add');
+  if (!board || !addButtons.length) return;
+
+  const KEY = 'stickers_v2';      // cambia versión si quieres limpiar guardados
+  const DBL_TAP_MS = 320;         // ventana para detectar doble tap
+  const MOVE_TOL = 6;             // px: si te moviste más que esto, no cuenta como tap
+
+  function save(){
+    const items = [...board.querySelectorAll('.sticker')].map(s => ({
+      e: s.textContent,
+      x: s.offsetLeft,
+      y: s.offsetTop,
+      f: parseInt(s.style.fontSize) || 28
+    }));
+    localStorage.setItem(KEY, JSON.stringify(items));
+  }
+
+  function addSticker(emoji, x=null, y=null, size=28){
+    const s = document.createElement('div');
+    s.className = 'sticker';
+    s.textContent = emoji;
+    s.style.fontSize = size + 'px';
+
+    // posición inicial
+    const rect = board.getBoundingClientRect();
+    const w = rect.width, h = rect.height, pad = 12;
+    const ix = (x!=null ? x : Math.floor(pad + Math.random()*(w-2*pad)));
+    const iy = (y!=null ? y : Math.floor(pad + Math.random()*(h-2*pad)));
+    s.style.left = ix + 'px';
+    s.style.top  = iy + 'px';
+
+    // Drag + doble-tap para eliminar
+    let sx=0, sy=0, startX=0, startY=0, moved=false;
+    let lastTap = 0;
+
+    s.addEventListener('pointerdown', (e)=>{
+      s.setPointerCapture(e.pointerId);
+      startX = e.clientX; startY = e.clientY;
+      sx = s.offsetLeft;  sy = s.offsetTop;
+      moved = false;
+    });
+
+    s.addEventListener('pointermove', (e)=>{
+      if (!s.hasPointerCapture(e.pointerId)) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > MOVE_TOL || Math.abs(dy) > MOVE_TOL) moved = true;
+
+      const nx = Math.max(0, Math.min(sx+dx, board.clientWidth  - s.clientWidth));
+      const ny = Math.max(0, Math.min(sy+dy, board.clientHeight - s.clientHeight));
+      s.style.left = nx + 'px';
+      s.style.top  = ny + 'px';
+    });
+
+    s.addEventListener('pointerup', ()=>{
+      // doble-tap (sin arrastrar): elimina
+      const now = Date.now();
+      const isDoubleTap = (!moved && (now - lastTap) <= DBL_TAP_MS);
+      lastTap = now;
+
+      if (isDoubleTap){
+        s.remove();
+        save();
+        navigator.vibrate?.(12);
+        return;
+      }
+      // si no fue doble-tap, guardamos la nueva posición
+      save();
+    });
+
+    // desktop: también soporta doble-click
+    s.addEventListener('dblclick', (e)=>{
+      e.preventDefault();
+      s.remove(); save(); navigator.vibrate?.(10);
+    }, { passive:false });
+
+    board.appendChild(s);
+    dropHearts?.(6);
+    navigator.vibrate?.(10);
+    save();
+  }
+
+  // Botones que agregan stickers según data-emoji
+  addButtons.forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      const em = btn.dataset.emoji || btn.textContent.trim();
+      addSticker(em);
+    });
   });
+
+  // Cargar guardados
+  function load(){
+    try{
+      const items = JSON.parse(localStorage.getItem(KEY) || '[]');
+      items.forEach(it => addSticker(it.e, it.x, it.y, it.f||28));
+    }catch{}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load);
+  } else {
+    setTimeout(load, 50);
+  }
 })();
+
+
 
   </script>
 </body>
