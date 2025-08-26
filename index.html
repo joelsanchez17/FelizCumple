@@ -1019,14 +1019,19 @@ function applyDifficulty(){
   }
 })();
 // --- Tablero de stickers (sin botón borrar + doble tap para eliminar) ---
+// --- Stickers: drag + pinch-to-zoom + doble-tap para borrar + limpiar al tocar el subtítulo ---
 (function(){
-  const board = document.getElementById('stickerBoard');
+  const board      = document.getElementById('stickerBoard');
   const addButtons = document.querySelectorAll('.sticker-add');
+  const subtitle   = document.querySelector('.intro-subtitle'); // "Bienvenida a tu web, mi princesa ✨"
   if (!board || !addButtons.length) return;
 
-  const KEY = 'stickers_v2';      // cambia versión si quieres limpiar guardados
-  const DBL_TAP_MS = 320;         // ventana para detectar doble tap
-  const MOVE_TOL = 6;             // px: si te moviste más que esto, no cuenta como tap
+  // sube a v4 si quieres limpiar lo guardado inmediatamente
+  const KEY         = 'stickers_v3';
+  const DBL_TAP_MS  = 320;  // ventana para doble tap
+  const MOVE_TOL    = 6;    // px para decidir si hubo arrastre
+  const MIN_SIZE    = 18;   // tamaño mínimo de emoji
+  const MAX_SIZE    = 96;   // tamaño máximo de emoji
 
   function save(){
     const items = [...board.querySelectorAll('.sticker')].map(s => ({
@@ -1052,50 +1057,82 @@ function applyDifficulty(){
     s.style.left = ix + 'px';
     s.style.top  = iy + 'px';
 
-    // Drag + doble-tap para eliminar
+    // estado para drag / pinch / doble-tap
     let sx=0, sy=0, startX=0, startY=0, moved=false;
     let lastTap = 0;
+    const pointers = new Map(); // id -> {x,y}
+    let pinch = null;           // {startDist, startSize}
 
     s.addEventListener('pointerdown', (e)=>{
       s.setPointerCapture(e.pointerId);
-      startX = e.clientX; startY = e.clientY;
-      sx = s.offsetLeft;  sy = s.offsetTop;
-      moved = false;
+      pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      if (pointers.size === 1){
+        // arrastre
+        startX = e.clientX; startY = e.clientY;
+        sx = s.offsetLeft;  sy = s.offsetTop;
+        moved = false;
+      } else if (pointers.size === 2){
+        // inicia pinch
+        const a = [...pointers.values()];
+        const dx = a[0].x - a[1].x, dy = a[0].y - a[1].y;
+        pinch = { startDist: Math.hypot(dx,dy), startSize: parseFloat(s.style.fontSize) || 28 };
+        moved = true; // evita que el pinch cuente como “tap”
+      }
     });
 
     s.addEventListener('pointermove', (e)=>{
       if (!s.hasPointerCapture(e.pointerId)) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      if (Math.abs(dx) > MOVE_TOL || Math.abs(dy) > MOVE_TOL) moved = true;
+      const rec = pointers.get(e.pointerId);
+      if (rec){ rec.x = e.clientX; rec.y = e.clientY; }
 
-      const nx = Math.max(0, Math.min(sx+dx, board.clientWidth  - s.clientWidth));
-      const ny = Math.max(0, Math.min(sy+dy, board.clientHeight - s.clientHeight));
-      s.style.left = nx + 'px';
-      s.style.top  = ny + 'px';
-    });
+      if (pointers.size === 2 && pinch){
+        // zoom
+        const a = [...pointers.values()];
+        const dist   = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
+        const scale  = pinch.startDist ? dist / pinch.startDist : 1;
+        const newSz  = Math.max(MIN_SIZE, Math.min(MAX_SIZE, pinch.startSize * scale));
+        s.style.fontSize = newSz + 'px';
+      } else if (pointers.size === 1 && !pinch){
+        // drag
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (Math.abs(dx) > MOVE_TOL || Math.abs(dy) > MOVE_TOL) moved = true;
 
-    s.addEventListener('pointerup', ()=>{
-      // doble-tap (sin arrastrar): elimina
-      const now = Date.now();
-      const isDoubleTap = (!moved && (now - lastTap) <= DBL_TAP_MS);
-      lastTap = now;
-
-      if (isDoubleTap){
-        s.remove();
-        save();
-        navigator.vibrate?.(12);
-        return;
+        const nx = Math.max(0, Math.min(sx+dx, board.clientWidth  - s.clientWidth));
+        const ny = Math.max(0, Math.min(sy+dy, board.clientHeight - s.clientHeight));
+        s.style.left = nx + 'px';
+        s.style.top  = ny + 'px';
       }
-      // si no fue doble-tap, guardamos la nueva posición
-      save();
     });
 
-    // desktop: también soporta doble-click
+    function endPointer(e){
+      if (s.hasPointerCapture(e.pointerId)) s.releasePointerCapture(e.pointerId);
+      pointers.delete(e.pointerId);
+      if (pointers.size < 2) pinch = null;
+
+      if (pointers.size === 0){
+        const now = Date.now();
+        const doubleTap = (!moved && (now - lastTap) <= DBL_TAP_MS);
+        lastTap = now;
+
+        if (doubleTap){
+          s.remove();
+          save();
+          navigator.vibrate?.(12);
+          return;
+        }
+        save();
+      }
+    }
+
+    s.addEventListener('pointerup', endPointer);
+    s.addEventListener('pointercancel', ()=>{ pointers.clear(); pinch = null; });
+
+    // desktop: doble click también borra
     s.addEventListener('dblclick', (e)=>{
       e.preventDefault();
       s.remove(); save(); navigator.vibrate?.(10);
-    }, { passive:false });
+    }, {passive:false});
 
     board.appendChild(s);
     dropHearts?.(6);
@@ -1103,13 +1140,25 @@ function applyDifficulty(){
     save();
   }
 
-  // Botones que agregan stickers según data-emoji
+  // Botones para agregar stickers (usa data-emoji)
   addButtons.forEach(btn => {
     btn.addEventListener('click', ()=>{
       const em = btn.dataset.emoji || btn.textContent.trim();
       addSticker(em);
     });
   });
+
+  // Limpiar todos al tocar el subtítulo
+  if (subtitle){
+    subtitle.style.cursor = 'pointer';
+    subtitle.title = 'Toca para limpiar los stickers';
+    subtitle.addEventListener('click', ()=>{
+      board.innerHTML = '';
+      localStorage.removeItem(KEY);
+      dropHearts?.(10);
+      navigator.vibrate?.([10,40,10]);
+    });
+  }
 
   // Cargar guardados
   function load(){
@@ -1118,12 +1167,10 @@ function applyDifficulty(){
       items.forEach(it => addSticker(it.e, it.x, it.y, it.f||28));
     }catch{}
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', load);
-  } else {
-    setTimeout(load, 50);
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
+  else setTimeout(load, 50);
 })();
+
 
 
 
