@@ -502,7 +502,7 @@
         const TARGET    = 20;  // meta (pon 15 si aún cuesta)
         const DURATION  = 80;  // segundos
         const BASE_MS   = 700; // intervalo base de movimiento
-        const MIN_MS    = 330; // velocidad máxima (menor = más rápido)
+        const MIN_MS    = 290; // velocidad máxima (menor = más rápido)
         const STEP_MS   = 12;  // cuánto acelera por acierto
         const MIN_JUMP  = 70;  // salto mínimo (px) entre posiciones
 
@@ -594,7 +594,7 @@
 
     function end(won){
       running = false; clearInterval(moveTimer); clearInterval(countdownTimer); clearInterval(decoyTimer);
-      if (won){ if (typeof dropHearts==='function') dropHearts(60); alert('¡Me salvaste linda, eres mi heroina 🦸‍♀️ Tu premio te espera en KL 🥳🎁' + score + ' 💖'); }
+      if (won){ if (typeof dropHearts==='function') dropHearts(60); alert('¡Finalmente me salvaste mi bella futura esposa, eres mi heroina 🦸‍♀️ Tu premio te espera en KL 🥳🎁' + score + ' 💖'); }
       else { alert('⏳ Noooh mi ciela💅 se te acabó el tiempo. Atrapaste: ' + score + ' — ¡Salvame limona🍋!'); }
     }
 
