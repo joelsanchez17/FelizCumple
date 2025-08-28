@@ -226,6 +226,28 @@
     .sticker:active{ cursor:grabbing; transform:scale(1.05); }
     .sticker-toolbar .action-button{ padding:6px 10px; }
 
+    /* Flip de la foto (espejo) */
+.flip{ perspective: 1000px; display:inline-block; }
+.flip-inner{ position:relative; transform-style:preserve-3d; transition: transform .7s ease; }
+.flip.flipped .flip-inner{ transform: rotateY(180deg); }
+
+.flip-face{ position:relative; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+.flip-front{ /* nada extra */ }
+.flip-back{ position:absolute; inset:0; transform: rotateY(180deg); }
+
+/* Asegura mismo recorte redondo en ambas caras */
+.flip-face .intro-photo{ display:block; width:min(220px, 60vw); aspect-ratio:1/1; object-fit:cover; border-radius:50%;
+  border:4px solid #fff; box-shadow:0 10px 25px rgba(0,0,0,.18); }
+
+/* La zona de stickers sigue clavada a la cara frontal */
+.flip-front .sticker-board{ position:absolute; inset:0; border-radius:50%; pointer-events:none; }
+
+/* Respeto a reducir movimiento */
+@media (prefers-reduced-motion: reduce){
+  .flip-inner{ transition:none }
+}
+
+
 
 
 
@@ -233,6 +255,7 @@
   </style>
   <!-- Favicon (emoji corazón) -->
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
+    <link rel="preload" href="https://joelsanchez17.github.io/FelizCumple/princesa2.jpg" as="image">
 
     <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:title" content="Feliz Cumple, amor 💖">
@@ -248,6 +271,7 @@
     <meta name="twitter:title" content="Feliz Cumple, amor 💖">
     <meta name="twitter:description" content="Te hice esta sorpresa con todo mi corazón.">
     <meta name="twitter:image" content="https://i.imgur.com/tQ7vAwV.jpeg">
+    
 
 </head>
 <body>
@@ -256,7 +280,7 @@
     <span style="font-size:1.3em">🍋</span>
     <div>
       <strong> Estamos linda, lo vamos a lograr </strong><br>
-      <small> 4 días para el momento mas esperado de todo el universo!🥹💘 </small>
+      <small> 3 días para el momento mas esperado de todo el universo!🥹💘 </small>
     
     </div>
     <button class="update-close" aria-label="Cerrar">✕</button>
@@ -266,24 +290,34 @@
   <h2 class="muted">Que este día esté lleno de sonrisas y de nosotros 🥰 <br>Te extraño mucho </h2>
 
   <div class="intro-hero">
-    <div class="sticker-wrap">
-        <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa">
-        <div id="stickerBoard" class="sticker-board" aria-label="Tablero de stickers"></div>
+    <!-- Flip card -->
+    <div class="flip" id="introFlip" aria-label="Foto interactiva (toca para girar)">
+      <div class="flip-inner">
+        <!-- Frente: foto + stickers -->
+        <div class="flip-face flip-front">
+          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa (frente)">
+          <div id="stickerBoard" class="sticker-board" aria-label="Tablero de stickers"></div>
+        </div>
+        <!-- Dorso: segunda foto -->
+        <div class="flip-face flip-back">
+          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa2.jpg" alt="Mi princesa (dorso)">
+        </div>
+      </div>
     </div>
 
-  <p class="intro-subtitle">Bienvenida a tu web, mi princesa ✨</p>
+    <p class="intro-subtitle">Bienvenida a tu web, mi princesa ✨</p>
 
-  <div class="row sticker-toolbar">
-    <button class="action-button sticker-add" data-emoji="👩🏻‍🔬">👩🏻‍🔬</button>
+    <!-- Tu toolbar de stickers (deja tus emojis como los tienes) -->
+    <div class="row sticker-toolbar">
+      <button class="action-button sticker-add" data-emoji="👩🏻‍🔬">👩🏻‍🔬</button>
+      <button class="action-button sticker-add" data-emoji="💖">💖</button>
+      <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
+      <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
+      <button class="action-button sticker-add" data-emoji="🍄">🍄</button>
+      <button class="action-button sticker-add" data-emoji="🧬">🧬</button>
+    </div>
 
-    <!-- Intermedios: pon los que quieras y en el orden que quieras -->
-    <button class="action-button sticker-add" data-emoji="🐧">🐧</button>
-    <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
-    <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
-    <button class="action-button sticker-add" data-emoji="🍄">🍄</button>
-
-    <!-- Último -->
-    <button class="action-button sticker-add" data-emoji="🧬">🧬</button>
+    <p class="muted" style="margin-top:6px;font-size:.9em">Toca la foto para girarla✨</p>
   </div>
 
   <div class="panel" aria-live="polite">
@@ -304,7 +338,7 @@
     </div>
   </div>
     <div class="panel">
-    <div class="title"> Asi se ve el progreso hacia nuestro reencuentro 😌</div>
+    <div class="title"> Ya casi lo logramos 🥳🤩</div>
     <div class="meetbar"><div id="meetProgress"></div></div>
     <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
     </div>
@@ -1170,6 +1204,21 @@ function applyDifficulty(){
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
   else setTimeout(load, 50);
 })();
+
+// Giro tipo espejo (evita girar si se toca un sticker)
+(function(){
+  const flip = document.getElementById('introFlip');
+  if(!flip) return;
+
+  flip.addEventListener('click', (e)=>{
+    if (e.target.closest('.sticker')) return; // no gires si tocó un sticker
+    flip.classList.toggle('flipped');
+    // mimos sutiles
+    window.confettiBurst?.(8);
+    navigator.vibrate?.(12);
+  });
+})();
+
 
 
 
