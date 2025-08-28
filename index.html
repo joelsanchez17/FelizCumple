@@ -246,6 +246,44 @@
 @media (prefers-reduced-motion: reduce){
   .flip-inner{ transition:none }
 }
+/* Stickers también en el dorso (igual que el frente) */
+.flip-back .sticker-board{
+  position:absolute; inset:0; border-radius:50%; pointer-events:none;
+}
+
+/* Gloss (brillito de espejo) que barre en diagonal al girar */
+.flip-inner{
+  position:relative;
+  transform-style:preserve-3d;
+  transition: transform .7s ease;
+  /* usamos variables para rotación y zoom */
+  --ry: 0deg; 
+  --scale: 1;
+  transform: rotateY(var(--ry)) scale(var(--scale));
+}
+.flip.flipped .flip-inner{ --ry: 180deg; }
+.flip.gloss .flip-inner::after{
+  content:"";
+  position:absolute; inset:-8%;
+  pointer-events:none; border-radius:50%;
+  background: linear-gradient(120deg, rgba(255,255,255,0) 45%, rgba(255,255,255,.45) 50%, rgba(255,255,255,0) 55%);
+  transform: translateX(-130%) rotate(0.001deg);
+  filter: blur(1px);
+  animation: gloss-sweep .7s ease forwards;
+}
+@keyframes gloss-sweep{
+  to{ transform: translateX(130%) rotate(0.001deg); }
+}
+
+/* Zoom suave al girar (0.2s) */
+.flip.zoom .flip-inner{ --scale: 1.02; transition: transform .7s ease; }
+
+/* Caída de emojis (usa misma animación que corazones) */
+.emoji-fall{
+  position:absolute; top:-10vh; animation: heart-fall var(--dur, 3.6s) linear forwards;
+  font-size: var(--size, 24px);
+}
+
 
 
 
@@ -301,6 +339,7 @@
         <!-- Dorso: segunda foto -->
         <div class="flip-face flip-back">
           <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa2.jpg" alt="Mi princesa (dorso)">
+          <div id="stickerBoardBack" class="sticker-board" aria-label="Tablero de stickers (dorso)"></div>
         </div>
       </div>
     </div>
@@ -310,7 +349,7 @@
     <!-- Tu toolbar de stickers (deja tus emojis como los tienes) -->
     <div class="row sticker-toolbar">
       <button class="action-button sticker-add" data-emoji="👩🏻‍🔬">👩🏻‍🔬</button>
-      <button class="action-button sticker-add" data-emoji="💖">💖</button>
+      <button class="action-button sticker-add" data-emoji="🐧">🐧</button>
       <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
       <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
       <button class="action-button sticker-add" data-emoji="🍄">🍄</button>
@@ -534,10 +573,10 @@
     const loveBtn = document.getElementById('loveBtn');
     const loveMsg = document.getElementById('loveMsg');
     const phrases = [
-      'Te amo hasta la luna y de regreso 🌙','Amo tu perfume 🤩','Adoro tu forma de ser 🥰','Nunca te vayas de mi vida','Me haces ser un hombre afortunado','Espero tu regreso jefecita','Eres mi lugar favorito en el mundo 🏡','Gracias por existir camarada ✨',
-      'Haces que KL sea un lugar mas lindo ☺️','Cada clic, te doy un beso virtual 😘','Basta de mimos que te extraño mucho 🥺 ','Te elijo hoy y siempre 💍','Sos mi lugar feliz 😊✨','Esperé una vida un amor como el tuyo',
-      'Mi corazón baila por ti 💃🕺','Con vos la vida es hermosa', 'Todo KL busca a su princesa,','Cual es el truco para lucir tan bella todos los días?','Los 15 son mi fecha preferida🥰','Mi lugar feliz 😊✨','Tú + yo = 💯','Eres la reina de mi corazon 👸 ','Escapemosno justo al fin del mundo',
-      'Contigo todo es mejor mi limoncita💖','Eres mi persona favorita 🌟','Te debo un abrazo bien largo 🤗','Con vos: casamiento, casa, hijos y mascotas','No hay escala de belleza que sea suficiente', 'y si venis a darme unos besitos💋💋?', 'Me encantan 🥰 me encantas 😍 ', 
+      'Te amo hasta la luna y de regreso 🌙','Quiero ser tu principio y tu final','Amo tu perfume 🤩','Adoro tu forma de ser 🥰','Nunca te vayas de mi vida','Me haces ser un hombre afortunado','Espero tu regreso jefecita','Eres mi lugar favorito en el mundo 🏡','Gracias por existir camarada ✨','Reina de mi corazón 💘',
+      'Haces que KL sea un lugar mas lindo ☺️','Cada clic, te doy un beso virtual 😘','Basta de mimos que te extraño mucho 🥺 ','Te elijo hoy y siempre 💍','Sos mi lugar feliz 😊✨','Esperé una vida un amor como el tuyo','Tuyo para siempre ♾️' ,
+      'Mi corazón baila por ti 💃🕺','Con vos la vida es hermosa', 'Todo KL busca a su princesa,','Cual es el truco para lucir tan bella todos los días?','Los 15 son mi fecha preferida🥰','Mi lugar feliz 😊✨','Tú + yo = 💯','Eres la reina de mi corazon 👸 ','Escapemosno justo al fin del mundo','mi limocita linda 🍋 ',
+      'Contigo todo es mejor mi limoncita💖','Eres mi persona favorita 🌟','Te debo un abrazo bien largo 🤗','Con vos: casamiento, casa, hijos y mascotas','No hay escala de belleza que sea suficiente', 'y si venis a darme unos besitos💋💋?', 'Me encantan 🥰 me encantas 😍 ', 'Por tu aprendo biología 👨🏻‍🔬👩🏻‍🔬',
       'No te pases de mimos que me conoces😯','Che detenete amor🤭','Esto esta yendo muy lejos😅',
       'Castigada por exceso de mimos 👮‍♂️','Ahora tenés que devolverme todos esos mimos','Mi todo en el mundo ✨','Cada click me debes un beso mas💋','Cada día te amo más','Cuantos mimos🥰 ','Regresa pronto🥺','Sos mi sol en los días nublados','Nunca vas a encontrar el final de esta lista 🤭','No te imaginas como deseo un abrazo tuyo 🥺', 'Te amo hoy y para siempre ♾️',
     ];
@@ -1053,171 +1092,181 @@ function applyDifficulty(){
   }
 })();
 // --- Tablero de stickers (sin botón borrar + doble tap para eliminar) ---
-// --- Stickers: drag + pinch-to-zoom + doble-tap para borrar + limpiar al tocar el subtítulo ---
+// --- Stickers en ambas caras + pinch-to-zoom + doble-tap borrar ---
 (function(){
-  const board      = document.getElementById('stickerBoard');
-  const addButtons = document.querySelectorAll('.sticker-add');
-  const subtitle   = document.querySelector('.intro-subtitle'); // "Bienvenida a tu web, mi princesa ✨"
-  if (!board || !addButtons.length) return;
+  const flip          = document.getElementById('introFlip');
+  const boardFront    = document.getElementById('stickerBoard');
+  const boardBack     = document.getElementById('stickerBoardBack');
+  const addButtons    = document.querySelectorAll('.sticker-add');
+  if (!flip || !boardFront || !boardBack || !addButtons.length) return;
 
-  // sube a v4 si quieres limpiar lo guardado inmediatamente
-  const KEY         = 'stickers_v3';
-  const DBL_TAP_MS  = 320;  // ventana para doble tap
-  const MOVE_TOL    = 6;    // px para decidir si hubo arrastre
-  const MIN_SIZE    = 18;   // tamaño mínimo de emoji
-  const MAX_SIZE    = 96;   // tamaño máximo de emoji
+  // guarda por lado (sube versión si quieres resetear)
+  const KEY_FRONT = 'stickers_front_v1';
+  const KEY_BACK  = 'stickers_back_v1';
+  const DBL_TAP_MS= 320, MOVE_TOL=6, MIN_SIZE=18, MAX_SIZE=96;
 
-  function save(){
+  const currentBoard = () => flip.classList.contains('flipped') ? boardBack : boardFront;
+  const currentKey   = () => flip.classList.contains('flipped') ? KEY_BACK  : KEY_FRONT;
+
+  function save(board, key){
     const items = [...board.querySelectorAll('.sticker')].map(s => ({
-      e: s.textContent,
-      x: s.offsetLeft,
-      y: s.offsetTop,
-      f: parseInt(s.style.fontSize) || 28
+      e: s.textContent, x: s.offsetLeft, y: s.offsetTop, f: parseInt(s.style.fontSize)||28
     }));
-    localStorage.setItem(KEY, JSON.stringify(items));
+    localStorage.setItem(key, JSON.stringify(items));
+  }
+  function load(board, key){
+    try{
+      const items = JSON.parse(localStorage.getItem(key) || '[]');
+      items.forEach(it => addSticker(board, key, it.e, it.x, it.y, it.f||28));
+    }catch{}
   }
 
-  function addSticker(emoji, x=null, y=null, size=28){
+  function addSticker(board, key, emoji, x=null, y=null, size=28){
     const s = document.createElement('div');
     s.className = 'sticker';
     s.textContent = emoji;
     s.style.fontSize = size + 'px';
 
-    // posición inicial
+    // posición inicial aleatoria/bordeada
     const rect = board.getBoundingClientRect();
     const w = rect.width, h = rect.height, pad = 12;
     const ix = (x!=null ? x : Math.floor(pad + Math.random()*(w-2*pad)));
     const iy = (y!=null ? y : Math.floor(pad + Math.random()*(h-2*pad)));
-    s.style.left = ix + 'px';
-    s.style.top  = iy + 'px';
+    s.style.left = ix + 'px'; s.style.top = iy + 'px';
 
-    // estado para drag / pinch / doble-tap
-    let sx=0, sy=0, startX=0, startY=0, moved=false;
-    let lastTap = 0;
-    const pointers = new Map(); // id -> {x,y}
-    let pinch = null;           // {startDist, startSize}
+    // drag + pinch + doble-tap
+    let sx=0, sy=0, startX=0, startY=0, moved=false, lastTap=0;
+    const pointers=new Map(); let pinch=null;
 
-    s.addEventListener('pointerdown', (e)=>{
+    s.addEventListener('pointerdown',(e)=>{
       s.setPointerCapture(e.pointerId);
-      pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
-      if (pointers.size === 1){
-        // arrastre
-        startX = e.clientX; startY = e.clientY;
-        sx = s.offsetLeft;  sy = s.offsetTop;
-        moved = false;
-      } else if (pointers.size === 2){
-        // inicia pinch
-        const a = [...pointers.values()];
-        const dx = a[0].x - a[1].x, dy = a[0].y - a[1].y;
-        pinch = { startDist: Math.hypot(dx,dy), startSize: parseFloat(s.style.fontSize) || 28 };
-        moved = true; // evita que el pinch cuente como “tap”
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pointers.size===1){ startX=e.clientX; startY=e.clientY; sx=s.offsetLeft; sy=s.offsetTop; moved=false; }
+      else if(pointers.size===2){
+        const a=[...pointers.values()], dx=a[0].x-a[1].x, dy=a[0].y-a[1].y;
+        pinch={startDist:Math.hypot(dx,dy), startSize:parseFloat(s.style.fontSize)||28};
+        moved=true; // evita que cuente como tap
       }
     });
-
-    s.addEventListener('pointermove', (e)=>{
-      if (!s.hasPointerCapture(e.pointerId)) return;
-      const rec = pointers.get(e.pointerId);
-      if (rec){ rec.x = e.clientX; rec.y = e.clientY; }
-
-      if (pointers.size === 2 && pinch){
-        // zoom
-        const a = [...pointers.values()];
-        const dist   = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
-        const scale  = pinch.startDist ? dist / pinch.startDist : 1;
-        const newSz  = Math.max(MIN_SIZE, Math.min(MAX_SIZE, pinch.startSize * scale));
-        s.style.fontSize = newSz + 'px';
-      } else if (pointers.size === 1 && !pinch){
-        // drag
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        if (Math.abs(dx) > MOVE_TOL || Math.abs(dy) > MOVE_TOL) moved = true;
-
-        const nx = Math.max(0, Math.min(sx+dx, board.clientWidth  - s.clientWidth));
-        const ny = Math.max(0, Math.min(sy+dy, board.clientHeight - s.clientHeight));
-        s.style.left = nx + 'px';
-        s.style.top  = ny + 'px';
+    s.addEventListener('pointermove',(e)=>{
+      if(!s.hasPointerCapture(e.pointerId)) return;
+      const rec=pointers.get(e.pointerId); if(rec){ rec.x=e.clientX; rec.y=e.clientY; }
+      if(pointers.size===2 && pinch){
+        const a=[...pointers.values()], dist=Math.hypot(a[0].x-a[1].x, a[0].y-a[1].y);
+        const newSz=Math.max(MIN_SIZE, Math.min(MAX_SIZE, pinch.startSize*(pinch.startDist?dist/pinch.startDist:1)));
+        s.style.fontSize=newSz+'px';
+      }else if(pointers.size===1 && !pinch){
+        const dx=e.clientX-startX, dy=e.clientY-startY;
+        if(Math.abs(dx)>MOVE_TOL || Math.abs(dy)>MOVE_TOL) moved=true;
+        const nx=Math.max(0, Math.min(sx+dx, board.clientWidth - s.clientWidth));
+        const ny=Math.max(0, Math.min(sy+dy, board.clientHeight- s.clientHeight));
+        s.style.left=nx+'px'; s.style.top=ny+'px';
       }
     });
-
     function endPointer(e){
-      if (s.hasPointerCapture(e.pointerId)) s.releasePointerCapture(e.pointerId);
-      pointers.delete(e.pointerId);
-      if (pointers.size < 2) pinch = null;
-
-      if (pointers.size === 0){
-        const now = Date.now();
-        const doubleTap = (!moved && (now - lastTap) <= DBL_TAP_MS);
-        lastTap = now;
-
-        if (doubleTap){
-          s.remove();
-          save();
-          navigator.vibrate?.(12);
-          return;
-        }
-        save();
+      if(s.hasPointerCapture(e.pointerId)) s.releasePointerCapture(e.pointerId);
+      pointers.delete(e.pointerId); if(pointers.size<2) pinch=null;
+      if(pointers.size===0){
+        const now=Date.now(), dbl=(!moved && (now-lastTap)<=DBL_TAP_MS); lastTap=now;
+        if(dbl){ s.remove(); save(board,key); navigator.vibrate?.(12); return; }
+        save(board,key);
       }
     }
-
     s.addEventListener('pointerup', endPointer);
-    s.addEventListener('pointercancel', ()=>{ pointers.clear(); pinch = null; });
-
-    // desktop: doble click también borra
-    s.addEventListener('dblclick', (e)=>{
-      e.preventDefault();
-      s.remove(); save(); navigator.vibrate?.(10);
-    }, {passive:false});
+    s.addEventListener('pointercancel', ()=>{ pointers.clear(); pinch=null; });
+    s.addEventListener('dblclick', (e)=>{ e.preventDefault(); s.remove(); save(board,key); navigator.vibrate?.(10); }, {passive:false});
 
     board.appendChild(s);
-    dropHearts?.(6);
-    navigator.vibrate?.(10);
-    save();
+    dropHearts?.(6); navigator.vibrate?.(10);
+    save(board,key);
   }
 
-  // Botones para agregar stickers (usa data-emoji)
-  addButtons.forEach(btn => {
+  // Botones para agregar: van al lado visible
+  addButtons.forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const em = btn.dataset.emoji || btn.textContent.trim();
-      addSticker(em);
+      addSticker(currentBoard(), currentKey(), em);
     });
   });
 
-  // Limpiar todos al tocar el subtítulo
-  if (subtitle){
-    subtitle.style.cursor = 'pointer';
-    subtitle.title = 'Toca para limpiar los stickers';
+  // Si aún tienes el gesto de limpiar en el subtítulo, borra ambos lados
+  const subtitle = document.querySelector('.intro-subtitle');
+  if(subtitle){
+    subtitle.style.cursor='pointer';
+    subtitle.title='Toca para limpiar los stickers';
     subtitle.addEventListener('click', ()=>{
-      board.innerHTML = '';
-      localStorage.removeItem(KEY);
-      dropHearts?.(10);
-      navigator.vibrate?.([10,40,10]);
+      boardFront.innerHTML=''; boardBack.innerHTML='';
+      localStorage.removeItem(KEY_FRONT); localStorage.removeItem(KEY_BACK);
+      dropHearts?.(10); navigator.vibrate?.([10,40,10]);
     });
   }
 
-  // Cargar guardados
-  function load(){
-    try{
-      const items = JSON.parse(localStorage.getItem(KEY) || '[]');
-      items.forEach(it => addSticker(it.e, it.x, it.y, it.f||28));
-    }catch{}
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
-  else setTimeout(load, 50);
+  // Carga inicial de ambos lados
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', ()=>{ load(boardFront,KEY_FRONT); load(boardBack,KEY_BACK); });
+  else { setTimeout(()=>{ load(boardFront,KEY_FRONT); load(boardBack,KEY_BACK); }, 50); }
 })();
 
+
 // Giro tipo espejo (evita girar si se toca un sticker)
+// Giro tipo espejo con brillo, zoom, estado persistente y confetti de emojis 1ª vez del día
 (function(){
   const flip = document.getElementById('introFlip');
   if(!flip) return;
 
+  // estado persistente
+  const SIDE_KEY = 'flip_side_v1';
+  const saved = localStorage.getItem(SIDE_KEY);
+  if(saved === 'back') flip.classList.add('flipped');
+
+  // helper: confetti de emojis 🍋🐧🍄
+  function emojiConfetti(emojis=['🍋','🐧','🍄'], n=28){
+    const box = document.getElementById('confetti') || (function(){
+      const d=document.createElement('div'); d.id='confetti'; d.className='confetti'; document.body.appendChild(d); return d;
+    })();
+    for(let i=0;i<n;i++){
+      const s=document.createElement('div');
+      s.className='emoji-fall';
+      s.textContent = emojis[i % emojis.length];
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.setProperty('--size', (20+Math.random()*14)+'px');
+      s.style.setProperty('--dur',  (3+Math.random()*2)+'s');
+      s.style.animationDelay=(Math.random()*0.8)+'s';
+      box.appendChild(s); setTimeout(()=>s.remove(), 5000);
+    }
+  }
+
+  // 1ª vez del día
+  function firstFlipToday(){
+    const K='first_flip_day';
+    const today = new Date(); const d = today.toISOString().slice(0,10);
+    const last = localStorage.getItem(K);
+    if(last === d) return false;
+    localStorage.setItem(K, d);
+    return true;
+  }
+
   flip.addEventListener('click', (e)=>{
     if (e.target.closest('.sticker')) return; // no gires si tocó un sticker
+
+    // toggle lado
+    const toBack = !flip.classList.contains('flipped');
     flip.classList.toggle('flipped');
-    // mimos sutiles
+    localStorage.setItem(SIDE_KEY, toBack ? 'back' : 'front');
+
+    // zoom + brillo (se quitan solos)
+    flip.classList.add('zoom','gloss');
+    setTimeout(()=> flip.classList.remove('zoom'), 220);
+    setTimeout(()=> flip.classList.remove('gloss'), 720);
+
+    // “toque extra” la 1ª vez del día
+    if(firstFlipToday()){ emojiConfetti(['🍋','🐧','🍄'], 36); }
+
+    // mimo sutil
     window.confettiBurst?.(8);
     navigator.vibrate?.(12);
   });
 })();
+
 
 
 
