@@ -24,6 +24,7 @@
       box-sizing: border-box;
       text-align: center;
     }
+    .lightbox{ z-index: 10050; }
     .panel {
       background: rgba(255,255,255,0.75);
       border-radius: 14px;
@@ -348,6 +349,30 @@
   letter-spacing: .2px;
 }
 
+/* Lightbox por encima de corazones/confetti y con fade-in */
+.lightbox{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.6); padding:20px; z-index:10050;
+}
+.lightbox-content{ position:relative; width:min(92vw, 620px); }
+.lightbox img{
+  width:100%; height:auto; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+  opacity:0; /* arranca oculto para animación */
+}
+.lightbox figcaption{
+  color:#fff; text-align:center; margin-top:10px; font-weight:600; opacity:.95;
+}
+.lightbox-close{
+  position:absolute; top:-10px; right:-10px; width:36px; height:36px; border:none; border-radius:999px;
+  background:#e91e63; color:#fff; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+.fade-in{ animation:fadeInSoft .35s ease-out forwards; }
+@keyframes fadeInSoft{
+  from{ opacity:0; transform:scale(.98) }
+  to  { opacity:1; transform:scale(1) }
+}
+
+
 
 
 
@@ -627,7 +652,14 @@
       Tu Joel
     </p>
   </div>
-  <div id="lightbox" class="lightbox" aria-hidden="true"><img id="lightImg" alt=""></div>
+  <!-- Lightbox con caption y botón cerrar -->
+  <div id="lightbox" class="lightbox" style="display:none">
+    <figure class="lightbox-content">
+      <img id="lightImg" alt="Foto">
+      <figcaption id="lightCaption"></figcaption>
+      <button id="lightClose" class="lightbox-close" aria-label="Cerrar">✕</button>
+    </figure>
+  </div>
 
     <div class="panel" id="quizPanel" aria-live="polite">
       <div class="title">Mini-quiz de nosotros 💞</div>
@@ -949,14 +981,38 @@
   updateProgress();
   setInterval(updateProgress, 60*1000); // actualiza cada minuto
 })();
+// Lightbox para galería: caption = alt de la miniatura + fade-in
 (function(){
-  const box = document.getElementById('lightbox');
-  const img = document.getElementById('lightImg');
-  const thumbs = document.querySelectorAll('.photo-gallery img');
-  if(!box || !img || !thumbs.length) return;
-  thumbs.forEach(t => t.addEventListener('click', () => { img.src = t.src; box.style.display='flex'; }));
-  box.addEventListener('click', () => { box.style.display='none'; img.src=''; });
+  const box   = document.getElementById('lightbox');
+  const img   = document.getElementById('lightImg');
+  const cap   = document.getElementById('lightCaption');
+  const close = document.getElementById('lightClose');
+  const thumbs= document.querySelectorAll('.photo-gallery img');
+  if(!box || !img || !cap || !close || !thumbs.length) return;
+
+  function openLight(url, caption){
+    // resetea animaciones
+    img.classList.remove('fade-in'); cap.classList.remove('fade-in');
+    img.src = url; cap.textContent = caption || '';
+    box.style.display = 'flex';
+    requestAnimationFrame(()=>{
+      img.classList.add('fade-in');
+      cap.classList.add('fade-in');
+    });
+  }
+  function closeLight(){ box.style.display='none'; img.src=''; cap.textContent=''; }
+
+  thumbs.forEach(t => t.addEventListener('click', ()=>{
+    openLight(t.src, t.alt || 'Nuestro momento 💖');
+  }));
+  // cerrar con botón o clic fuera
+  close.addEventListener('click', closeLight);
+  box.addEventListener('click', (e)=>{ if(e.target === box) closeLight(); });
+
+  // exporto para reutilizar desde otros bloques
+  window.openLight = openLight;
 })();
+
 
 function applyDifficulty(){
   // Hasta 12: acelera normal. De 13 en adelante: solo cuenta el 20%.
@@ -1475,6 +1531,30 @@ function applyDifficulty(){
 
   mCore?.addEventListener('click', (e)=>{
     burstAt(mCore, EMOJI_MZA, 15);
+    e.stopPropagation();
+  });
+})();
+
+// Fotos de perfil al tocar cada mapa (con caption + fade)
+(function(){
+  const box = document.getElementById('lightbox');
+  const img = document.getElementById('lightImg');
+  const cap = document.getElementById('lightCaption');
+  if(!box || !img || !cap || typeof window.openLight !== 'function') return;
+
+  // 👉 Cambia estas URLs por las reales en tu GitHub
+  const URL_FOTO_ELLA = 'https://joelsanchez17.github.io/FelizCumple/perfil_ella.jpg';
+  const URL_FOTO_YO   = 'https://joelsanchez17.github.io/FelizCumple/perfil_yo.jpg';
+
+  const qCore = document.querySelector('#endQuito .end-core');
+  const mCore = document.querySelector('#endMendoza .end-core');
+
+  qCore?.addEventListener('click', (e)=>{
+    window.openLight(URL_FOTO_ELLA, 'Mi princesa en Quito 💖');
+    e.stopPropagation();
+  });
+  mCore?.addEventListener('click', (e)=>{
+    window.openLight(URL_FOTO_YO, 'Yo desde Mendoza 👷‍♂️');
     e.stopPropagation();
   });
 })();
