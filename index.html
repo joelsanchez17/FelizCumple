@@ -545,7 +545,8 @@
 #scratchCanvas{
   position:absolute; inset:0; touch-action:none;
   /* Fancy cursor (single line, no backslash) */
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><circle cx='14' cy='14' r='6' fill='rgba(233,30,99,.25)'/></svg>") 14 14, crosshair;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='10' cy='10' r='4' fill='rgba(233,30,99,.28)'/></svg>") 10 10, crosshair;
+
 }
 .scratch-msg{
   position:absolute; inset:auto 12px 12px 12px; background:rgba(255,255,255,.9);
@@ -915,13 +916,13 @@
         </div>
             </div>
 
-            <div class="panel" id="scratchPanel" data-emoji="🌸,💖,✨">
+            <div class="panel" id="scratchPanel" data-emoji="🎨,🖌️,✨,💞,🎵">
             <div class="title">Rasca y florece 🌸</div>
             <div class="scratch-wrap">
               <div class="scratch-img" id="scratchImg"></div>
               <canvas id="scratchCanvas" aria-label="Rascar para revelar"></canvas>
               <div id="scratchMsg" class="scratch-msg" hidden>
-                Mi bella artista, todo lo que haces es hermoso 🌸
+                Para mi bella artista🎨 que colorea mi mundo 💖🖌️ 
               </div>
             </div>
             <div class="row" style="gap:8px;margin-top:8px">
@@ -2245,7 +2246,7 @@ function applyDifficulty(){
 
   function line(x1,y1,x2,y2){
     ctx.lineCap='round'; ctx.lineJoin='round';
-    ctx.lineWidth = Math.max(18, Math.min(w,h)*0.06);
+    ctx.lineWidth = Math.max(12, Math.min(w,h)*0.045);
     ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
   }
 
@@ -2298,7 +2299,7 @@ function move(e){
 }
   function end(){
     if(!drawing) return; drawing=false;
-    if(!cleared && percentCleared()>=0.6){
+    if(!cleared && percentCleared()>=0.72){
       cleared=true; msg.hidden=false; burst(cvs);
       navigator.vibrate?.(20);
     }
