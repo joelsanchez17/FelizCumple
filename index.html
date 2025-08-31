@@ -372,13 +372,173 @@
   to  { opacity:1; transform:scale(1) }
 }
 
+.paper-rings-list {
+  list-style: none; /* Quita los puntos de la lista */
+  padding-left: 0;
+  margin-top: 14px;
+  text-align: left; /* Para que el texto se alinee a la izquierda dentro del panel */
+  max-width: 400px; /* Opcional: para que no se estire demasiado en pantallas anchas */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.paper-rings-list li {
+  margin-bottom: 8px; /* Espacio entre cada razón */
+  font-size: 1.05em;
+  color: #333;
+}
+
+.paper-rings-list li::before {
+  content: '💖'; /* Usa un corazón como viñeta, muy del estilo de la página */
+  margin-right: 10px; /* Espacio entre el corazón y el texto */
+  font-size: 1.1em;
+}
 
 
+.countdown-panel{ text-align:center }
+.ring-wrap{ display:flex; justify-content:center; margin:10px 0 }
+.ring{ width:min(240px,72vw); height:auto; }
+.ring text{ font-family: Quicksand, system-ui; }
+.ring .track{ stroke:rgba(255,255,255,.55); }
+.ring .bar{ stroke:url(#ringGrad); transition: stroke-dashoffset .8s ease; }
+.ring .glow{ filter: drop-shadow(0 0 8px rgba(255,180,220,.6)); }
+.tleft{ font-size:20px; font-weight:700; fill:#333 }
+.subt{ font-size:12px; fill:#555 }
+.unlock{
+  margin-top:12px; padding:12px; border:1px solid #f1b6c2; border-radius:12px;
+  background:rgba(255,255,255,.9); box-shadow:0 6px 18px rgba(0,0,0,.08); text-align:left;
+}
+.unlock.open{ animation: pop 0.35s ease-out both }
+@keyframes pop{ from{ transform:scale(.98); opacity:0 } to{ transform:scale(1); opacity:1 } }
+.fireworks{ position:fixed; inset:0; pointer-events:none; z-index:10040 }
+
+/* animación de caída que ya usas para corazones/confetti */
+@keyframes heart-fall{
+  to{ transform: translateY(100vh) rotate(360deg); opacity:.9 }
+}
+
+/* --- Estilos para la Carta Bloqueada --- */
+.unlock {
+  border: 2px dashed #e0c5cb; /* Un borde sutil y punteado */
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  margin-top: 15px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transición suave */
+}
+
+.unlock.locked .lock {
+  font-size: 1.8em;
+  display: block;
+  animation: pulse 2s infinite ease-in-out; /* El candado palpita */
+}
+
+.unlock.locked strong {
+  color: #777;
+}
+
+/* --- Estilos para la Carta DESBLOQUEADA --- */
+.unlock.unlocked {
+  border-style: solid;
+  border-color: #e91e63;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  transform: scale(1.02); /* Se agranda un poquito */
+}
+
+.unlock.unlocked .lock {
+  font-size: 1.8em;
+  display: block;
+  color: #e91e63;
+  transform: rotate(10deg); /* El candado abierto se inclina */
+}
+
+.unlock.unlocked .instructions {
+  display: none; /* Ocultamos las instrucciones originales */
+}
+
+/* --- Estilos para el cuerpo de la carta --- */
+#letterBody {
+  text-align: left;
+  animation: fadeIn 0.8s ease-out forwards;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  font-family: 'Georgia', serif; /* Una fuente más elegante para la carta */
+  color: #333;
+}
+
+#letterBody p {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+/* Ripple + micro-press en cada panel */
+.panel{ position: relative; }
+.panel:active{ transform: scale(0.998); }
+
+.ripple{
+  position:absolute; pointer-events:none; border-radius:999px;
+  transform:scale(0); opacity:.45;
+  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,.6) 30%, rgba(233,30,99,.25) 60%, rgba(233,30,99,0) 70%);
+  animation: ripple .55s ease-out forwards;
+}
+@keyframes ripple{ to{ transform:scale(3); opacity:0; } }
+/* Interacciones del panel de candado */
+.unlock{ cursor:pointer; position:relative; }
+.unlock.shake{ animation: unlock-shake .45s ease; }
+@keyframes unlock-shake{
+  0%,100%{ transform:translateX(0) }
+  15%{ transform:translateX(-3px) }
+  30%{ transform:translateX(3px) }
+  45%{ transform:translateX(-2px) }
+  60%{ transform:translateX(2px) }
+  75%{ transform:translateX(-1px) }
+}
+
+.unlock.halo{ box-shadow:0 0 0 0 rgba(233,30,99,.45); animation: halo-pulse 1.2s ease-out; }
+@keyframes halo-pulse{
+  0%  { box-shadow:0 0 0 0 rgba(233,30,99,.45) }
+  70% { box-shadow:0 0 0 12px rgba(233,30,99,0) }
+  100%{ box-shadow:0 0 0 0 rgba(233,30,99,0) }
+}
+
+/* Globito de ayuda */
+.unlock .hint{
+  position:absolute; right:10px; top:-10px;
+  background:#fff; border:1px solid #f1b6c2; border-radius:10px; padding:6px 10px;
+  font-size:.9em; box-shadow:0 8px 22px rgba(0,0,0,.12); opacity:0; transform:translateY(-6px);
+  animation: hint-in .25s ease-out forwards;
+}
+@keyframes hint-in{ to{ opacity:1; transform:translateY(0) } }
+
+/* Si quieres permitir ocultar la carta aun desbloqueada */
+.unlock.open.collapsed #letterBody{ display:none !important; }
 
 
+/* Guía visual de long-press (aparece donde apoyas el dedo) */
+.hold-ring{
+  position: fixed;
+  left: var(--x); top: var(--y);
+  width: 88px; height: 88px;
+  transform: translate(-50%,-50%) scale(.7);
+  border-radius: 999px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,.25) 0%, rgba(255,255,255,0) 60%),
+    conic-gradient(from 0turn, rgba(233,30,99,.8) 0%, rgba(233,30,99,.8) 0%, rgba(233,30,99,0) 0%);
+  box-shadow: 0 0 0 2px rgba(233,30,99,.25);
+  animation: hold-ring-grow .2s ease-out forwards;
+}
 
+/* crece un poco al aparecer */
+@keyframes hold-ring-grow {
+  to { transform: translate(-50%,-50%) scale(1); }
+}
 
-
+/* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
+   así que no hace falta un progress real; si quisieras progreso visual,
+   podemos añadir requestAnimationFrame para animar la conic-gradient. */
 
 
 
@@ -408,17 +568,17 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-    <span style="font-size:1.3em">🍋</span>
+    <span style="font-size:1.3em">✈️</span>
     <div>
-      <strong> Juntos </strong><br>
-      <small> lo logramos juntos💘 </small>
+      <strong> YA CASI ¡MAÑANA NOS VEMOS! </strong><br>
+      <small> Prepara esa mirada que me roba el alma, que ya voy por ella 🥹💘 </small>
     
     </div>
     <button class="update-close" aria-label="Cerrar">✕</button>
   </div>
 
   <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
-  <h2 class="muted">Que este día esté lleno de sonrisas y de nosotros 🥰 <br>Te extraño mucho </h2>
+  <h2 class="muted">Las horas se hacen eternas, pero nuestro momento está a punto de llegar.<br>Te extraño y ya voy por ti. </h2>
 
   <div class="intro-hero">
     <!-- Flip card -->
@@ -445,6 +605,7 @@
       <button class="action-button sticker-add" data-emoji="🐧">🐧</button>
       <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
       <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
+      <button class="action-button sticker-add" data-emoji="👑">👑</button>
       <button class="action-button sticker-add" data-emoji="🍄">🍄</button>
       <button class="action-button sticker-add" data-emoji="🧬">🧬</button>
     </div>
@@ -465,7 +626,7 @@
     <div class="title">⏳ Tiempo para reencontrarnos en Frankfurt ❤️</div>
     <div id="countdown" class="big">00d 00h 00m 00s</div>
     <div class="row">
-      <div class="chip">Objetivo (Frankfurt): 2025-09-01 19:30</div>
+      <div class="chip">Objetivo (Frankfurt): 2025-09-01 17:30</div>
       <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
     </div>
   </div>
@@ -474,6 +635,48 @@
     <div class="meetbar"><div id="meetProgress"></div></div>
     <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
     </div>
+
+
+    <div class="panel" style="animation-delay: 1.4s;">
+      <div class="title">Lo primero que haré cuando te vea... ✨</div>
+      <ul class="paper-rings-list"> <li>Abrazarte tan fuerte que se nos olvide el tiempo.</li>
+        <li>Darte ese beso que llevo semanas esperando.</li>
+        <li>Mirarte a los ojos y sonreír, sabiendo que la espera terminó.</li>
+        <li>Decirte al oído lo mucho que te extrañé.</li>
+        <li>Tomar tu mano y no soltarla.</li>
+      </ul>
+    </div>
+    
+
+      <div id="unlockLetter" class="unlock locked">
+  <span class="lock">🔒</span>
+  <strong>Una carta sellada en el tiempo</strong>
+  <p class="instructions muted" style="font-size: 0.9em;">
+    Este mensaje se revelará en el instante en que nos reencontremos.
+  </p>
+  
+  <div id="letterBody" style="display:none; margin-top:12px;">
+    <h3>Mi princesa,</h3>
+    <p>
+      La cuenta atrás ha terminado. Hoy, las horas y los minutos ya no importan, solo importa tenerte aquí, frente a mí. Gracias por aguantar la espera y por ser, hoy y siempre, mi lugar feliz en el mundo. 🍋🐧👑💖
+    </p>
+    <p>
+      <strong>Hoy, te prometo...</strong>
+    </p>
+    <p>
+      ...que mi primer abrazo buscará recuperar cada día que estuvimos lejos.
+      <br>...que mis ojos no dejarán de buscar los tuyos, para grabar este momento para siempre.
+      <br>...que cuidaré de ti y te entregaré todo este amor que he guardado con ansias.
+    </p>
+    <p>
+      La espera terminó. Nuestra aventura juntos, ahora, continúa.
+    </p>
+    <p>
+      Te amo,<br>
+      Tu Joel
+    </p>
+  </div>
+</div>
 
 
   <div class="panel">
@@ -486,8 +689,17 @@
       <img src="https://i.imgur.com/7piACeA.jpeg" alt="Tu, yo y Ana 👨‍👩‍👧">
       
     </div>
-    <div class="title"> presiona  💌</div>
+    <div class="title"> Zusammen 👩🏻‍🔬👨🏻‍💻 💞 </div>
   </div>
+
+
+
+<!-- capa para fuegos (confetti/emoji) -->
+<div id="fwLayer" class="fireworks"></div>
+
+
+
+
 
   <div class="title">Our Invisible String 🧵</div>
 
@@ -684,7 +896,7 @@
   <script>
     // --- Contadores up/down ---
     const startBerlin = new Date("2025-08-12T06:30:00+02:00");
-    const meetingBerlin = new Date("2025-09-01T19:30:00+02:00");
+    const meetingBerlin = new Date("2025-09-01T17:30:00+02:00");
     const elUp = document.getElementById("countup");
     const elDown = document.getElementById("countdown");
     function fmtDHMS(totalSeconds) {
@@ -1561,6 +1773,397 @@ function applyDifficulty(){
 })();
 
 
+// === Final 34h Mode — TZ Europe/Berlin con diagnóstico visible ===
+(function(){
+  // CONFIGURA AQUÍ (Frankfurt 17:30)
+  const MEET_DATE = "2025-09-01";   // YYYY-MM-DD
+  const MEET_TIME = "17:30";        // HH:mm (24h)
+  const MEET_TZ   = "Europe/Berlin";
+
+  const WINDOW_H = 34; // anillo muestra progreso de las últimas 34h
+
+  // utilidades tz
+  const pad = n => String(n).padStart(2,"0");
+  function tzOffsetMinutes(tz, date){
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit",
+      hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
+    });
+    const parts = Object.fromEntries(fmt.formatToParts(date).map(p=>[p.type,p.value]));
+    const asUTC = Date.UTC(+parts.year, +parts.month-1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+    return Math.round((asUTC - date.getTime())/60000);
+  }
+  function zonedToEpoch(y,m,d,h,mi,tz){
+    const candidateUTC = Date.UTC(y, m-1, d, h, mi, 0);
+    const off = tzOffsetMinutes(tz, new Date(candidateUTC));
+    return candidateUTC - off*60000;
+  }
+
+  const [Y,M,D] = MEET_DATE.split("-").map(Number);
+  const [HH,MM] = MEET_TIME.split(":").map(Number);
+  const target  = zonedToEpoch(Y,M,D,HH,MM,MEET_TZ);
+  const start   = target - WINDOW_H*3600*1000;
+
+  // elementos
+  const ring   = document.getElementById('meetRing');
+  const bar    = ring?.querySelector('.bar');
+  const tmain  = document.getElementById('tleft');
+  const tsub   = document.getElementById('tleftSub');
+  const unlock = document.getElementById('unlockLetter');
+  const body   = document.getElementById('letterBody');
+  const fw     = document.getElementById('fwLayer');
+  const dbg    = document.getElementById('meetDebug');
+  if(!ring || !bar || !tmain || !tsub || !unlock || !fw || !dbg) return;
+
+  const R = 90, CIRC = 2*Math.PI*R;
+  let lastHour = null, done=false;
+
+  // pinta la línea de diagnóstico
+  const fmtLocal = new Intl.DateTimeFormat('es-ES', {
+    timeZone: MEET_TZ, dateStyle:'medium', timeStyle:'short'
+  });
+  dbg.textContent = `Objetivo (Frankfurt): ${fmtLocal.format(new Date(target))}`;
+
+  function fmt(ms){
+    if(ms<0) ms=0;
+    const s=Math.floor(ms/1000);
+    const d=Math.floor(s/86400);
+    const h=Math.floor((s%86400)/3600);
+    const m=Math.floor((s%3600)/60);
+    const ss=s%60;
+    return (d? d+"d ":"")+pad(h)+"h "+pad(m)+"m "+pad(ss)+"s";
+  }
+
+  function emojiBurst(em=['💖','✨','🎵','⭐'], n=26, full=false){
+    const vw=innerWidth, vh=innerHeight, box=fw;
+    for(let i=0;i<n;i++){
+      const s=document.createElement('div');
+      s.textContent=em[i%em.length];
+      s.style.position='fixed';
+      s.style.left=(full?Math.random()*vw:vw/2+(Math.random()-0.5)*240)+'px';
+      s.style.top =(full?Math.random()*vh*0.3:40)+'px';
+      s.style.fontSize=(18+Math.random()*16)+'px';
+      s.style.animation='heart-fall '+(3+Math.random()*2)+'s linear forwards';
+      box.appendChild(s); setTimeout(()=>s.remove(),5000);
+    }
+    window.confettiBurst?.(12);
+  }
+
+  function tick(){
+    const now=Date.now();
+    const rem=target-now;
+
+    tmain.textContent=fmt(rem);
+    tsub.textContent = rem>0 ? 'faltan' : '¡es hoy!';
+
+    const total=target-start;
+    const pass =Math.min(Math.max(now-start,0), total);
+    const ratio=pass/total;
+    bar.setAttribute('stroke-dasharray', String(CIRC));
+    bar.setAttribute('stroke-dashoffset', String(CIRC*(1-ratio)));
+
+    const hrs=Math.max(0, Math.ceil(rem/3600000));
+    if(rem>0 && hrs!==lastHour){
+      lastHour=hrs; emojiBurst(['💖','✨','🎵','⭐'], 26, false); navigator.vibrate?.(10);
+    }
+
+    if(rem<=0 && !done){
+      done=true;
+      unlock.classList.remove('locked'); unlock.classList.add('open');
+      unlock.querySelector('.lock').textContent='🔓';
+      body.style.display='block';
+      tmain.textContent="00h 00m 00s"; tsub.textContent="¡es hoy!";
+      emojiBurst(['💖','✨','🎉','🍋','🐧','🧬'], 90, true);
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// === Final 34h Mode — TZ Europe/Berlin con diagnóstico visible ===
+(function(){
+  // CONFIGURA AQUÍ (Frankfurt 17:30)
+  const MEET_DATE = "2025-09-01";   // YYYY-MM-DD
+  const MEET_TIME = "17:30";        // HH:mm (24h)
+  const MEET_TZ   = "Europe/Berlin";
+
+  const WINDOW_H = 34; // anillo muestra progreso de las últimas 34h
+
+  // utilidades tz
+  const pad = n => String(n).padStart(2,"0");
+  function tzOffsetMinutes(tz, date){
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit",
+      hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
+    });
+    const parts = Object.fromEntries(fmt.formatToParts(date).map(p=>[p.type,p.value]));
+    const asUTC = Date.UTC(+parts.year, +parts.month-1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+    return Math.round((asUTC - date.getTime())/60000);
+  }
+  function zonedToEpoch(y,m,d,h,mi,tz){
+    const candidateUTC = Date.UTC(y, m-1, d, h, mi, 0);
+    const off = tzOffsetMinutes(tz, new Date(candidateUTC));
+    return candidateUTC - off*60000;
+  }
+
+  const [Y,M,D] = MEET_DATE.split("-").map(Number);
+  const [HH,MM] = MEET_TIME.split(":").map(Number);
+  const target  = zonedToEpoch(Y,M,D,HH,MM,MEET_TZ);
+  const start   = target - WINDOW_H*3600*1000;
+
+  // elementos
+  const ring   = document.getElementById('meetRing');
+  const bar    = ring?.querySelector('.bar');
+  const tmain  = document.getElementById('tleft');
+  const tsub   = document.getElementById('tleftSub');
+  const unlock = document.getElementById('unlockLetter');
+  const body   = document.getElementById('letterBody');
+  const fw     = document.getElementById('fwLayer');
+  const dbg    = document.getElementById('meetDebug');
+  if(!ring || !bar || !tmain || !tsub || !unlock || !fw || !dbg) return;
+
+  const R = 90, CIRC = 2*Math.PI*R;
+  let lastHour = null, done=false;
+
+  // pinta la línea de diagnóstico
+  const fmtLocal = new Intl.DateTimeFormat('es-ES', {
+    timeZone: MEET_TZ, dateStyle:'medium', timeStyle:'short'
+  });
+  dbg.textContent = `Objetivo (Berlin): ${fmtLocal.format(new Date(target))}`;
+
+  function fmt(ms){
+    if(ms<0) ms=0;
+    const s=Math.floor(ms/1000);
+    const d=Math.floor(s/86400);
+    const h=Math.floor((s%86400)/3600);
+    const m=Math.floor((s%3600)/60);
+    const ss=s%60;
+    return (d? d+"d ":"")+pad(h)+"h "+pad(m)+"m "+pad(ss)+"s";
+  }
+
+  function emojiBurst(em=['💖','✨','🎵','⭐'], n=26, full=false){
+    const vw=innerWidth, vh=innerHeight, box=fw;
+    for(let i=0;i<n;i++){
+      const s=document.createElement('div');
+      s.textContent=em[i%em.length];
+      s.style.position='fixed';
+      s.style.left=(full?Math.random()*vw:vw/2+(Math.random()-0.5)*240)+'px';
+      s.style.top =(full?Math.random()*vh*0.3:40)+'px';
+      s.style.fontSize=(18+Math.random()*16)+'px';
+      s.style.animation='heart-fall '+(3+Math.random()*2)+'s linear forwards';
+      box.appendChild(s); setTimeout(()=>s.remove(),5000);
+    }
+    window.confettiBurst?.(12);
+  }
+
+  function tick(){
+    const now=Date.now();
+    const rem=target-now;
+
+    tmain.textContent=fmt(rem);
+    tsub.textContent = rem>0 ? 'faltan' : '¡es hoy!';
+
+    const total=target-start;
+    const pass =Math.min(Math.max(now-start,0), total);
+    const ratio=pass/total;
+    bar.setAttribute('stroke-dasharray', String(CIRC));
+    bar.setAttribute('stroke-dashoffset', String(CIRC*(1-ratio)));
+
+    const hrs=Math.max(0, Math.ceil(rem/3600000));
+    if(rem>0 && hrs!==lastHour){
+      lastHour=hrs; emojiBurst(['💖','✨','🎵','⭐'], 26, false); navigator.vibrate?.(10);
+    }
+
+    if(rem<=0 && !done){
+      done=true;
+      unlock.classList.remove('locked'); unlock.classList.add('open');
+      unlock.querySelector('.lock').textContent='🔓';
+      body.style.display='block';
+      tmain.textContent="00h 00m 00s"; tsub.textContent="¡es hoy!";
+      emojiBurst(['💖','✨','🎉','🍋','🐧','🧬'], 90, true);
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
+
+// Toques en paneles: ripple + mini emojis (y vibración)
+// Long-press en paneles (3s): anillo guía + ripple + emojis (sin disparar en cada toque)
+(function(){
+  const LONG_MS  = 3000;  // ⟵ duración del long-press
+  const MOVE_TOL = 12;    // tolerancia de movimiento (px)
+
+  const panels = document.querySelectorAll('.panel');
+  if (!panels.length) return;
+
+  function ripple(panel, x, y){
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const rect = panel.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 0.6;
+    r.style.width = r.style.height = size + 'px';
+    r.style.left = (x - rect.left - size/2) + 'px';
+    r.style.top  = (y - rect.top  - size/2) + 'px';
+    panel.appendChild(r);
+    setTimeout(()=> r.remove(), 650);
+  }
+
+  function emojiPop(panel, emojis, x, y){
+    const box = document.getElementById('confetti') || (()=>{
+      const d=document.createElement('div'); d.id='confetti'; d.className='confetti';
+      document.body.appendChild(d); return d;
+    })();
+    const rect = panel.getBoundingClientRect();
+    const set  = (emojis && emojis.length) ? emojis : ['✨','💖','⭐'];
+    const left0 = (x!=null) ? x : rect.left + rect.width/2;
+    for(let i=0;i<12;i++){
+      const s = document.createElement('div');
+      s.className = 'emoji-fall';
+      s.textContent = set[i % set.length];
+      s.style.left = (left0 + (Math.random()-0.5)*180) + 'px';
+      s.style.top  = ((y!=null ? y : rect.top) - 10) + 'px';
+      s.style.setProperty('--size', (16+Math.random()*14)+'px');
+      s.style.setProperty('--dur',  (2.8+Math.random()*1.8)+'s');
+      box.appendChild(s); setTimeout(()=>s.remove(), 4500);
+    }
+  }
+
+  function isInteractive(el){
+    return !!el.closest('button, a, input, textarea, select, [role="button"]');
+  }
+
+  panels.forEach(panel=>{
+    let timer=null, startX=0, startY=0, fired=false, ring=null, raf=0, t0=0;
+
+    function clear(){
+      if(timer){ clearTimeout(timer); timer=null; }
+      if(raf){ cancelAnimationFrame(raf); raf=0; }
+      if(ring){ ring.remove(); ring=null; }
+      fired=false;
+    }
+
+    // anima la "torta" del anillo con requestAnimationFrame
+    function draw(ts){
+      if(!ring) return;
+      if(!t0) t0 = ts;
+      const p   = Math.min((ts - t0) / LONG_MS, 1); // 0..1
+      const deg = Math.max(1, p * 360);
+      ring.style.background =
+        `radial-gradient(circle at center, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 60%),
+         conic-gradient(from -90deg, rgba(233,30,99,.85) 0 ${deg}deg, rgba(233,30,99,0) ${deg}deg 360deg)`;
+      if (p < 1) raf = requestAnimationFrame(draw);
+    }
+
+    panel.addEventListener('pointerdown', (e)=>{
+      if (isInteractive(e.target)) return;        // evita conflictos con botones/links
+      panel.setPointerCapture?.(e.pointerId);
+      startX = e.clientX; startY = e.clientY;
+
+      // anillo guía en la posición del dedo
+      ring = document.createElement('span');
+      ring.className = 'hold-ring';
+      ring.style.setProperty('--x', startX + 'px');
+      ring.style.setProperty('--y', startY + 'px');
+      document.body.appendChild(ring);
+
+      // arranca animación de progreso
+      t0 = 0;
+      raf = requestAnimationFrame(draw);
+
+      // cronómetro del long-press
+      timer = setTimeout(()=>{
+        fired = true;
+        const em = panel.dataset.emoji ? panel.dataset.emoji.split(',') : undefined;
+        ripple(panel, startX, startY);
+        emojiPop(panel, em, startX, startY);
+        navigator.vibrate?.(25);
+        clear();
+      }, LONG_MS);
+    });
+
+    panel.addEventListener('pointermove', (e)=>{
+      if(!timer) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.abs(dx) > MOVE_TOL || Math.abs(dy) > MOVE_TOL) clear(); // canceló
+    });
+
+    ['pointerup','pointercancel','pointerleave'].forEach(type=>{
+      panel.addEventListener(type, ()=>{ if(!fired) clear(); });
+    });
+  });
+})();
+
+
+// Candado interactivo: shake/glow + hint cuando está bloqueado; toggle carta cuando está abierto
+(function(){
+  const unlock = document.getElementById('unlockLetter');
+  const body   = document.getElementById('letterBody');
+  if(!unlock || !body) return;
+
+  // Accesibilidad
+  unlock.setAttribute('tabindex','0');
+  unlock.setAttribute('role','button');
+  unlock.setAttribute('aria-expanded', String(!unlock.classList.contains('locked')));
+
+  function burstAtEl(el, emojis=['✨'], n=22){
+    const box = document.getElementById('confetti') || (()=>{
+      const d=document.createElement('div'); d.id='confetti'; d.className='confetti';
+      document.body.appendChild(d); return d;
+    })();
+    const r = el.getBoundingClientRect();
+    for(let i=0;i<n;i++){
+      const s=document.createElement('div');
+      s.className='emoji-fall';
+      s.textContent = emojis[i % emojis.length];
+      s.style.left = (r.left + Math.random()*r.width) + 'px';
+      s.style.top  = (r.top  - 10) + 'px';
+      s.style.setProperty('--size', (18+Math.random()*16)+'px');
+      s.style.setProperty('--dur',  (2.8+Math.random()*2)+'s');
+      box.appendChild(s); setTimeout(()=>s.remove(), 5000);
+    }
+  }
+
+  function showHint(msg){
+    // quita hints previos
+    unlock.querySelectorAll('.hint').forEach(h=>h.remove());
+    const h = document.createElement('div');
+    h.className = 'hint';
+    h.textContent = msg || 'Se abrirá automáticamente cuando llegue la hora ✨';
+    unlock.appendChild(h);
+    setTimeout(()=> h.remove(), 1700);
+  }
+
+  function onInteract(){
+    const isLocked = unlock.classList.contains('locked');
+
+    if (isLocked){
+      unlock.classList.add('shake','halo');
+      showHint('Se abrirá cuando llegue la hora ✨');
+      burstAtEl(unlock, ['🔒','🔑','✨'], 22);
+      navigator.vibrate?.(15);
+      setTimeout(()=> unlock.classList.remove('shake','halo'), 700);
+    } else {
+      // Alterna mostrar/ocultar carta una vez desbloqueado
+      const collapsed = unlock.classList.toggle('collapsed');
+      // Asegúrate de que tenga .open cuando ya está desbloqueado
+      unlock.classList.add('open');
+      body.style.display = collapsed ? 'none' : 'block';
+      unlock.classList.add('halo');
+      setTimeout(()=> unlock.classList.remove('halo'), 600);
+      burstAtEl(unlock, ['💖','📩','✨'], 22);
+      navigator.vibrate?.(10);
+    }
+    unlock.setAttribute('aria-expanded', String(!unlock.classList.contains('locked') && !unlock.classList.contains('collapsed')));
+  }
+
+  unlock.addEventListener('click', onInteract);
+  unlock.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onInteract(); }
+  });
+})();
 
 
 
