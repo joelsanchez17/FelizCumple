@@ -2209,16 +2209,49 @@ function applyDifficulty(){
 
 // Rasca y florece: revela la pintura y muestra mensaje + confetti al 70%
 (function(){
-  const PAINT_URL = 'https://joelsanchez17.github.io/FelizCumple/flower.jpg'; // ⟵ tu URL
+  
   const wrap  = document.getElementById('scratchPanel');
   const img   = document.getElementById('scratchImg');
   const cvs   = document.getElementById('scratchCanvas');
   const msg   = document.getElementById('scratchMsg');
   const btnR  = document.getElementById('scratchReset');
+  // === Lista de pinturas para el scratch ===
+const PAINTS = [
+  'https://joelsanchez17.github.io/FelizCumple/flower.jpg',
+  'https://joelsanchez17.github.io/FelizCumple/flower2.jpg',
+  'https://joelsanchez17.github.io/FelizCumple/acuarela1.jpg'
+];
+// 'random' = aleatoria evitando repetir la última; 'cycle' = rotativa
+const CHANGE_MODE = 'random';
+
+// índice persistente
+let scratchIdx = parseInt(localStorage.getItem('scratch_idx') || '-1', 10);
+
+function nextIndex(){
+  if (!PAINTS.length) return 0;
+  if (CHANGE_MODE === 'cycle') {
+    return (scratchIdx + 1) % PAINTS.length;
+  } else {
+    let i = Math.floor(Math.random()*PAINTS.length);
+    if (PAINTS.length > 1 && i === scratchIdx) i = (i+1) % PAINTS.length;
+    return i;
+  }
+}
+
+// Pre-carga y aplica; luego llama a 'then' (ej. size)
+function setScratchImage(imgDiv, i, then){
+  scratchIdx = i;
+  localStorage.setItem('scratch_idx', String(scratchIdx));
+  const url = PAINTS[scratchIdx];
+  const pre = new Image();
+  pre.onload  = ()=>{ imgDiv.style.backgroundImage = `url("${url}")`; then && then(); };
+  pre.onerror = ()=>{ imgDiv.style.backgroundImage = `url("${PAINTS[0]}")`; then && then(); };
+  pre.src = url;
+}
+
   if(!wrap || !img || !cvs || !btnR) return;
 
-  img.style.backgroundImage = `url("${PAINT_URL}")`;
-
+  
   const ctx = cvs.getContext('2d');
   let drawing=false, cleared=false, lastX=0, lastY=0, w=0, h=0, scale=1;
 
@@ -2227,9 +2260,7 @@ function applyDifficulty(){
     cvs.style.display = 'block';
     msg.classList.remove('show');
     msg.hidden = true;
-    cvs.style.display = 'block';
-    msg.classList.remove('show');
-    msg.hidden = true;
+   
 
     const r = wrap.querySelector('.scratch-img').getBoundingClientRect();
     w = Math.round(r.width); h = Math.round(r.height);
@@ -2326,8 +2357,9 @@ function move(e){
   }
 }
 
-  size();
-  addEventListener('resize', size, {passive:true});
+setScratchImage(img, 0, size);
+addEventListener('resize', size, {passive:true});
+
 
   cvs.addEventListener('pointerdown', start, {passive:false});
   cvs.addEventListener('pointermove', move, {passive:false});
@@ -2339,28 +2371,25 @@ function move(e){
   cvs.addEventListener('touchend', end);
 
   btnR.addEventListener('click', ()=>{
-  // 1) Frases artísticas para revelar al final (elige/edita libremente)
+  // Frases artísticas para el final
   const frases = [
     "Para la artista de mi vida, que colorea mis días 🎨💖",
-    "Soy un coleccionista de arte y tu mi monalisa 💞🖌️",
+    "Soy un coleccionista de arte y tú mi Monalisa 💞🖌️",
     "Para mi bella artista, todo te queda bonito ✨🖌️",
-    
-    "En el arte encontre la parte más profunda y linda de ti 🎨✨",
-    "Tu forma de ser es un arte que hace magia en mi mundo 💖🎵"
+    "En el arte encontré la parte más linda de ti 🎨✨",
+    "Tu flow y tu arte hacen magia en mi mundo 💖🎵"
   ];
-  // elige una al azar para el mensaje final
   msg.textContent = frases[Math.floor(Math.random()*frases.length)];
 
-  // 2) Reinicia la lona
-  size();
-
-  // 3) Mini confetti de arte + flow + amor
-  // (usa tu función burst ya definida en el mismo bloque)
-  burst(cvs, ['🎨','🖌️','💖','✨','🎵'], 18);
-
-  // 4) Vibración sutil en móvil
-  navigator.vibrate?.(10);
+  // Elige la siguiente imagen y, cuando cargue, reinicia la lona
+  const idx = nextIndex();
+  setScratchImage(img, idx, ()=>{
+    size(); // ← repinta la capa rascable y oculta el mensaje
+    burst(cvs, ['🎨','🖌️','💖','✨','🎵'], 18);
+    navigator.vibrate?.(10);
+  });
 });
+
 })();
 
 
