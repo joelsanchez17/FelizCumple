@@ -536,6 +536,26 @@
   to { transform: translate(-50%,-50%) scale(1); }
 }
 
+/* Scratch */
+.scratch-wrap{
+  position:relative; max-width:520px; margin:0 auto; border-radius:14px;
+  overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,.12);
+}
+.scratch-img{ width:100%; padding-top:68%; background-size:cover; background-position:center; }
+#scratchCanvas{
+  position:absolute; inset:0; touch-action:none;
+  /* Fancy cursor (single line, no backslash) */
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><circle cx='14' cy='14' r='6' fill='rgba(233,30,99,.25)'/></svg>") 14 14, crosshair;
+}
+.scratch-msg{
+  position:absolute; inset:auto 12px 12px 12px; background:rgba(255,255,255,.9);
+  border:1px solid #f1b6c2; border-radius:12px; padding:10px 12px; text-align:center;
+  box-shadow:0 8px 22px rgba(0,0,0,.12); font-weight:600; animation: pop .28s ease-out both;
+}
+/* If you don’t already have it elsewhere */
+@keyframes pop{ from{ transform:scale(.98); opacity:0 } to{ transform:scale(1); opacity:1 } }
+
+
 /* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
    así que no hace falta un progress real; si quisieras progreso visual,
    podemos añadir requestAnimationFrame para animar la conic-gradient. */
@@ -681,6 +701,7 @@
 
   <div class="panel">
     <div class="title">Nuestros Bellos Momentos ✨</div>
+    <div class="title"> Zusammen 👩🏻‍🔬👨🏻‍💻 💞 </div>
     <div class="photo-gallery">
       <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Nuestra despedida 🥺">
       <img src="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg" alt="Nos escapamos por la puerta 🤭">
@@ -689,7 +710,7 @@
       <img src="https://i.imgur.com/7piACeA.jpeg" alt="Tu, yo y Ana 👨‍👩‍👧">
       
     </div>
-    <div class="title"> Zusammen 👩🏻‍🔬👨🏻‍💻 💞 </div>
+    
   </div>
 
 
@@ -893,6 +914,21 @@
           <button id="quizRestart" class="action-button" style="display:none;">Reiniciar 🔁</button>
         </div>
             </div>
+
+            <div class="panel" id="scratchPanel" data-emoji="🌸,💖,✨">
+            <div class="title">Rasca y florece 🌸</div>
+            <div class="scratch-wrap">
+              <div class="scratch-img" id="scratchImg"></div>
+              <canvas id="scratchCanvas" aria-label="Rascar para revelar"></canvas>
+              <div id="scratchMsg" class="scratch-msg" hidden>
+                Para que armemos un mundo juntos, pieza a pieza 💞
+              </div>
+            </div>
+            <div class="row" style="gap:8px;margin-top:8px">
+              <button id="scratchReset" class="action-button">Reiniciar</button>
+            </div>
+          </div>
+
   <script>
     // --- Contadores up/down ---
     const startBerlin = new Date("2025-08-12T06:30:00+02:00");
@@ -2032,8 +2068,9 @@ function applyDifficulty(){
   }
 
   function isInteractive(el){
-    return !!el.closest('button, a, input, textarea, select, [role="button"]');
-  }
+  // además de botones/links, ignora el scratch canvas
+  return !!el.closest('button, a, input, textarea, select, [role="button"], #scratchCanvas');
+}
 
   panels.forEach(panel=>{
     let timer=null, startX=0, startY=0, fired=false, ring=null, raf=0, t0=0;
@@ -2165,6 +2202,122 @@ function applyDifficulty(){
   });
 })();
 
+// Rasca y florece: revela la pintura y muestra mensaje + confetti al 70%
+(function(){
+  const PAINT_URL = 'https://joelsanchez17.github.io/FelizCumple/flower.jpg'; // ⟵ tu URL
+  const wrap  = document.getElementById('scratchPanel');
+  const img   = document.getElementById('scratchImg');
+  const cvs   = document.getElementById('scratchCanvas');
+  const msg   = document.getElementById('scratchMsg');
+  const btnR  = document.getElementById('scratchReset');
+  if(!wrap || !img || !cvs || !btnR) return;
+
+  img.style.backgroundImage = `url("${PAINT_URL}")`;
+
+  const ctx = cvs.getContext('2d');
+  let drawing=false, cleared=false, lastX=0, lastY=0, w=0, h=0, scale=1;
+
+  function size(){
+    const r = wrap.querySelector('.scratch-img').getBoundingClientRect();
+    w = Math.round(r.width); h = Math.round(r.height);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    cvs.width = Math.floor(w*dpr); cvs.height = Math.floor(h*dpr);
+    cvs.style.width = w+'px'; cvs.style.height = h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    // nueva capa “rascable”
+    const grd = ctx.createLinearGradient(0,0,w,h);
+    grd.addColorStop(0,'#f9dbe6'); grd.addColorStop(1,'#f2b6cf');
+    ctx.fillStyle = grd; ctx.fillRect(0,0,w,h);
+    // textura puntitos
+    ctx.globalAlpha = .25;
+    for(let i=0;i<800;i++){ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(Math.random()*w, Math.random()*h, 1.2, 1.2); }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'destination-out'; // todo lo que pintemos “borra”
+    cleared=false; msg.hidden = true;
+  }
+
+  function pos(e){
+    const r = cvs.getBoundingClientRect();
+    const x = (e.touches? e.touches[0].clientX : e.clientX) - r.left;
+    const y = (e.touches? e.touches[0].clientY : e.clientY) - r.top;
+    return {x,y};
+  }
+
+  function line(x1,y1,x2,y2){
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.lineWidth = Math.max(18, Math.min(w,h)*0.06);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  }
+
+  function percentCleared(sample=8){
+    // muestreo rápido: recorre una rejilla y cuenta pixeles ya borrados (alpha=0)
+    const data = ctx.getImageData(0,0,w,h).data;
+    let cleared=0, total=0, stepX=Math.floor(w/sample), stepY=Math.floor(h/sample);
+    for(let y=0;y<h;y+=stepY){
+      for(let x=0;x<w;x+=stepX){
+        const i = (y*w + x)*4 + 3; // alpha
+        total++; if (data[i]===0) cleared++;
+      }
+    }
+    return cleared/total;
+  }
+
+  function burst(el, emojis=['🌸','💖','✨'], n=34){
+    const box = document.getElementById('confetti') || (()=>{
+      const d=document.createElement('div'); d.id='confetti'; d.className='confetti'; document.body.appendChild(d); return d;
+    })();
+    const r = el.getBoundingClientRect();
+    for(let i=0;i<n;i++){
+      const s=document.createElement('div');
+      s.className='emoji-fall';
+      s.textContent = emojis[i%emojis.length];
+      s.style.left = (r.left + r.width/2 + (Math.random()-0.5)*200) + 'px';
+      s.style.top  = (r.top  + r.height*0.1) + 'px';
+      s.style.setProperty('--size',(18+Math.random()*16)+'px');
+      s.style.setProperty('--dur',(3+Math.random()*2)+'s');
+      box.appendChild(s); setTimeout(()=>s.remove(), 5200);
+    }
+    window.confettiBurst?.(20);
+  }
+
+  function start(e){
+  drawing = true;
+  const p = pos(e);
+  lastX = p.x; lastY = p.y;
+  e.preventDefault();
+  e.stopPropagation(); // ⟵ evita que el panel reciba pointerdown
+}
+
+function move(e){
+  if(!drawing || cleared) return;
+  const p = pos(e);
+  line(lastX, lastY, p.x, p.y);
+  lastX = p.x; lastY = p.y;
+  e.preventDefault();
+  e.stopPropagation(); // ⟵ evita que el panel capture pointermove
+}
+  function end(){
+    if(!drawing) return; drawing=false;
+    if(!cleared && percentCleared()>=0.6){
+      cleared=true; msg.hidden=false; burst(cvs);
+      navigator.vibrate?.(20);
+    }
+  }
+
+  size();
+  addEventListener('resize', size, {passive:true});
+
+  cvs.addEventListener('pointerdown', start, {passive:false});
+  cvs.addEventListener('pointermove', move, {passive:false});
+  cvs.addEventListener('pointerup', end);
+  cvs.addEventListener('pointerleave', end);
+  // soporte táctil antiguo
+  cvs.addEventListener('touchstart', start, {passive:false});
+  cvs.addEventListener('touchmove', move, {passive:false});
+  cvs.addEventListener('touchend', end);
+
+  btnR.addEventListener('click', size);
+})();
 
 
 
