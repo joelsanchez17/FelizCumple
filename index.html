@@ -560,6 +560,20 @@
 /* cuando agregues la clase 'show' desde JS */
 .scratch-msg.show{ opacity: 1; }
 
+/* Botón flotante de música */
+.music-btn{
+  position: fixed; right: 16px; bottom: 16px; z-index: 10060;
+  width: 52px; height: 52px; border-radius: 999px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  background: #e91e63; color: #fff; font-size: 22px; box-shadow: 0 10px 24px rgba(0,0,0,.25);
+  transition: transform .15s ease;
+}
+.music-btn:active{ transform: scale(.98); }
+.music-btn[aria-pressed="true"]{
+  background:#4caf50; animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse{ 0%,100%{ transform: scale(1) } 50%{ transform: scale(1.06) } }
+
 
 /* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
    así que no hace falta un progress real; si quisieras progreso visual,
@@ -700,6 +714,7 @@
       Te amo por siempre,<br>
       Tu Joel
     </p>
+  </div>
 </div>
 
 
@@ -722,7 +737,19 @@
 <!-- capa para fuegos (confetti/emoji) -->
 <div id="fwLayer" class="fireworks"></div>
 
-
+<div class="panel" id="spotifyPanel">
+  <div class="title"> Conectados a la distancia 🎶</div>
+  <iframe
+    style="border-radius:12px"
+    src="https://open.spotify.com/embed/track/6VsvKPJ4xjVNKpI8VVZ3SV?utm_source=generator&theme=0"
+    width="100%" height="152" frameborder="0"
+    allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"></iframe>
+  <p class="muted" style="margin-top:8px">
+    Si no ves el reproductor, abrilo en
+    <a href="https://open.spotify.com/track/6VsvKPJ4xjVNKpI8VVZ3SV" target="_blank" rel="noopener">Spotify</a>.
+  </p>
+</div>
 
 
 
@@ -2391,6 +2418,48 @@ addEventListener('resize', size, {passive:true});
 
 })();
 
+(function(){
+  function init(){
+    const audio = document.getElementById('bgMusic');
+    const btn   = document.getElementById('musicBtn');
+    if(!audio || !btn) return;
+
+    audio.volume = 0.6;
+    const wanted = localStorage.getItem('bg_music') === 'on';
+
+    function setState(on){
+      if(on){
+        audio.play().then(()=>{
+          btn.setAttribute('aria-pressed','true');
+          btn.textContent = '🔊';
+          localStorage.setItem('bg_music','on');
+        }).catch(()=>{ btn.setAttribute('aria-pressed','false'); btn.textContent = '🎵'; });
+      } else {
+        audio.pause();
+        btn.setAttribute('aria-pressed','false');
+        btn.textContent = '🎵';
+        localStorage.setItem('bg_music','off');
+      }
+    }
+
+    btn.addEventListener('click', ()=>{
+      const on = btn.getAttribute('aria-pressed') !== 'true';
+      setState(on);
+      navigator.vibrate?.(8);
+    });
+
+    // Desbloqueo móvil (iOS/Android): primer toque/clic
+    function unlock(){ setState(wanted); window.removeEventListener('touchstart', unlock); window.removeEventListener('click', unlock); }
+    window.addEventListener('touchstart', unlock, {once:true, passive:true});
+    window.addEventListener('click', unlock, {once:true});
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
 
 
 
