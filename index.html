@@ -574,6 +574,10 @@
 }
 @keyframes pulse{ 0%,100%{ transform: scale(1) } 50%{ transform: scale(1.06) } }
 
+.unlock.unlocked{
+  transform-origin: top center;
+  margin-bottom: 12px;
+}
 
 /* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
    así que no hace falta un progress real; si quisieras progreso visual,
@@ -607,10 +611,10 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-    <span style="font-size:1.3em">✈️</span>
+    <span style="font-size:1.3em">🥳</span>
     <div>
-      <strong> ES HOY 🎉🎈 </strong><br>
-      <small> solo horas para ver mi persona favorita 🥰 </small>
+      <strong> LA ESPERA TERMINO 😌💞 </strong><br>
+      <small> Hoy solo somos tu y yo </small>
     
     </div>
     <button class="update-close" aria-label="Cerrar">✕</button>
@@ -695,12 +699,12 @@
   </p>
   
 <div id="letterBody" style="display:none; margin-top:12px;">
-    <h3 style="font-family: 'Pacifico', cursive;">Mi princesa,</h3>
+    <h3 style="font-family: 'Pacifico', cursive;">Mi princesa👑</h3>
     <p>
-      La cuenta atrás ha terminado. Hoy, las horas y los minutos ya no importan. Solo importa tenerte aquí, frente a mí. Gracias por haber aguantado la espera y por ser, hoy y siempre, *mi lugar feliz en el mundo*. 🍋🐧👑💖
+      La cuenta atrás ha terminado. Hoy, las horas y los minutos ya no importan. Solo importa tenerte aquí, frente a mí. Gracias por haber aguantado la espera y por ser, hoy y siempre, mi lugar feliz en el mundo 🍋🐧👑💖
     </p>
     <p>
-      **Hoy, te prometo...**
+      Hoy, te prometo...
     </p>
     <ul>
       <li>...que mi primer abrazo buscará recuperar cada día que estuvimos lejos.</li>
@@ -711,8 +715,8 @@
       La espera terminó. Nuestra aventura juntos, ahora, continúa.
     </p>
     <p>
-      Te amo por siempre,<br>
-      Tu Joel
+      Te amo hoy y hasta que mi corazon deje de latir,<br>
+      Siempre tuyo Joel
     </p>
   </div>
 </div>
@@ -1839,222 +1843,40 @@ function applyDifficulty(){
   });
 })();
 
-
-// === Final 34h Mode — TZ Europe/Berlin con diagnóstico visible ===
+// === Desbloqueo de carta minimal: solo depende de meetingBerlin ===
 (function(){
-  // CONFIGURA AQUÍ (Frankfurt 17:30)
-  const MEET_DATE = "2025-09-01";   // YYYY-MM-DD
-  const MEET_TIME = "17:30";        // HH:mm (24h)
-  const MEET_TZ   = "Europe/Berlin";
-
-  const WINDOW_H = 34; // anillo muestra progreso de las últimas 34h
-
-  // utilidades tz
-  const pad = n => String(n).padStart(2,"0");
-  function tzOffsetMinutes(tz, date){
-    const fmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit",
-      hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
-    });
-    const parts = Object.fromEntries(fmt.formatToParts(date).map(p=>[p.type,p.value]));
-    const asUTC = Date.UTC(+parts.year, +parts.month-1, +parts.day, +parts.hour, +parts.minute, +parts.second);
-    return Math.round((asUTC - date.getTime())/60000);
-  }
-  function zonedToEpoch(y,m,d,h,mi,tz){
-    const candidateUTC = Date.UTC(y, m-1, d, h, mi, 0);
-    const off = tzOffsetMinutes(tz, new Date(candidateUTC));
-    return candidateUTC - off*60000;
-  }
-
-  const [Y,M,D] = MEET_DATE.split("-").map(Number);
-  const [HH,MM] = MEET_TIME.split(":").map(Number);
-  const target  = zonedToEpoch(Y,M,D,HH,MM,MEET_TZ);
-  const start   = target - WINDOW_H*3600*1000;
-
-  // elementos
-  const ring   = document.getElementById('meetRing');
-  const bar    = ring?.querySelector('.bar');
-  const tmain  = document.getElementById('tleft');
-  const tsub   = document.getElementById('tleftSub');
   const unlock = document.getElementById('unlockLetter');
   const body   = document.getElementById('letterBody');
-  const fw     = document.getElementById('fwLayer');
-  const dbg    = document.getElementById('meetDebug');
-  if(!ring || !bar || !tmain || !tsub || !unlock || !fw || !dbg) return;
+  const fw     = document.getElementById('fwLayer'); // capa para emojis
+  if(!unlock || !body) return;
 
-  const R = 90, CIRC = 2*Math.PI*R;
-  let lastHour = null, done=false;
-
-  // pinta la línea de diagnóstico
-  const fmtLocal = new Intl.DateTimeFormat('es-ES', {
-    timeZone: MEET_TZ, dateStyle:'medium', timeStyle:'short'
-  });
-  dbg.textContent = `Objetivo (Frankfurt): ${fmtLocal.format(new Date(target))}`;
-
-  function fmt(ms){
-    if(ms<0) ms=0;
-    const s=Math.floor(ms/1000);
-    const d=Math.floor(s/86400);
-    const h=Math.floor((s%86400)/3600);
-    const m=Math.floor((s%3600)/60);
-    const ss=s%60;
-    return (d? d+"d ":"")+pad(h)+"h "+pad(m)+"m "+pad(ss)+"s";
+  function party(){
+    // festejito simple usando lo que ya tienes
+    try { window.confettiBurst?.(24); } catch{}
+    try { dropHearts?.(60); } catch{}
+    try { navigator.vibrate?.([20,40,20]); } catch{}
   }
 
-  function emojiBurst(em=['💖','✨','🎵','⭐'], n=26, full=false){
-    const vw=innerWidth, vh=innerHeight, box=fw;
-    for(let i=0;i<n;i++){
-      const s=document.createElement('div');
-      s.textContent=em[i%em.length];
-      s.style.position='fixed';
-      s.style.left=(full?Math.random()*vw:vw/2+(Math.random()-0.5)*240)+'px';
-      s.style.top =(full?Math.random()*vh*0.3:40)+'px';
-      s.style.fontSize=(18+Math.random()*16)+'px';
-      s.style.animation='heart-fall '+(3+Math.random()*2)+'s linear forwards';
-      box.appendChild(s); setTimeout(()=>s.remove(),5000);
-    }
-    window.confettiBurst?.(12);
-  }
-
-  function tick(){
-    const now=Date.now();
-    const rem=target-now;
-
-    tmain.textContent=fmt(rem);
-    tsub.textContent = rem>0 ? 'faltan' : '¡es hoy!';
-
-    const total=target-start;
-    const pass =Math.min(Math.max(now-start,0), total);
-    const ratio=pass/total;
-    bar.setAttribute('stroke-dasharray', String(CIRC));
-    bar.setAttribute('stroke-dashoffset', String(CIRC*(1-ratio)));
-
-    const hrs=Math.max(0, Math.ceil(rem/3600000));
-    if(rem>0 && hrs!==lastHour){
-      lastHour=hrs; emojiBurst(['💖','✨','🎵','⭐'], 26, false); navigator.vibrate?.(10);
-    }
-
-    if(rem<=0 && !done){
-      done=true;
-      unlock.classList.remove('locked'); unlock.classList.add('open');
-      unlock.querySelector('.lock').textContent='🔓';
-      body.style.display='block';
-      tmain.textContent="00h 00m 00s"; tsub.textContent="¡es hoy!";
-      emojiBurst(['💖','✨','🎉','🍋','🐧','🧬'], 90, true);
+  function check(){
+    const now = new Date();
+    const rem = meetingBerlin - now;  // meetingBerlin ya existe en tu código
+    if (rem <= 0 && unlock.classList.contains('locked')) {
+      // desbloquear UI
+      unlock.classList.remove('locked');
+      unlock.classList.add('open', 'unlocked');     // «unlocked» activa tu estilo de carta abierta
+      const icon = unlock.querySelector('.lock');
+      if (icon) icon.textContent = '🔓';
+      body.style.display = 'block';
+      unlock.setAttribute('aria-expanded', 'true');
+      party();
     }
   }
 
-  tick();
-  setInterval(tick, 1000);
+  check();                // por si ya pasó la hora (debería abrirse ahora mismo)
+  setInterval(check, 1000); // vigila cada segundo
 })();
 
-// === Final 34h Mode — TZ Europe/Berlin con diagnóstico visible ===
-(function(){
-  // CONFIGURA AQUÍ (Frankfurt 17:30)
-  const MEET_DATE = "2025-09-01";   // YYYY-MM-DD
-  const MEET_TIME = "17:30";        // HH:mm (24h)
-  const MEET_TZ   = "Europe/Berlin";
 
-  const WINDOW_H = 34; // anillo muestra progreso de las últimas 34h
-
-  // utilidades tz
-  const pad = n => String(n).padStart(2,"0");
-  function tzOffsetMinutes(tz, date){
-    const fmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit",
-      hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
-    });
-    const parts = Object.fromEntries(fmt.formatToParts(date).map(p=>[p.type,p.value]));
-    const asUTC = Date.UTC(+parts.year, +parts.month-1, +parts.day, +parts.hour, +parts.minute, +parts.second);
-    return Math.round((asUTC - date.getTime())/60000);
-  }
-  function zonedToEpoch(y,m,d,h,mi,tz){
-    const candidateUTC = Date.UTC(y, m-1, d, h, mi, 0);
-    const off = tzOffsetMinutes(tz, new Date(candidateUTC));
-    return candidateUTC - off*60000;
-  }
-
-  const [Y,M,D] = MEET_DATE.split("-").map(Number);
-  const [HH,MM] = MEET_TIME.split(":").map(Number);
-  const target  = zonedToEpoch(Y,M,D,HH,MM,MEET_TZ);
-  const start   = target - WINDOW_H*3600*1000;
-
-  // elementos
-  const ring   = document.getElementById('meetRing');
-  const bar    = ring?.querySelector('.bar');
-  const tmain  = document.getElementById('tleft');
-  const tsub   = document.getElementById('tleftSub');
-  const unlock = document.getElementById('unlockLetter');
-  const body   = document.getElementById('letterBody');
-  const fw     = document.getElementById('fwLayer');
-  const dbg    = document.getElementById('meetDebug');
-  if(!ring || !bar || !tmain || !tsub || !unlock || !fw || !dbg) return;
-
-  const R = 90, CIRC = 2*Math.PI*R;
-  let lastHour = null, done=false;
-
-  // pinta la línea de diagnóstico
-  const fmtLocal = new Intl.DateTimeFormat('es-ES', {
-    timeZone: MEET_TZ, dateStyle:'medium', timeStyle:'short'
-  });
-  dbg.textContent = `Objetivo (Berlin): ${fmtLocal.format(new Date(target))}`;
-
-  function fmt(ms){
-    if(ms<0) ms=0;
-    const s=Math.floor(ms/1000);
-    const d=Math.floor(s/86400);
-    const h=Math.floor((s%86400)/3600);
-    const m=Math.floor((s%3600)/60);
-    const ss=s%60;
-    return (d? d+"d ":"")+pad(h)+"h "+pad(m)+"m "+pad(ss)+"s";
-  }
-
-  function emojiBurst(em=['💖','✨','🎵','⭐'], n=26, full=false){
-    const vw=innerWidth, vh=innerHeight, box=fw;
-    for(let i=0;i<n;i++){
-      const s=document.createElement('div');
-      s.textContent=em[i%em.length];
-      s.style.position='fixed';
-      s.style.left=(full?Math.random()*vw:vw/2+(Math.random()-0.5)*240)+'px';
-      s.style.top =(full?Math.random()*vh*0.3:40)+'px';
-      s.style.fontSize=(18+Math.random()*16)+'px';
-      s.style.animation='heart-fall '+(3+Math.random()*2)+'s linear forwards';
-      box.appendChild(s); setTimeout(()=>s.remove(),5000);
-    }
-    window.confettiBurst?.(12);
-  }
-
-  function tick(){
-    const now=Date.now();
-    const rem=target-now;
-
-    tmain.textContent=fmt(rem);
-    tsub.textContent = rem>0 ? 'faltan' : '¡es hoy!';
-
-    const total=target-start;
-    const pass =Math.min(Math.max(now-start,0), total);
-    const ratio=pass/total;
-    bar.setAttribute('stroke-dasharray', String(CIRC));
-    bar.setAttribute('stroke-dashoffset', String(CIRC*(1-ratio)));
-
-    const hrs=Math.max(0, Math.ceil(rem/3600000));
-    if(rem>0 && hrs!==lastHour){
-      lastHour=hrs; emojiBurst(['💖','✨','🎵','⭐'], 26, false); navigator.vibrate?.(10);
-    }
-
-    if(rem<=0 && !done){
-      done=true;
-      unlock.classList.remove('locked'); unlock.classList.add('open');
-      unlock.querySelector('.lock').textContent='🔓';
-      body.style.display='block';
-      tmain.textContent="00h 00m 00s"; tsub.textContent="¡es hoy!";
-      emojiBurst(['💖','✨','🎉','🍋','🐧','🧬'], 90, true);
-    }
-  }
-
-  tick();
-  setInterval(tick, 1000);
-})();
 
 
 // Toques en paneles: ripple + mini emojis (y vibración)
