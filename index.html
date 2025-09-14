@@ -579,6 +579,93 @@
   margin-bottom: 12px;
 }
 
+
+/* --- Estilos para el Botón de Tema Flotante (limpio) --- */
+.theme-fab-container {
+  position: fixed;
+  bottom: 16px;           /* Separado del borde inferior */
+  left: 16px;             /* Separado del borde izquierdo */
+  z-index: 10070;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  touch-action: none;     /* Permite arrastrar con pointer events en móvil */
+}
+
+.theme-toggle-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  color: #333;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.theme-toggle-btn:active { transform: scale(.95); }
+
+.theme-options {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.18);
+  transform: scale(.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+.theme-fab-container.open .theme-options {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.theme-fab-container.open .theme-toggle-btn { transform: rotate(20deg); }
+
+.theme-options .color-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.12);
+  box-shadow: 0 4px 12px rgba(0,0,0,.12) inset;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .theme-toggle-btn { width: 48px; height: 48px; font-size: 20px; }
+  .theme-options .color-circle { width: 28px; height: 28px; }
+  .theme-fab-container { bottom: calc(16px + env(safe-area-inset-bottom)); }
+}
+
+
+.envelope.closed .content {
+  display: none;
+}
+.envelope.open .content {
+  display: block;
+}
+.envelope .flap {
+  transition: transform 0.5s ease;
+}
+.envelope.closed .flap {
+  transform: rotateX(0deg);   /* flap cerrado */
+}
+.envelope.open .flap {
+  transform: rotateX(-180deg); /* flap abierto */
+}
+
+
+
+
 /* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
    así que no hace falta un progress real; si quisieras progreso visual,
    podemos añadir requestAnimationFrame para animar la conic-gradient. */
@@ -611,10 +698,10 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-    <span style="font-size:1.3em">🌸</span>
+    <span style="font-size:1.3em">🫂</span>
     <div>
-      <strong> Buen día linda💫 </strong><br>
-      <small> Que tengas un bello día 🫶 </small>
+      <strong> Feliz 3 meses limona 💞 </strong><br>
+      <small> 90 días zusammen </small>
     
     </div>
     <button class="update-close" aria-label="Cerrar">✕</button>
@@ -680,15 +767,7 @@
     </div>
 
 
-    <div class="panel" style="animation-delay: 1.4s;">
-      <div class="title">Lo primero que haré cuando te vea... ✨</div>
-      <ul class="paper-rings-list"> <li>Abrazarte tan fuerte que se nos olvide el tiempo.</li>
-        <li>Darte ese beso que llevo semanas esperando.</li>
-        <li>Mirarte a los ojos y sonreír, sabiendo que la espera terminó.</li>
-        <li>Decirte al oído lo mucho que te extrañé.</li>
-        <li>Tomar tu mano y no soltarla.</li>
-      </ul>
-    </div>
+
     
 
       <div id="unlockLetter" class="unlock locked">
@@ -950,6 +1029,16 @@
         </div>
             </div>
 
+                <div class="panel" style="animation-delay: 1.4s;">
+      <div class="title">Lo primero que haré cuando te vea... ✨</div>
+      <ul class="paper-rings-list"> <li>Abrazarte tan fuerte que se nos olvide el tiempo.</li>
+        <li>Darte ese beso que llevo semanas esperando.</li>
+        <li>Mirarte a los ojos y sonreír, sabiendo que la espera terminó.</li>
+        <li>Decirte al oído lo mucho que te extrañé.</li>
+        <li>Tomar tu mano y no soltarla.</li>
+      </ul>
+    </div>
+
             <div class="panel" id="scratchPanel" data-emoji="🎨,🖌️,✨,💞,🎵">
             <div class="title">Rasca y florece 🌸</div>
             <div class="scratch-wrap">
@@ -963,6 +1052,13 @@
               <button id="scratchReset" class="action-button">Reiniciar</button>
             </div>
           </div>
+
+
+<div id="theme-fab-container" class="theme-fab-container" aria-live="polite">
+  <div id="theme-options" class="theme-options" aria-hidden="true"></div>
+  <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Cambiar color de fondo" type="button">🎨</button>
+</div>
+
 
   <script>
     // --- Contadores up/down ---
@@ -1241,7 +1337,7 @@
       const t = document.getElementById('twTarget');
       const b = document.getElementById('twBtn');
       if(!t || !b) return;
-      const TEXT = 'Eres mi siempre. Gracias por existir en mi vida 💖 Vamos por muchos más cumpleaños juntos';
+      const TEXT = 'Eres mi siempre. Gracias por existir en mi vida 💖 Vamos por muchos más meses juntos. Me hace feliz ser tu camarada de vida 🥰';
       function typewrite(el, text, speed=28){
         el.textContent = ''; let i=0;
         const id = setInterval(()=>{ el.textContent += text[i] || ''; i++; if(i>text.length) clearInterval(id); }, speed);
@@ -1375,6 +1471,15 @@ function applyDifficulty(){
       msgOk: "Esta no era la correcta",
       msgNo: "Bromita!! si tenes razón amor, el 16 de Junio"
     },
+
+    {
+      q: "¿Qué es lo que nos une?",
+      options: ["La necesidad", "El deseo", "La comodidad", "El amor"],
+      correct: 0,
+      msgOk: "Si linda, el amor es el core de nuestras vidas",
+      msgNo: "Noo, eso jamás!"
+    },
+
        {
       q: "¿Cuándo me enamoré de vos 👀?",
       options: ["Cuando nos dimos nuestro primer beso", "Cuando me trajiste un regalo de 🇪🇨", "Cuando me quebré el pié 😭", "Cuando te vi por primera vez 🤩"],
@@ -1390,6 +1495,15 @@ function applyDifficulty(){
       msgOk: "Por supuesto, vos me enseñaste 🤓 y me acuerdo",
       msgNo: "Noo, desaprobada la tesis 🥺"
     },
+
+    
+    {
+      q: "¿Cual es nuestro destino final 🌎?",
+      options: ["Alemania 🇩🇪", "Ecuador 🇪🇨🇷 ", "Argentina  🇦🇷 ", "Brazil  🇧🇷"],
+      correct: 1,
+      msgOk: "Nuestro hogar es Ecuador ❤",
+      msgNo: "Se que esta respuesta no fallaste"
+    },
            {
       q: "¿Que es lo que más me gusta de vos fisicamente 😍💘?",
       options: ["tu cabello 💇‍♀️", "tu sonrisa 😁", "tu mirada 🥹", "tus manos 🫶 "],
@@ -1404,6 +1518,15 @@ function applyDifficulty(){
       msgOk: "Ni aunque nuestros corazones dejaran de latir",
       msgNo: "Nuestro amor rompe la barrera del tiempo mi reina"
     },
+
+    {
+      q: "¿Quien tiene los pantalones en la relación 👖?",
+      options: ["Bonita", "Agustín ", "Ninguno ", "Depende de la situación"],
+      correct: 3,
+      msgOk: "Si amor, bien hecho!",
+      msgNo: "Nooo cielito, piensalo mejor"
+    },
+
     {
       q: "Ultima y curiosa 😉¿Cuantas veces hemos dormido juntos 😴💤?",
       options: ["29", "35", "42", "47"],
@@ -1843,38 +1966,38 @@ function applyDifficulty(){
   });
 })();
 
-// === Desbloqueo de carta minimal: solo depende de meetingBerlin ===
-(function(){
-  const unlock = document.getElementById('unlockLetter');
-  const body   = document.getElementById('letterBody');
-  const fw     = document.getElementById('fwLayer'); // capa para emojis
-  if(!unlock || !body) return;
+// '''''// === Desbloqueo de carta minimal: solo depende de meetingBerlin ===
+// (function(){
+//   const unlock = document.getElementById('unlockLetter');
+//   const body   = document.getElementById('letterBody');
+//   const fw     = document.getElementById('fwLayer'); // capa para emojis
+//   if(!unlock || !body) return;
 
-  function party(){
-    // festejito simple usando lo que ya tienes
-    try { window.confettiBurst?.(24); } catch{}
-    try { dropHearts?.(60); } catch{}
-    try { navigator.vibrate?.([20,40,20]); } catch{}
-  }
+//   function party(){
+//     // festejito simple usando lo que ya tienes
+//     try { window.confettiBurst?.(24); } catch{}
+//     try { dropHearts?.(60); } catch{}
+//     try { navigator.vibrate?.([20,40,20]); } catch{}
+//   }
 
-  function check(){
-    const now = new Date();
-    const rem = meetingBerlin - now;  // meetingBerlin ya existe en tu código
-    if (rem <= 0 && unlock.classList.contains('locked')) {
-      // desbloquear UI
-      unlock.classList.remove('locked');
-      unlock.classList.add('open', 'unlocked');     // «unlocked» activa tu estilo de carta abierta
-      const icon = unlock.querySelector('.lock');
-      if (icon) icon.textContent = '🔓';
-      body.style.display = 'block';
-      unlock.setAttribute('aria-expanded', 'true');
-      party();
-    }
-  }
+//   function check(){
+//     const now = new Date();
+//     const rem = meetingBerlin - now;  // meetingBerlin ya existe en tu código
+//     if (rem <= 0 && unlock.classList.contains('locked')) {
+//       // desbloquear UI
+//       unlock.classList.remove('locked');
+//       unlock.classList.add('open', 'unlocked');     // «unlocked» activa tu estilo de carta abierta
+//       const icon = unlock.querySelector('.lock');
+//       if (icon) icon.textContent = '🔓';
+//       body.style.display = 'block';
+//       unlock.setAttribute('aria-expanded', 'true');
+//       party();
+//     }
+//   }
 
-  check();                // por si ya pasó la hora (debería abrirse ahora mismo)
-  setInterval(check, 1000); // vigila cada segundo
-})();
+//   check();                // por si ya pasó la hora (debería abrirse ahora mismo)
+//   setInterval(check, 1000); // vigila cada segundo
+// })();
 
 
 
@@ -1885,7 +2008,8 @@ function applyDifficulty(){
   const LONG_MS  = 3000;  // ⟵ duración del long-press
   const MOVE_TOL = 12;    // tolerancia de movimiento (px)
 
-  const panels = document.querySelectorAll('.panel');
+  const panels = [...document.querySelectorAll('.panel')].filter(p => !p.querySelector('#catchHeart'));
+
   if (!panels.length) return;
 
   function ripple(panel, x, y){
@@ -2030,22 +2154,22 @@ function applyDifficulty(){
     const isLocked = unlock.classList.contains('locked');
 
     if (isLocked){
-      unlock.classList.add('shake','halo');
-      showHint('Se abrirá cuando llegue la hora ✨');
-      burstAtEl(unlock, ['🔒','🔑','✨'], 22);
-      navigator.vibrate?.(15);
-      setTimeout(()=> unlock.classList.remove('shake','halo'), 700);
+      // Al primer click desbloquea
+      unlock.classList.remove('locked');
+      unlock.classList.add('unlocked','open');
+      const icon = unlock.querySelector('.lock');
+      if (icon) icon.textContent = '🔓';
+      body.style.display = 'block';
+      burstAtEl(unlock, ['💖','📩','✨'], 22);
+      navigator.vibrate?.(20);
     } else {
-      // Alterna mostrar/ocultar carta una vez desbloqueado
+      // Alterna mostrar/ocultar carta una vez desbloqueada
       const collapsed = unlock.classList.toggle('collapsed');
-      // Asegúrate de que tenga .open cuando ya está desbloqueado
       unlock.classList.add('open');
       body.style.display = collapsed ? 'none' : 'block';
-      unlock.classList.add('halo');
-      setTimeout(()=> unlock.classList.remove('halo'), 600);
       burstAtEl(unlock, ['💖','📩','✨'], 22);
-      navigator.vibrate?.(10);
     }
+
     unlock.setAttribute('aria-expanded', String(!unlock.classList.contains('locked') && !unlock.classList.contains('collapsed')));
   }
 
@@ -2283,9 +2407,147 @@ addEventListener('resize', size, {passive:true});
   }
 })();
 
+/* --- Selector de Tema de Color: FAB + móvil (sin “...”) --- */
+(function () {
+  const container = document.getElementById('theme-fab-container');
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  const optionsContainer = document.getElementById('theme-options');
+  if (!container || !toggleBtn || !optionsContainer) return;
+
+  const THEME_KEY = 'page_theme_v1';
+  const POSITION_KEY = 'fab_position_v1';
+
+  const themes = [
+    { id: 'original', name: 'Original', color: 'linear-gradient(to right, #ff9a9e, #fad0c4)' },
+    { id: 'sunset',   name: 'Atardecer Suave', color: 'linear-gradient(to right, #ffdde1, #ee9ca7)' },
+    { id: 'lavender', name: 'Cielo de Lavanda', color: 'linear-gradient(to right, #e0c3fc, #8ec5fc)' },
+    { id: 'peach',    name: 'Menta y Melocotón', color: 'linear-gradient(to right, #ffecd2, #fcb69f)' },
+    { id: 'ocean',    name: 'Océano de Ensueño', color: 'linear-gradient(to right, #a1c4fd, #c2e9fb)' }
+  ];
+
+  function applyTheme(id, save=true) {
+    const t = themes.find(x => x.id === id) || themes[0];
+    document.body.style.backgroundImage = t.color;        // aplica el fondo
+    document.documentElement.dataset.theme = t.id;        // por si quieres estilos condicionales
+    if (save) try { localStorage.setItem(THEME_KEY, id); } catch {}
+  }
+
+  // Construye los “chips” de colores
+  optionsContainer.innerHTML = '';
+  themes.forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'color-circle';
+    b.style.backgroundImage = t.color;
+    b.setAttribute('aria-label', `Tema: ${t.name}`);
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      applyTheme(t.id);
+      container.classList.remove('open');
+      optionsContainer.setAttribute('aria-hidden', 'true');
+      navigator.vibrate?.(10);
+    });
+    optionsContainer.appendChild(b);
+  });
+
+  // Restaura tema guardado
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) applyTheme(saved, false); else applyTheme(themes[0].id, false);
+  } catch {
+    applyTheme(themes[0].id, false);
+  }
+
+  // Abrir/cerrar menú
+  let hasDragged = false;
+  toggleBtn.addEventListener("click", e => {
+  if (hasDragged) {
+    e.stopPropagation();
+    hasDragged = false; // limpia la marca
+    return; // ignora solo si fue un drag real
+  }
+  e.stopPropagation();
+  const willOpen = !container.classList.contains("open");
+  container.classList.toggle("open", willOpen);
+  optionsContainer.setAttribute("aria-hidden", String(!willOpen));
+});
+  document.addEventListener('click', () => {
+    container.classList.remove('open');
+    optionsContainer.setAttribute('aria-hidden', 'true');
+  });
+
+  // Arrastre del FAB (soporta mouse/touch/pen)
+  let dragging = false, startX=0, startY=0, origLeft=0, origBottom=0;
+
+  function clamp(v, min, max){ return Math.min(Math.max(v, min), max); }
+
+  container.addEventListener('pointerdown', e => {
+    // No arrastrar si hizo click dentro de las opciones
+    if (e.button !== 0 || e.target.closest('.theme-options')) return;
+
+    dragging = true; hasDragged = false;
+    container.setPointerCapture(e.pointerId);
+
+    const rect = container.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    origLeft = rect.left;
+    // usamos bottom para que no “salte” al rotar pantalla
+    origBottom = window.innerHeight - rect.bottom;
+
+    container.classList.add('dragging');
+  });
+
+  container.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    if (!hasDragged && Math.hypot(dx, dy) > 6) hasDragged = true;
+
+    const newLeft   = clamp(origLeft + dx, 8, window.innerWidth  - container.offsetWidth - 8);
+    const newBottom = clamp(origBottom - dy, 8, window.innerHeight - container.offsetHeight - 8);
+
+    container.style.left   = `${newLeft}px`;
+    container.style.bottom = `${newBottom}px`;
+    container.style.right = 'auto';
+    container.style.top   = 'auto';
+  });
+
+  function endDrag(e){
+    if (!dragging) return;
+    dragging = false;
+    container.classList.remove('dragging');
+    container.releasePointerCapture?.(e.pointerId);
+    // guarda posición
+    try {
+      localStorage.setItem(POSITION_KEY, JSON.stringify({
+        x: container.style.left,
+        y: container.style.bottom
+      }));
+    } catch {}
+    // si hubo arrastre, no abrimos/cerramos menú en este “tap”
+    setTimeout(() => { hasDragged = false; }, 0);
+  }
+  container.addEventListener('pointerup', endDrag);
+  container.addEventListener('pointercancel', endDrag);
+  container.addEventListener('lostpointercapture', endDrag);
+
+  // Restaura posición guardada
+  try {
+    const pos = JSON.parse(localStorage.getItem(POSITION_KEY) || 'null');
+    if (pos && pos.x && pos.y) {
+      container.style.left = pos.x;
+      container.style.bottom = pos.y;
+      container.style.top = 'auto';
+      container.style.right = 'auto';
+    }
+  } catch {}
+
+})();
+
 
 
   </script>
 </body>
 </html>
-
