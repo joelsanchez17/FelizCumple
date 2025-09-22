@@ -663,6 +663,126 @@
   transform: rotateX(-180deg); /* flap abierto */
 }
 
+/* --- Estilos para la Caja de Regalo Interactiva --- */
+.gift-container {
+  margin: 20px auto;
+  text-align: center;
+  perspective: 800px; /* Para la animación 3D de la tapa */
+}
+
+.gift-box {
+  position: relative;
+  width: 120px;
+  height: 100px;
+  background-color: #e91e63; /* Color de la caja */
+  border-radius: 8px;
+  margin: 0 auto;
+  cursor: pointer;
+  animation: wiggle 2.5s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.gift-box:hover {
+  transform: scale(1.05);
+  animation-play-state: paused; /* Detiene el meneo al pasar el cursor */
+}
+
+.lid {
+  position: absolute;
+  width: 130px;
+  height: 30px;
+  background-color: #c2185b; /* Color de la tapa */
+  border-radius: 4px;
+  top: -20px;
+  left: -5px;
+  transform-origin: bottom center;
+  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.bow {
+  position: absolute;
+  width: 20px;
+  height: 40px;
+  background: #f8b500; /* Color del lazo */
+  border-radius: 50%;
+  left: 50%;
+  top: -25px;
+  transform: translateX(-50%);
+}
+.bow::before, .bow::after {
+  content: '';
+  position: absolute;
+  width: 100%; height: 100%;
+  background: inherit;
+  border-radius: inherit;
+}
+.bow::before { transform: translateX(-15px) rotate(-45deg); }
+.bow::after { transform: translateX(15px) rotate(45deg); }
+
+/* Animación de meneo suave */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  75% { transform: rotate(-2deg); }
+}
+
+/* --- ESTADOS CUANDO SE ABRE --- */
+.gift-container.open .lid {
+  transform: translateY(-80px) rotateX(-120deg);
+}
+
+.gift-container.open .gift-box {
+  animation: none; /* Detiene la animación al abrir */
+}
+
+.flowers-hidden {
+  opacity: 0;
+  transform: scale(0.2) translateY(20px);
+  transition: all 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2); /* Más rebote */
+  pointer-events: none;
+  position: absolute; /* Para que la imagen pueda salirse de la caja */
+  bottom: 0; /* Desde la base de la caja */
+  left: 50%;
+  transform: translateX(-50%) scale(0.2) translateY(20px);
+  width: 150px; /* Tamaño del ramo */
+  height: auto;
+  z-index: 2; /* Para que esté sobre la caja */
+}
+
+.bouquet-img {
+  width: 100%;
+  height: auto;
+  max-height: 180px; /* Para que no sea demasiado grande */
+  display: block;
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); /* Sombra suave */
+}
+/* Cuando se abre, las flores suben y se hacen grandes */
+.gift-container.open .flowers-hidden {
+  opacity: 1;
+  transform: translateX(-50%) scale(1) translateY(-140px); /* Ajusta -Y para que suba más */
+  transition-delay: 0.3s; /* Espera a que la tapa se abra un poco */
+}
+
+
+
+
+
+
+.gift-message-hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.5s ease;
+  font-family: 'Pacifico', cursive;
+  font-size: 1.5em;
+  color: #c2185b;
+  margin-top: -70px; /* Sube para quedar cerca de las flores */
+}
+.gift-container.open .gift-message-hidden {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.9s;
+}
+
 
 
 
@@ -698,14 +818,13 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-    <span style="font-size:1.3em">🫂</span>
-    <div>
-      <strong> Feliz 3 meses limona 💞 </strong><br>
-      <small> 90 días zusammen </small>
-    
-    </div>
-    <button class="update-close" aria-label="Cerrar">✕</button>
+  <span style="font-size:1.3em">🌻</span>
+  <div>
+    <strong>Para la flor más bella </strong><br>
+    <small>Flores amarillas porque iluminas mis días como el sol.</small>
   </div>
+  <button class="update-close" aria-label="Cerrar">✕</button>
+</div>
 
   <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
   <h2 class="muted">Las horas se hacen eternas, pero nuestro momento está a punto de llegar.<br>Te extraño y ya voy por ti. </h2>
@@ -736,12 +855,27 @@
       <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
       <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
       <button class="action-button sticker-add" data-emoji="👑">👑</button>
-      <button class="action-button sticker-add" data-emoji="🍄">🍄</button>
+      <button class="action-button sticker-add" data-emoji="🌻">🌻</button>
       <button class="action-button sticker-add" data-emoji="🧬">🧬</button>
     </div>
 
     <p class="muted" style="margin-top:6px;font-size:.9em">Toca la foto para girarla✨</p>
   </div>
+
+   <div id="giftContainer" class="gift-container">
+  <div id="giftBox" class="gift-box" role="button" tabindex="0" aria-label="Toca para abrir tu sorpresa">
+    <div class="lid">
+      <div class="bow"></div>
+    </div>
+  </div>
+  <div id="flowers" class="flowers-hidden">
+    <img src="https://raw.githubusercontent.com/joelsanchez17/FelizCumple/main/flores.webp" alt="Ramo de rosas amarillas" class="bouquet-img">
+  </div>
+  <p id="giftMessage" class="gift-message-hidden">
+    Unas flores para ti mi princesa 👑
+  </p>
+  <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
+</div>
 
   <div class="panel" aria-live="polite">
     <div class="title">Tiempo desde la ultima vez que nos vimos (12 ago 2025, 06:30 – Frankfurt)</div>
@@ -766,7 +900,7 @@
     <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
     </div>
 
-
+    
 
     
 
@@ -1102,19 +1236,22 @@
     const playerContainer = document.getElementById('player-container');
 
     function dropHearts(count = 80) {
-      const box = document.getElementById('hearts');
-      for (let i = 0; i < count; i++) {
-        const d = document.createElement('div');
-        d.className = 'heart-fall';
-        d.textContent = Math.random() < 0.5 ? '💖' : '❤️';
-        d.style.left = (Math.random() * 100) + 'vw';
-        d.style.animationDelay = (Math.random() * 1.5) + 's';
-        d.style.setProperty('--dur', (3 + Math.random() * 3) + 's');
-        d.style.setProperty('--size', (18 + Math.random() * 28) + 'px');
-        box.appendChild(d);
-        setTimeout(() => d.remove(), 7000);
-      }
-    }
+  const box = document.getElementById('hearts');
+  // Lista de emojis a usar
+  const emojis = ['💖', '❤️', '🌻', '✨'];
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'heart-fall';
+    // Elige un emoji al azar de la lista
+    d.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    d.style.left = (Math.random() * 100) + 'vw';
+    d.style.animationDelay = (Math.random() * 1.5) + 's';
+    d.style.setProperty('--dur', (3 + Math.random() * 3) + 's');
+    d.style.setProperty('--size', (18 + Math.random() * 28) + 'px');
+    box.appendChild(d);
+    setTimeout(() => d.remove(), 7000);
+  }
+}
 
     revealBtn.addEventListener('click', () => {
       secretMsg.style.display = 'block';
@@ -2422,7 +2559,10 @@ addEventListener('resize', size, {passive:true});
     { id: 'sunset',   name: 'Atardecer Suave', color: 'linear-gradient(to right, #ffdde1, #ee9ca7)' },
     { id: 'lavender', name: 'Cielo de Lavanda', color: 'linear-gradient(to right, #e0c3fc, #8ec5fc)' },
     { id: 'peach',    name: 'Menta y Melocotón', color: 'linear-gradient(to right, #ffecd2, #fcb69f)' },
-    { id: 'ocean',    name: 'Océano de Ensueño', color: 'linear-gradient(to right, #a1c4fd, #c2e9fb)' }
+    { id: 'ocean',    name: 'Océano de Ensueño', color: 'linear-gradient(to right, #a1c4fd, #c2e9fb)' },
+    { id: 'sunflower', name: 'Girasol Radiante', color: 'linear-gradient(to right, #fff176, #ffd54f)' },
+    { id: 'golden_sunset', name: 'Atardecer Dorado', color: 'linear-gradient(to right, #f6d365, #fda085)' }
+
   ];
 
   function applyTheme(id, save=true) {
@@ -2545,7 +2685,73 @@ addEventListener('resize', size, {passive:true});
   } catch {}
 
 })();
+// --- Lógica para la Caja de Regalo Interactiva ---
+(function() {
+  const giftContainer = document.getElementById('giftContainer');
+  const giftBox = document.getElementById('giftBox');
+  const resetBtn = document.getElementById('resetGiftBtn');
+  const giftMessage = document.getElementById('giftMessage');
 
+  if (!giftContainer || !giftBox || !resetBtn) return;
+
+  function openGift() {
+    if (giftContainer.classList.contains('open')) return; // No hacer nada si ya está abierta
+    if ("vibrate" in navigator) {
+    navigator.vibrate(100); // Vibra por 100 milisegundos
+  }
+
+
+    giftContainer.classList.add('open');
+    
+    // Lanzar confeti dorado y amarillo (usando la función que ya existe)
+    setTimeout(() => {
+      if (typeof window.confettiBurst === 'function') {
+        const originalConfetti = window.confettiBurst;
+        // Creamos una versión temporal para este momento
+        window.confettiBurst = (n = 40) => {
+          const confettiBox = document.getElementById('confetti');
+          if(!confettiBox) return;
+          for (let i = 0; i < n; i++){
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            // Colores temáticos: amarillos, dorados y blancos
+            const colors = ['#ffd700', '#ffec8b', '#ffffff', '#f8b500'];
+            p.style.left = (Math.random()*100) + 'vw';
+            p.style.background = colors[i % colors.length];
+            p.style.animationDelay = (Math.random()*0.8) + 's';
+            p.style.setProperty('--dur', (2.4 + Math.random()*1.6) + 's');
+            p.style.setProperty('--rot', (Math.random()*360) + 'deg');
+            confettiBox.appendChild(p);
+            setTimeout(() => p.remove(), 4000);
+          }
+        };
+        window.confettiBurst(60); // Lanza 60 piezas de confeti temático
+        window.confettiBurst = originalConfetti; // Restaura la función original
+      }
+    }, 500); // Espera medio segundo para el confeti
+    
+    // Muestra el botón de reiniciar después de la animación
+    setTimeout(() => {
+      resetBtn.style.display = 'inline-block';
+    }, 1500);
+  }
+
+  function resetGift() {
+    giftContainer.classList.remove('open');
+    resetBtn.style.display = 'none';
+  }
+
+  giftBox.addEventListener('click', openGift);
+  resetBtn.addEventListener('click', resetGift);
+
+  // Para accesibilidad con teclado
+  giftBox.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openGift();
+    }
+  });
+})();
 
 
   </script>
