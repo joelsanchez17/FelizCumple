@@ -233,7 +233,7 @@
 .flip.flipped .flip-inner{ transform: rotateY(180deg); }
 
 .flip-face{ position:relative; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-.flip-front{ /* nada extra */ }
+
 .flip-back{ position:absolute; inset:0; transform: rotateY(180deg); }
 
 /* Asegura mismo recorte redondo en ambas caras */
@@ -322,7 +322,7 @@
 
 /* Latido suave en los extremos (3 pulsos al cargar) */
 /* Extremos: la animación va al sub-grupo, no al <g> con translate */
-.end { /* sin animación aquí */ }
+
 
 .end-core{
   transform-box: fill-box;
@@ -783,8 +783,50 @@
   transition-delay: 0.9s;
 }
 
+.audio-card {
+  /* ... (mantén el estilo minimalista de fondo y sombra) ... */
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+}
 
+.audio-card h3 {
+  /* ... (mantén el estilo del título) ... */
+  color: #333;
+  margin-top: 0;
+  font-family: 'Quicksand', sans-serif; /* Usamos Quicksand que tienes definida */
+  text-align: center;
+  font-size: 1.5em;
+}
 
+.audio-card audio {
+  /* ESTO ES LO NUEVO: OCULTAR EL REPRODUCTOR NATIVO */
+  display: none;
+}
+
+/* Además, asegurémonos de que el estilo de los botones es consistente */
+.btn {
+  /* Usa el mismo estilo que tienes para los botones, por ejemplo: */
+  background-color: #e91e63; /* Un color rosa/rojo que armonice con tu fondo */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  margin-top: 15px;
+}
+.btn:hover {
+  background-color: #e91e63;
+}
 
 /* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
    así que no hace falta un progress real; si quisieras progreso visual,
@@ -818,10 +860,10 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-  <span style="font-size:1.3em">🌻</span>
+  <span style="font-size:1.3em">🐨</span>
   <div>
-    <strong>Para la flor más bella </strong><br>
-    <small>Flores amarillas porque iluminas mis días como el sol.</small>
+    <strong> Hola bonita </strong><br>
+    <small> Hemos regresado</small>
   </div>
   <button class="update-close" aria-label="Cerrar">✕</button>
 </div>
@@ -843,6 +885,7 @@
           <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa2.jpg" alt="Mi princesa (dorso)">
           <div id="stickerBoardBack" class="sticker-board" aria-label="Tablero de stickers (dorso)"></div>
         </div>
+        
       </div>
     </div>
 
@@ -856,7 +899,7 @@
       <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
       <button class="action-button sticker-add" data-emoji="👑">👑</button>
       <button class="action-button sticker-add" data-emoji="🌻">🌻</button>
-      <button class="action-button sticker-add" data-emoji="🧬">🧬</button>
+      <button class="action-button sticker-add" data-emoji="🐨">🐨</button>
     </div>
 
     <p class="muted" style="margin-top:6px;font-size:.9em">Toca la foto para girarla✨</p>
@@ -876,6 +919,26 @@
   </p>
   <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
 </div>
+
+
+<div class="panel audio-card">
+    <h3>¡Tienes un mensaje guardado! <span role="img" aria-label="shushing face">🤫</span></h3>
+    
+    <audio id="reunion-audio">
+        <source src="https://joelsanchez17.github.io/FelizCumple/audio.mp3" type="audio/mpeg">
+        Tu navegador no soporta la reproducción de audio.
+    </audio>
+
+    <button id="audio-btn" class="btn">
+        Presiona aquí para escuchar <span role="img" aria-label="headphones">🎧</span>
+    </button>
+    
+    <p id="audio-status" style="font-size: 13px; margin-top: 15px; color: #666;">
+        Subile el volumen...
+    </p>
+</div>
+
+
 
   <div class="panel" aria-live="polite">
     <div class="title">Tiempo desde la ultima vez que nos vimos (12 ago 2025, 06:30 – Frankfurt)</div>
@@ -939,6 +1002,7 @@
     <div class="title">Nuestros Bellos Momentos ✨</div>
     <div class="title"> Zusammen 👩🏻‍🔬👨🏻‍💻 💞 </div>
     <div class="photo-gallery">
+      
       <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Nuestra despedida 🥺">
       <img src="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg" alt="Nos escapamos por la puerta 🤭">
       <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Un lindo día en Hamburgo 🥰">
@@ -2753,7 +2817,38 @@ addEventListener('resize', size, {passive:true});
   });
 })();
 
+/* --- NUEVO: Script para Reproducir el Audio con el Botón --- */
+document.addEventListener('DOMContentLoaded', function() {
+    const audioBtn = document.getElementById('audio-btn');
+    const reunionAudio = document.getElementById('reunion-audio');
+    const audioStatus = document.getElementById('audio-status');
+    let isPlaying = false; // Variable para saber si está sonando
 
+    audioBtn.addEventListener('click', function() {
+        if (!isPlaying) {
+            reunionAudio.play();
+            isPlaying = true;
+            
+            // Cambiar el texto del botón y del estado
+            audioBtn.textContent = '⏸️ Pausar Mensaje';
+            audioStatus.textContent = 'Hecho con amor bonito 💖🎵';
+        } else {
+            reunionAudio.pause();
+            isPlaying = false;
+            
+            // Cambiar el texto del botón y del estado
+            audioBtn.textContent = '▶️ Reanudar Mensaje';
+            audioStatus.textContent = 'Escuchalo completooooo🗣';
+        }
+    });
+
+    // Manejar cuando el audio termina de reproducirse
+    reunionAudio.addEventListener('ended', function() {
+        isPlaying = false;
+        audioBtn.textContent = '🔊 Volver a Escuchar';
+        audioStatus.textContent = '(Mensaje terminado. ¡Vuelve a darle play cuando quieras!)';
+    });
+});
   </script>
 </body>
 </html>
