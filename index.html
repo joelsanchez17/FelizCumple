@@ -826,6 +826,125 @@
   background-color: #e91e63;
 }
 
+/* --- COHETE PROGRESO --- */
+.rocket-wrapper {
+  position: fixed;
+  bottom: 100px; /* Altura inicial */
+  right: 20px;
+  z-index: 10060; /* Por encima de todo, pero bajo el lightbox */
+  font-size: 3rem;
+  transition: transform 0.1s linear, bottom 0.1s linear;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  cursor: pointer;
+  pointer-events: none; /* Para que no tape clics mientras scrollea */
+}
+
+/* Fuego del motor (animado) */
+.rocket-fire {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px; height: 10px;
+  background: orange;
+  border-radius: 50%;
+  box-shadow: 0 0 10px red, 0 0 20px yellow;
+  animation: thrust 0.1s infinite alternate;
+  opacity: 0; /* Solo se enciende al scrollear */
+  transition: opacity 0.3s;
+}
+
+/* Cuando scrollea, encendemos motores */
+.rocket-wrapper.moving .rocket-fire {
+  opacity: 1;
+  height: 25px;
+}
+
+/* Animación de vibración de motor */
+@keyframes thrust {
+  from { transform: translateX(-50%) scale(1); }
+  to { transform: translateX(-50%) scale(1.2); }
+}
+
+/* CLASE PARA EL DESPEGUE FINAL */
+.rocket-wrapper.blast-off {
+  transition: all 1.5s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  bottom: 120vh !important; /* Se va al cielo */
+  transform: scale(1.5) rotate(0deg) !important; 
+}
+.rocket-wrapper.blast-off .rocket-fire {
+  opacity: 1;
+  height: 60px; /* Fuego gigante */
+  background: #00d2ff; /* Fuego azul (más caliente/espacial) */
+  box-shadow: 0 0 20px cyan, 0 0 40px white;
+}
+
+/* --- OVERLAY DEL MENSAJE FINAL --- */
+.launch-overlay {
+  position: fixed; inset: 0;
+  background: rgba(12, 12, 30, 0.95); /* Fondo oscuro espacial */
+  z-index: 10100;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.5s ease-out;
+}
+/* OVERLAY FINAL MEJORADO */
+.launch-overlay {
+  position: fixed; inset: 0;
+  background: rgba(5, 5, 15, 0.85); /* Fondo más oscuro y elegante */
+  backdrop-filter: blur(5px);       /* Efecto borroso detrás */
+  z-index: 10100;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.launch-content {
+  text-align: center; color: #e0e0e0;
+  padding: 40px 30px; /* Más espacio interno */
+  border: 1px solid rgba(0, 210, 255, 0.3); /* Borde más sutil */
+  border-radius: 24px;
+  /* Glow neón más suave y difuminado */
+  box-shadow: 
+    0 0 20px rgba(0, 210, 255, 0.2), 
+    inset 0 0 20px rgba(0, 210, 255, 0.05);
+  background: radial-gradient(circle at top right, #1b2735 0%, #090a0f 100%);
+  max-width: 90%;
+  width: 400px;
+  position: relative;
+}
+
+.launch-content h2 {
+  font-family: 'Pacifico', cursive;
+  margin: 0 0 20px 0;
+  color: #ffd700; /* Dorado */
+  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+  font-size: 2em;
+}
+
+.mission-text {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  color: #b3e5fc; /* Azul muy clarito */
+}
+
+/* Divisor de estrellita */
+.star-divider {
+  font-size: 1.5em;
+  margin: 10px 0;
+  opacity: 0.7;
+}
+
+/* ESTILO ESPECIAL PARA LA FRASE DEL PAPÁ */
+.dad-msg {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.25em;
+  font-weight: 700;
+  color: #ffffff;
+  font-style: italic;
+  margin-bottom: 25px;
+  /* Un brillo sutil blanco alrededor del texto */
+  text-shadow: 0 0 10px rgba(255,255,255,0.4);
+}
 /* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
    así que no hace falta un progress real; si quisieras progreso visual,
    podemos añadir requestAnimationFrame para animar la conic-gradient. */
@@ -858,10 +977,10 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-  <span style="font-size:1.3em">🐨</span>
+  <span style="font-size:1.3em">☀</span>
   <div>
-    <strong> Hola bonita </strong><br>
-    <small> Hemos regresado 💖</small>
+    <strong> Princesa de KL </strong><br>
+    <small> Te deseo un bonito día 💖</small>
   </div>
   <button class="update-close" aria-label="Cerrar">✕</button>
 </div>
@@ -875,12 +994,12 @@
       <div class="flip-inner">
         <!-- Frente: foto + stickers -->
         <div class="flip-face flip-front">
-          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/alien.jpg" alt="Mi princesa (frente)">
+          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa (frente)">
           <div id="stickerBoard" class="sticker-board" aria-label="Tablero de stickers"></div>
         </div>
         <!-- Dorso: segunda foto -->
         <div class="flip-face flip-back">
-          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa (dorso)">
+          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa2.jpg" alt="Mi princesa (dorso)">
           <div id="stickerBoardBack" class="sticker-board" aria-label="Tablero de stickers (dorso)"></div>
         </div>
         
@@ -1124,6 +1243,36 @@
     <div class="title"> para que escuches de fondo 🎤🎵</div>
   </div>
   
+    <div id="spaceRocket" class="rocket-wrapper" aria-hidden="true">
+      <div class="rocket-body">
+        🚀
+        <div class="rocket-fire"></div>
+      </div>
+    </div>
+
+
+
+
+
+    <div id="launchMessage" class="launch-overlay" style="display:none">
+      <div class="launch-content">
+        <h2>¡Despegue Exitoso! 🌌</h2>
+        
+        <p class="mission-text">
+          El cielo no es el límite, mi futura ingeniera espacial...<br>
+          <strong>¡Es solo el comienzo!</strong> 🔭🌠
+        </p>
+
+        <div class="star-divider">✨</div>
+
+        <p class="dad-msg">
+          "Tu papá está orgulloso de vos"
+        </p>
+
+        <button class="action-button" onclick="closeLaunch()">Recibido, Houston ❤️</button>
+      </div>
+    </div>
+
 
 
 
@@ -2849,7 +2998,74 @@ document.addEventListener('DOMContentLoaded', function() {
         audioStatus.textContent = '(Mensaje terminado. ¡Vuelve a darle play cuando quieras!)';
     });
 });
+
+(function(){
+  const rocket = document.getElementById('spaceRocket');
+  const launchMsg = document.getElementById('launchMessage');
+  let hasLaunched = false;
+  let scrollTimer = null;
+
+  window.addEventListener('scroll', () => {
+    if (hasLaunched || !rocket) return;
+
+    // 1. Detectar movimiento para encender la llamita
+    rocket.classList.add('moving');
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => rocket.classList.remove('moving'), 150);
+
+    // 2. Cálculos matemáticos del scroll
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.offsetHeight;
+    const winHeight = window.innerHeight;
+    
+    // Cuánto falta para el final
+    const scrollPercent = scrollTop / (docHeight - winHeight);
+    const distanceToBottom = docHeight - (scrollTop + winHeight);
+
+    // 3. LOGICA MEJORADA: 
+    // El cohete empieza abajo y sube un poco mientras ella baja
+    // (Simula que está recorriendo el trayecto)
+    // Ajustamos 'bottom' dinámicamente entre 20px y 150px
+    const moveRange = 150; 
+    rocket.style.bottom = (20 + (scrollPercent * moveRange)) + 'px';
+
+    // Rotación sutil según velocidad (opcional, detalle pro)
+    // rocket.style.transform = `rotate(${scrollPercent * 10}deg)`;
+
+    // 4. DETECTAR EL FINAL (ZONA DE DESPEGUE)
+    // Si estamos a menos de 50px del final absoluto
+    if (distanceToBottom < 50) {
+      launchSequence();
+    }
+  });
+
+  function launchSequence() {
+    hasLaunched = true;
+    
+    // Vibración potente si es móvil (Simula motores)
+    if (navigator.vibrate) navigator.vibrate([100, 50, 200, 50, 500]);
+
+    // Activar clase CSS de despegue
+    rocket.classList.add('moving'); // Fuego encendido
+    setTimeout(() => rocket.classList.add('blast-off'), 100); // Salir volando
+
+    // Efecto de sonido opcional (si quieres usar el audio que ya tienes o uno nuevo)
+    // const audio = new Audio('sonido_cohete.mp3'); audio.play();
+
+    // Mostrar mensaje después de que el cohete salga de pantalla (1.2 seg)
+    setTimeout(() => {
+      launchMsg.style.display = 'flex';
+      // Lluvia de estrellas/confeti en el modal
+      if (typeof window.confettiBurst === 'function') window.confettiBurst(50);
+    }, 1200);
+  }
+
+  // Hacer disponible la función cerrar para el botón
+  window.closeLaunch = function() {
+    launchMsg.style.display = 'none';
+    // El cohete ya se fue, no vuelve hasta recargar la página
+  };
+})();
   </script>
 </body>
 </html>
-
