@@ -980,7 +980,7 @@
   <span style="font-size:1.3em">🌠</span>
   <div>
     <strong> Como amaneció mi bonita </strong><br>
-    <small> Anoche soñe con vos 💤💖</small>
+    <small> Anoche soñe con vos 💤</small>
   </div>
   <button class="update-close" aria-label="Cerrar">✕</button>
 </div>
@@ -2757,7 +2757,7 @@ addEventListener('resize', size, {passive:true});
   }
 })();
 
-/* --- Selector de Tema de Color: FAB + móvil (sin “...”) --- */
+/* --- Selector de Tema de Color: CORREGIDO PARA IPHONE --- */
 (function () {
   const container = document.getElementById('theme-fab-container');
   const toggleBtn = document.getElementById('theme-toggle-btn');
@@ -2775,13 +2775,12 @@ addEventListener('resize', size, {passive:true});
     { id: 'ocean',    name: 'Océano de Ensueño', color: 'linear-gradient(to right, #a1c4fd, #c2e9fb)' },
     { id: 'sunflower', name: 'Girasol Radiante', color: 'linear-gradient(to right, #fff176, #ffd54f)' },
     { id: 'golden_sunset', name: 'Atardecer Dorado', color: 'linear-gradient(to right, #f6d365, #fda085)' }
-
   ];
 
   function applyTheme(id, save=true) {
     const t = themes.find(x => x.id === id) || themes[0];
-    document.body.style.backgroundImage = t.color;        // aplica el fondo
-    document.documentElement.dataset.theme = t.id;        // por si quieres estilos condicionales
+    document.body.style.backgroundImage = t.color;
+    document.documentElement.dataset.theme = t.id;
     if (save) try { localStorage.setItem(THEME_KEY, id); } catch {}
   }
 
@@ -2793,100 +2792,118 @@ addEventListener('resize', size, {passive:true});
     b.className = 'color-circle';
     b.style.backgroundImage = t.color;
     b.setAttribute('aria-label', `Tema: ${t.name}`);
-    b.addEventListener('click', e => {
-      e.stopPropagation();
+    
+    // Usamos pointerup para asegurar que funcione bien en móvil
+    b.addEventListener('pointerup', e => {
+      e.stopPropagation(); // Evita conflictos con el contenedor
       applyTheme(t.id);
-      container.classList.remove('open');
-      optionsContainer.setAttribute('aria-hidden', 'true');
-      navigator.vibrate?.(10);
+      closeMenu();
+      if (navigator.vibrate) navigator.vibrate(10);
     });
     optionsContainer.appendChild(b);
   });
 
-  // Restaura tema guardado
+  // Restaurar tema
   try {
     const saved = localStorage.getItem(THEME_KEY);
-    if (saved) applyTheme(saved, false); else applyTheme(themes[0].id, false);
+    applyTheme(saved || themes[0].id, false);
   } catch {
     applyTheme(themes[0].id, false);
   }
 
-  // Abrir/cerrar menú
-  let hasDragged = false;
-  toggleBtn.addEventListener("click", e => {
-  if (hasDragged) {
-    e.stopPropagation();
-    hasDragged = false; // limpia la marca
-    return; // ignora solo si fue un drag real
+  // --- LÓGICA UNIFICADA DE ARRASTRE Y CLIC ---
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let initialLeft = 0, initialBottom = 0;
+  const DRAG_THRESHOLD = 10; // Aumentamos tolerancia para iPhone
+
+  function openMenu() {
+    container.classList.add("open");
+    optionsContainer.setAttribute("aria-hidden", "false");
   }
-  e.stopPropagation();
-  const willOpen = !container.classList.contains("open");
-  container.classList.toggle("open", willOpen);
-  optionsContainer.setAttribute("aria-hidden", String(!willOpen));
-});
-  document.addEventListener('click', () => {
-    container.classList.remove('open');
-    optionsContainer.setAttribute('aria-hidden', 'true');
+
+  function closeMenu() {
+    container.classList.remove("open");
+    optionsContainer.setAttribute("aria-hidden", "true");
+  }
+
+  function toggleMenu() {
+    if (container.classList.contains("open")) closeMenu();
+    else openMenu();
+  }
+
+  // Cerrar al hacer clic fuera
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) closeMenu();
   });
 
-  // Arrastre del FAB (soporta mouse/touch/pen)
-  let dragging = false, startX=0, startY=0, origLeft=0, origBottom=0;
-
-  function clamp(v, min, max){ return Math.min(Math.max(v, min), max); }
-
+  // 1. Al tocar (Pointer Down)
   container.addEventListener('pointerdown', e => {
-    // No arrastrar si hizo click dentro de las opciones
-    if (e.button !== 0 || e.target.closest('.theme-options')) return;
-
-    dragging = true; hasDragged = false;
+    // Si toca dentro de las opciones, no iniciamos arrastre del botón principal
+    if (e.target.closest('.theme-options')) return;
+    
+    // Captura el puntero para seguimiento suave
     container.setPointerCapture(e.pointerId);
-
-    const rect = container.getBoundingClientRect();
+    
+    isDragging = false;
     startX = e.clientX;
     startY = e.clientY;
-    origLeft = rect.left;
-    // usamos bottom para que no “salte” al rotar pantalla
-    origBottom = window.innerHeight - rect.bottom;
 
+    const rect = container.getBoundingClientRect();
+    initialLeft = rect.left;
+    initialBottom = window.innerHeight - rect.bottom;
+
+    // Clase visual para indicar que se está tocando
     container.classList.add('dragging');
   });
 
+  // 2. Al mover (Pointer Move)
   container.addEventListener('pointermove', e => {
-    if (!dragging) return;
+    if (!container.hasPointerCapture(e.pointerId)) return;
+
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
 
-    if (!hasDragged && Math.hypot(dx, dy) > 6) hasDragged = true;
+    // Solo consideramos arrastre si se mueve más de 10px (filtro anti-temblor)
+    if (!isDragging && Math.hypot(dx, dy) > DRAG_THRESHOLD) {
+      isDragging = true;
+    }
 
-    const newLeft   = clamp(origLeft + dx, 8, window.innerWidth  - container.offsetWidth - 8);
-    const newBottom = clamp(origBottom - dy, 8, window.innerHeight - container.offsetHeight - 8);
-
-    container.style.left   = `${newLeft}px`;
-    container.style.bottom = `${newBottom}px`;
-    container.style.right = 'auto';
-    container.style.top   = 'auto';
+    if (isDragging) {
+      // Mover el elemento
+      const newLeft = Math.min(Math.max(initialLeft + dx, 8), window.innerWidth - container.offsetWidth - 8);
+      const newBottom = Math.min(Math.max(initialBottom - dy, 8), window.innerHeight - container.offsetHeight - 8);
+      
+      container.style.left = `${newLeft}px`;
+      container.style.bottom = `${newBottom}px`;
+      container.style.right = 'auto';
+      container.style.top = 'auto';
+    }
   });
 
-  function endDrag(e){
-    if (!dragging) return;
-    dragging = false;
+  // 3. Al soltar (Pointer Up) - AQUÍ ESTÁ LA MAGIA
+  container.addEventListener('pointerup', e => {
+    container.releasePointerCapture(e.pointerId);
     container.classList.remove('dragging');
-    container.releasePointerCapture?.(e.pointerId);
-    // guarda posición
-    try {
-      localStorage.setItem(POSITION_KEY, JSON.stringify({
-        x: container.style.left,
-        y: container.style.bottom
-      }));
-    } catch {}
-    // si hubo arrastre, no abrimos/cerramos menú en este “tap”
-    setTimeout(() => { hasDragged = false; }, 0);
-  }
-  container.addEventListener('pointerup', endDrag);
-  container.addEventListener('pointercancel', endDrag);
-  container.addEventListener('lostpointercapture', endDrag);
 
-  // Restaura posición guardada
+    if (!isDragging) {
+      // Si NO se arrastró, fue un clic -> Abrir/Cerrar Menú
+      toggleMenu();
+    } else {
+      // Si SE arrastró, guardar posición
+      try {
+        localStorage.setItem(POSITION_KEY, JSON.stringify({
+          x: container.style.left,
+          y: container.style.bottom
+        }));
+      } catch {}
+    }
+    
+    // Reiniciar estado
+    isDragging = false;
+  });
+
+  // Restaurar posición guardada
   try {
     const pos = JSON.parse(localStorage.getItem(POSITION_KEY) || 'null');
     if (pos && pos.x && pos.y) {
@@ -2898,6 +2915,7 @@ addEventListener('resize', size, {passive:true});
   } catch {}
 
 })();
+  
 // --- Lógica para la Caja de Regalo Interactiva ---
 (function() {
   const giftContainer = document.getElementById('giftContainer');
