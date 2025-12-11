@@ -151,6 +151,58 @@
     30%, 50%, 70% {transform:translateX(-6px)}
     40%, 60% {transform:translateX(6px)}
   }
+
+
+/* Barra de Tiempo */
+.timer-container {
+  width: 100%; height: 6px; background: #f0f0f0; border-radius: 4px;
+  margin-bottom: 10px; overflow: hidden;
+}
+.timer-bar {
+  height: 100%; width: 100%; background: #66bb6a;
+  transition: width 1s linear;
+}
+.timer-bar.danger { background: #ef5350; }
+
+/* MENSAJE FLOTANTE (TOAST) - FIXED PARA QUE SE VEA SIEMPRE */
+.mem-toast {
+  position: fixed; /* Fijo en la pantalla, no en el div */
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: rgba(33, 33, 33, 0.9);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.1em;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10100; /* Por encima de TODO */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: opacity 0.2s, transform 0.2s;
+  text-align: center;
+  max-width: 80vw;
+}
+.mem-toast.show {
+  opacity: 1; transform: translate(-50%, -50%) scale(1);
+}
+
+/* Modal Ticket */
+.mem-modal { width: 90%; text-align: center; }
+.coupon-ticket {
+  display: flex; background: #fff8e1; border: 2px dashed #ffca28;
+  border-radius: 8px; margin: 15px auto; max-width: 300px;
+}
+.coupon-left { background: #ffe082; padding: 10px; font-size: 1.8em; display:grid; place-items:center;}
+.coupon-right { padding: 8px 12px; text-align: left; font-size: 0.85em; display:flex; flex-direction:column; justify-content:center;}
+
+
+/* Botón mini de reinicio */
+.mini-btn {
+  background: #fff; border: 1px solid #ccc;
+  padding: 4px 8px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85em;
+}
   /* Cartel que cae (update banner) */
   .update-drop{
     position: fixed;
@@ -945,10 +997,94 @@
   /* Un brillo sutil blanco alrededor del texto */
   text-shadow: 0 0 10px rgba(255,255,255,0.4);
 }
-/* “llenado” del anillo: usamos una actualización ligera desde JS por el timeout,
-   así que no hace falta un progress real; si quisieras progreso visual,
-   podemos añadir requestAnimationFrame para animar la conic-gradient. */
 
+/* --- ESTILOS UNIFICADOS MEMORY GAME (4x7) --- */
+
+/* Contenedor principal */
+#memoryPanel {
+  display: flex; flex-direction: column; justify-content: flex-start;
+}
+
+/* Overlays (Inicio y Fin) */
+.mem-overlay-start, .mem-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.98);
+  z-index: 50; /* Z-index alto para tapar el juego */
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Cabecera */
+.mem-stats-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px; width: 100%;
+}
+
+/* GRID 4x7 EXACTO */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 Columnas Fijas */
+  /* El alto se ajustará solo por el contenido */
+  gap: 5px;
+  margin: 5px auto;
+  width: 100%;
+  max-width: 380px; /* Ancho máximo para que no se vea gigante en PC */
+  perspective: 1000px;
+  padding-bottom: 10px;
+}
+
+.mem-card {
+  aspect-ratio: 1/1; /* Cuadradas para que entren mejor las 7 filas */
+  position: relative;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mem-card.flip { transform: rotateY(180deg); }
+
+.front, .back {
+  position: absolute; inset: 0; border-radius: 6px;
+  backface-visibility: hidden; display: flex; align-items: center; justify-content: center;
+  font-size: 1.3em; /* Texto un pelín más chico para que entre bien */
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.front { 
+  background: repeating-linear-gradient(45deg, #f8bbd0, #f8bbd0 5px, #fce4ec 5px, #fce4ec 10px); 
+  color: #e91e63; font-weight: bold;
+}
+.back { 
+  background: #fff; transform: rotateY(180deg); border: 2px solid #e91e63; 
+}
+
+/* Barra de Tiempo */
+.timer-container {
+  width: 100%; height: 6px; background: #f0f0f0; border-radius: 4px;
+  margin-bottom: 8px; overflow: hidden;
+}
+.timer-bar {
+  height: 100%; width: 100%; background: #66bb6a;
+  transition: width 1s linear, background 0.3s;
+}
+.timer-bar.danger { background: #ef5350; }
+.timer-bar.bonus { background: #29b6f6; } /* Color azul para bonus de tiempo */
+
+/* Mensaje Flotante (Toast) */
+.mem-toast {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: rgba(33, 33, 33, 0.95);
+  color: #fff; padding: 10px 20px; border-radius: 50px;
+  font-weight: 600; font-size: 1.1em; pointer-events: none;
+  opacity: 0; z-index: 10100;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: opacity 0.2s, transform 0.2s;
+  text-align: center; max-width: 85vw;
+}
+.mem-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
 
 
@@ -977,10 +1113,10 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-  <span style="font-size:1.3em">🌠</span>
+  <span style="font-size:1.3em">🎉</span>
   <div>
-    <strong> Como amaneció mi bonita </strong><br>
-    <small> Anoche soñe con vos 💤</small>
+    <strong> Nueva actualización 🥳</strong><br>
+    <small> Será que puedes con esto? </small>
   </div>
   <button class="update-close" aria-label="Cerrar">✕</button>
 </div>
@@ -1375,6 +1511,58 @@
           <button id="quizRestart" class="action-button" style="display:none;">Reiniciar 🔁</button>
         </div>
             </div>
+
+<div class="panel" id="memoryPanel" style="position: relative; min-height: 480px; overflow: hidden;">
+  
+  <div class="title" style="margin-bottom: 5px;"> 💘 Emojics de Amor</div>
+  
+  <div id="memStartScreen" class="mem-overlay-start">
+    <div style="text-align:center; padding: 20px;">
+      <div style="font-size:3.5em; margin-bottom:10px; animation: bounce 2s infinite;">🧠⚡</div>
+      <h3 style="margin: 10px 0;">Desafío de Memoria</h3>
+      <p class="muted" style="margin-bottom: 20px;">
+        Encuentra las <strong>14 parejas</strong>.<br>
+        Busca el ❄️ para ganar tiempo extra.
+      </p>
+      <button id="memStartBtn" class="action-button btn-pulse">▶️ JUGAR AHORA</button>
+    </div>
+  </div>
+
+  <div id="memGameUI" style="display:none; width: 100%;">
+    <div class="mem-stats-row">
+      <div class="chip">⏳ <span id="memTimer">90</span>s</div>
+      <button id="memRestartBtn" class="mini-btn">Reiniciar 🔄</button>
+      <div class="chip">Pares: <span id="memPairs">0</span>/14</div>
+    </div>
+
+    <div class="timer-container">
+      <div id="timerBar" class="timer-bar"></div>
+    </div>
+
+    <div class="memory-grid" id="memoryGrid"></div>
+  </div>
+
+  <div id="memOverlay" class="mem-overlay" style="display:none;">
+    <div class="mem-modal">
+      <div id="memIcon" style="font-size:3.5em; margin-bottom:10px;"></div>
+      <h3 id="memTitle" style="margin:5px 0;"></h3>
+      <p id="memMsg" class="muted" style="margin:10px 0;"></p>
+      
+      <div id="memCoupon" class="coupon-ticket" style="display:none;">
+        <div class="coupon-left">🎟️</div>
+        <div class="coupon-right">
+          <strong>VALE POR:</strong>
+          <span>Una cita romántica donde tú elijas 🍷✨</span>
+        </div>
+      </div>
+
+      <button id="memActionBtn" class="action-button">Jugar de nuevo</button>
+    </div>
+  </div>
+</div>
+
+<div id="memToast" class="mem-toast"></div>
+
 
                 <div class="panel" style="animation-delay: 1.4s;">
       <div class="title">Lo primero que haré cuando te vea... ✨</div>
@@ -2358,7 +2546,7 @@ function applyDifficulty(){
   const LONG_MS  = 3000;  // ⟵ duración del long-press
   const MOVE_TOL = 12;    // tolerancia de movimiento (px)
 
-  const panels = [...document.querySelectorAll('.panel')].filter(p => !p.querySelector('#catchHeart'));
+  const panels = [...document.querySelectorAll('.panel')].filter(p => !p.querySelector('#catchHeart') && p.id !== 'memoryPanel');
 
   if (!panels.length) return;
 
@@ -3083,6 +3271,231 @@ document.addEventListener('DOMContentLoaded', function() {
     launchMsg.style.display = 'none';
     // El cohete ya se fue, no vuelve hasta recargar la página
   };
+})();
+
+
+(function(){
+  // --- REFERENCIAS ---
+  const grid = document.getElementById('memoryGrid');
+  const timerEl = document.getElementById('memTimer');
+  const timerBar = document.getElementById('timerBar');
+  const pairsEl = document.getElementById('memPairs');
+  const toast = document.getElementById('memToast');
+  const startScreen = document.getElementById('memStartScreen');
+  const gameUI = document.getElementById('memGameUI');
+  const overlay = document.getElementById('memOverlay');
+  
+  // Elementos Modal
+  const modalIcon = document.getElementById('memIcon');
+  const modalTitle = document.getElementById('memTitle');
+  const modalMsg = document.getElementById('memMsg');
+  const modalCoupon = document.getElementById('memCoupon');
+  
+  // Botones
+  const startBtn = document.getElementById('memStartBtn');
+  const restartBtn = document.getElementById('memRestartBtn');
+  const actionBtn = document.getElementById('memActionBtn');
+
+  if(!grid) return;
+
+  // --- CONFIGURACIÓN: 14 PAREJAS (28 CARTAS) ---
+  const CARDS_BASE = [
+    { emoji: '🦜', msg: 'Loro Pepe' },
+    { emoji: '👩🏻‍🔬', msg: 'Mi científica fav' },
+    { emoji: '🐧', msg: 'Pingüinita' },
+    { emoji: '🍋', msg: 'Mi limoncita' },
+    { emoji: '👸🏻', msg: 'Mi Princesa' },
+    { emoji: '👑', msg: 'La Corona' },
+    { emoji: '🧬', msg: 'Nuestro ADN' },
+    { emoji: '🧪', msg: 'Química Pura' },
+    { emoji: '🌻', msg: 'Girasol' },
+    { emoji: '❤️‍🔥', msg: 'Fuego' },
+    { emoji: '🐨', msg: 'Abrazo de Koala' },
+    { emoji: '🔬', msg: 'Investigando' },
+    { emoji: '🍄', msg: 'Honguito' },
+    { emoji: '❄️', msg: '¡Tiempo Congelado! +5s ⏳' } // <--- EL NUEVO BONUS
+  ];
+
+  const GAME_DURATION = 70; // 90 segundos iniciales
+  
+  // Variables Estado
+  let isPlaying = false;
+  let hasFlippedCard = false;
+  let lockBoard = false;
+  let firstCard, secondCard;
+  let matches = 0;
+  let timeLeft = GAME_DURATION;
+  let timerInterval = null;
+
+  // --- INICIO ---
+  startBtn.addEventListener('click', () => {
+    startScreen.style.display = 'none';
+    gameUI.style.display = 'block';
+    initGame();
+  });
+
+  function initGame() {
+    clearInterval(timerInterval);
+    isPlaying = true;
+    timeLeft = GAME_DURATION;
+    matches = 0;
+    
+    // Reset Logica
+    [hasFlippedCard, lockBoard] = [false, false];
+    [firstCard, secondCard] = [null, null];
+
+    // Reset UI
+    overlay.style.display = 'none';
+    modalCoupon.style.display = 'none';
+    timerBar.className = 'timer-bar'; // Quitar danger/bonus
+    pairsEl.textContent = `0/${CARDS_BASE.length}`;
+    updateTimerUI();
+
+    // Crear Grid
+    grid.innerHTML = '';
+    const deck = [...CARDS_BASE, ...CARDS_BASE];
+    deck.sort(() => 0.5 - Math.random());
+
+    deck.forEach(item => {
+      const card = document.createElement('div');
+      card.classList.add('mem-card');
+      card.dataset.name = item.emoji;
+      card.dataset.msg = item.msg;
+
+      card.innerHTML = `
+        <div class="front">?</div>
+        <div class="back">${item.emoji}</div>
+      `;
+      grid.appendChild(card);
+      card.addEventListener('click', flipCard);
+    });
+
+    // Arrancar Timer
+    timerInterval = setInterval(() => {
+      if(!isPlaying) return;
+      timeLeft--;
+      updateTimerUI();
+      if (timeLeft <= 0) endGame(false);
+    }, 1000);
+  }
+
+  function updateTimerUI() {
+    timerEl.textContent = timeLeft;
+    // Calculo porcentaje (tope 100% por si gana bonus)
+    const pct = Math.min(100, (timeLeft / GAME_DURATION) * 100);
+    timerBar.style.width = pct + '%';
+    
+    // Colores de barra
+    if (timeLeft <= 10) timerBar.classList.add('danger');
+    else timerBar.classList.remove('danger');
+  }
+
+  // --- LÓGICA JUEGO ---
+  function flipCard() {
+    if (lockBoard) return;
+    if (this === firstCard) return;
+
+    this.classList.add('flip');
+
+    if (!hasFlippedCard) {
+      hasFlippedCard = true;
+      firstCard = this;
+      return;
+    }
+
+    secondCard = this;
+    checkForMatch();
+  }
+
+  function checkForMatch() {
+    let isMatch = firstCard.dataset.name === secondCard.dataset.name;
+
+    if (isMatch) {
+      disableCards();
+      matches++;
+      pairsEl.textContent = `${matches}/${CARDS_BASE.length}`;
+      showToast(firstCard.dataset.msg);
+      
+      // === LÓGICA DEL BONUS DE HIELO ❄️ ===
+      if (firstCard.dataset.name === '❄️') {
+        timeLeft += 5; // Sumar 5 segundos
+        updateTimerUI();
+        
+        // Efecto visual en la barra
+        timerBar.classList.add('bonus');
+        setTimeout(() => timerBar.classList.remove('bonus'), 600);
+        
+        if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
+      } else {
+        if(navigator.vibrate) navigator.vibrate(30);
+      }
+
+      if (matches === CARDS_BASE.length) endGame(true);
+
+    } else {
+      unflipCards();
+      if(navigator.vibrate) navigator.vibrate(20);
+    }
+  }
+
+  function disableCards() {
+    firstCard.removeEventListener('click', flipCard);
+    secondCard.removeEventListener('click', flipCard);
+    resetBoard();
+  }
+
+  function unflipCards() {
+    lockBoard = true;
+    setTimeout(() => {
+      firstCard.classList.remove('flip');
+      secondCard.classList.remove('flip');
+      resetBoard();
+    }, 800);
+  }
+
+  function resetBoard() {
+    [hasFlippedCard, lockBoard] = [false, false];
+    [firstCard, secondCard] = [null, null];
+  }
+
+  function showToast(text) {
+    // Truco para reiniciar la animación CSS si ya estaba mostrándose
+    toast.classList.remove('show');
+    void toast.offsetWidth; 
+    toast.textContent = text;
+    toast.classList.add('show');
+    
+    if(toast.timeout) clearTimeout(toast.timeout);
+    toast.timeout = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  function endGame(win) {
+    isPlaying = false;
+    clearInterval(timerInterval);
+    
+    setTimeout(() => {
+      overlay.style.display = 'flex';
+      if (win) {
+        modalIcon.textContent = '🏆';
+        modalTitle.textContent = 'LO LOGRASTE BELLA!';
+        modalMsg.textContent = `¡Sos increíble, te sobraron ${timeLeft}seg.`;
+        modalMsg.style.color = '#43a047';
+        modalCoupon.style.display = 'flex';
+        
+        if (typeof dropHearts === 'function') dropHearts(80);
+        if (typeof window.confettiBurst === 'function') window.confettiBurst(50);
+      } else {
+        modalIcon.textContent = '🐢';
+        modalTitle.textContent = '¡Eres una tortuguita ecuatoriana!';
+        modalMsg.textContent = 'Se te acabó el tiempo, lo intentas de nuevo?';
+        modalMsg.style.color = '#e91e63';
+        modalCoupon.style.display = 'none';
+      }
+    }, 500);
+  }
+
+  restartBtn.addEventListener('click', initGame);
+  actionBtn.addEventListener('click', initGame);
 })();
   </script>
 </body>
