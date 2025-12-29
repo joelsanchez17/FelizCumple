@@ -1086,7 +1086,112 @@
 }
 .mem-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
+/* --- TICKET GALÁCTICO --- */
+.ticket-wrapper {
+  perspective: 1000px;
+  margin-top: 20px;
+}
 
+.ticket {
+  display: flex;
+  background: linear-gradient(135deg, #ffffff 0%, #f3e5f5 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.ticket-left {
+  flex: 1;
+  padding: 20px;
+  border-right: 2px dashed #ccc;
+  position: relative;
+}
+/* Muescas del ticket */
+.ticket-left::after, .ticket-right::before {
+  content: ''; position: absolute;
+  width: 20px; height: 20px; background: #fad0c4; /* Mismo color que tu fondo web */
+  border-radius: 50%;
+  z-index: 2;
+}
+.ticket-left::after { top: -10px; right: -10px; }
+.ticket-right::before { bottom: -10px; left: -10px; }
+
+.ticket-header {
+  display: flex; justify-content: space-between;
+  border-bottom: 2px solid #e91e63;
+  padding-bottom: 10px; margin-bottom: 15px;
+  font-size: 0.8em; font-weight: bold; color: #e91e63; letter-spacing: 1px;
+}
+
+.route {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.route h2 { font-size: 1.1em; margin: 0; color: #333; }
+.plane-icon { font-size: 1.5em; animation: fly 2s infinite alternate; }
+
+.flight-info {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;
+}
+.info-group { display: flex; flex-direction: column; }
+.label { font-size: 0.65em; color: #777; letter-spacing: 0.5px; text-transform: uppercase; }
+.value { font-weight: bold; color: #c2185b; font-size: 0.9em; }
+
+.ticket-right {
+  width: 60px;
+  background: #e91e63;
+  color: white;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 10px;
+}
+.stub-info { writing-mode: vertical-rl; transform: rotate(180deg); margin-bottom: 10px; font-weight: bold; font-size: 0.8em; }
+.barcode { display: flex; gap: 2px; height: 30px; align-items: center; opacity: 0.8; }
+.bar { width: 3px; background: white; height: 100%; }
+.bar:nth-child(even) { width: 1px; }
+
+@keyframes fly { from { transform: translateX(-3px); } to { transform: translateX(3px); } }
+
+/* --- 12 ESTRELLAS --- */
+.star-countdown-title {
+  margin-top: 15px; font-weight: bold; color: #fff; 
+  font-family: 'Pacifico'; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.star-grid {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px;
+  padding: 10px;
+}
+.star-day {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1em; font-weight: bold; color: #e91e63;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+  touch-action: manipulation; /* Mejora la respuesta táctil */
+}
+.star-day.checked { 
+  background: #ffd700; color: #fff; 
+  transform: scale(1.15) rotate(15deg); 
+  box-shadow: 0 0 15px #ffd700; 
+  border-color: #ffd700;
+}
+.star-day:active { transform: scale(0.9); }
+
+@media (max-width: 400px) {
+  .ticket { flex-direction: column; }
+  .ticket-left { border-right: none; border-bottom: 2px dashed #ccc; }
+  .ticket-right { width: 100%; flex-direction: row; height: 50px; }
+  .stub-info { writing-mode: horizontal-tb; transform: none; margin: 0 10px 0 0; }
+  .ticket-left::after { display:none; } 
+}
 
   </style>
   <!-- Favicon (emoji corazón) -->
@@ -1113,10 +1218,10 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-  <span style="font-size:1.3em">🎉</span>
+  <span style="font-size:1.3em">🐨</span>
   <div>
-    <strong> Nueva actualización 🥳</strong><br>
-    <small> Será que puedes con esto? </small>
+    <strong> Cada vez menos para vernos 🥳</strong><br>
+    <small>  Te extraño mucho koalita </small>
   </div>
   <button class="update-close" aria-label="Cerrar">✕</button>
 </div>
@@ -1196,10 +1301,10 @@
 
 
   <div class="panel" aria-live="polite">
-    <div class="title">Tiempo desde la ultima vez que nos vimos (12 ago 2025, 06:30 – Frankfurt)</div>
+    <div class="title">Tiempo desde la ultima vez que nos vimos (19 dic 2025, 18:00 – Frankfurt)</div>
     <div id="countup" class="big">00d 00h 00m 00s</div>
     <div class="row">
-      <div class="chip">Cuenta ↑ desde: 2025-08-12 06:30 (CEST)</div>
+      <div class="chip">Cuenta ↑ desde: 2025-12-19 18:00 (CEST)</div>
       <div class="chip">Zona: Frankfurt</div>
     </div>
   </div>
@@ -1208,7 +1313,7 @@
     <div class="title">⏳ Tiempo para reencontrarnos en Frankfurt ❤️</div>
     <div id="countdown" class="big">00d 00h 00m 00s</div>
     <div class="row">
-      <div class="chip">Objetivo (Frankfurt): 2025-09-01 17:30</div>
+      <div class="chip">Objetivo (Frankfurt): 2026-01-11 13:00</div>
       <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
     </div>
   </div>
@@ -1218,7 +1323,58 @@
     <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
     </div>
 
-    
+<div class="panel ticket-wrapper" style="background: transparent; box-shadow: none; padding: 0;">
+  
+  <div class="ticket">
+    <div class="ticket-left">
+      <div class="ticket-header">
+        <span class="airline">SPACE-LOVE AIRLINES 🚀</span>
+        <span class="boarding-time">BOARDING: 12 DÍAS</span>
+      </div>
+      <div class="ticket-body">
+        <div class="route">
+          <h2>ECUADOR</h2>
+          <span class="plane-icon">✈️ ❤️</span>
+          <h2>FRANKFURT</h2>
+        </div>
+        <div class="flight-info">
+          <div class="info-group">
+            <span class="label">PASAJERA</span>
+            <span class="value">M Sc. Futura 👩🏻‍🚀</span>
+          </div>
+          <div class="info-group">
+            <span class="label">FECHA</span>
+            <span class="value">11 ENE 2026</span> </div>
+          <div class="info-group">
+            <span class="label">MISIÓN</span>
+            <span class="value">REGRESO A CASA 🌎🚀</span>
+          </div>
+          <div class="info-group">
+            <span class="label">ASIENTO</span>
+            <span class="value">EN MI CORAZÓN</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ticket-right">
+      <div class="stub-info">
+        <span class="stub-label">FLIGHT</span>
+        <span class="stub-val">LOVE-24</span>
+      </div>
+      <div class="barcode">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="star-section">
+    <div class="star-countdown-title">✨ 12 Constelaciones para tu regreso ✨</div>
+    <div class="star-grid" id="starGrid">
+      </div>
+  </div>
+
+</div>    
 
     
 
@@ -1597,8 +1753,8 @@
 
   <script>
     // --- Contadores up/down ---
-    const startBerlin = new Date("2025-08-12T06:30:00+02:00");
-    const meetingBerlin = new Date("2025-09-01T17:30:00+02:00");
+    const startBerlin = new Date("2025-12-19T18:30:00+02:00");
+    const meetingBerlin = new Date("2026-01-11T13:30:00+02:00");
     const elUp = document.getElementById("countup");
     const elDown = document.getElementById("countdown");
     function fmtDHMS(totalSeconds) {
@@ -3496,6 +3652,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
   restartBtn.addEventListener('click', initGame);
   actionBtn.addEventListener('click', initGame);
+})();
+
+/* --- Lógica de las 12 Constelaciones (CORREGIDA) --- */
+(function(){
+  const grid = document.getElementById('starGrid');
+  if(!grid) return;
+  
+  const totalDays = 12; 
+  // Intentamos recuperar estado guardado
+  let savedState = [];
+  try { savedState = JSON.parse(localStorage.getItem('stars_2024') || '[]'); } catch(e){}
+
+  for(let i=1; i<=totalDays; i++){
+    const star = document.createElement('div');
+    star.className = 'star-day';
+    star.textContent = i;
+    
+    // Si ya estaba marcada antes, la marcamos
+    if(savedState.includes(i)) star.classList.add('checked');
+    
+    // --- AQUÍ ESTÁ EL ARREGLO PARA EL IPHONE/MÓVIL ---
+    // Detenemos la propagación en pointerdown para que el panel NO detecte que lo estás tocando
+    star.addEventListener('pointerdown', function(e){
+      e.stopPropagation(); 
+    }, {passive: false});
+
+    // Usamos click para la lógica de marcar/desmarcar
+    star.addEventListener('click', function(e){
+      e.stopPropagation(); // También detenemos el click por seguridad
+      
+      this.classList.toggle('checked');
+      
+      // Guardar estado
+      const isChecked = this.classList.contains('checked');
+      if(isChecked) {
+        savedState.push(i);
+        // Efectos bonitos
+        if(typeof window.confettiBurst === 'function') window.confettiBurst(12);
+        if(navigator.vibrate) navigator.vibrate(40);
+        
+        // Mensajitos aleatorios
+        const msgs = [
+            "¡Un día menos! 🚀", 
+            "Mitocondria feliz ⚡", 
+            "ADN procesando... 🧬", 
+            "Órbita alineada 🪐", 
+            "Falta poquito ❤️"
+        ];
+        // Mostramos alerta solo a veces para no cansar, o usa tu sistema de toast si prefieres
+        // alert(msgs[Math.floor(Math.random()*msgs.length)]); 
+      } else {
+        savedState = savedState.filter(d => d !== i);
+      }
+      
+      localStorage.setItem('stars_2024', JSON.stringify(savedState));
+    });
+
+    grid.appendChild(star);
+  }
 })();
   </script>
 </body>
