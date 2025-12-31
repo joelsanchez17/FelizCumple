@@ -1192,6 +1192,163 @@
   .stub-info { writing-mode: horizontal-tb; transform: none; margin: 0 10px 0 0; }
   .ticket-left::after { display:none; } 
 }
+/* --- ESTILOS AÑO VIEJO 2.0 --- */
+.burn-intro { text-align: center; padding: 10px; }
+
+/* El Juego */
+.monigote-scene {
+  position: relative; height: 160px;
+  display: flex; justify-content: center; align-items: center;
+  margin: 10px 0; overflow: hidden;
+  background: radial-gradient(circle, #fff3e0 0%, rgba(255,255,255,0) 70%);
+  border-radius: 12px;
+}
+
+.monigote-figure { font-size: 90px; transition: transform 0.1s; z-index: 1; }
+
+/* Niveles de temblor según el calor */
+.shaking-1 { animation: shake 0.5s infinite; }
+.shaking-2 { animation: shake 0.3s infinite; filter: saturate(2); }
+.shaking-3 { animation: shake 0.1s infinite; filter: sepia(1) hue-rotate(-30deg) saturate(5); }
+
+/* Botón gigante de fuego */
+.fire-btn {
+  width: 100%; padding: 18px;
+  background: linear-gradient(to bottom, #ff5722, #d84315);
+  color: white; border: none; border-radius: 12px;
+  font-size: 1.4em; font-weight: bold; font-family: 'Pacifico', cursive;
+  box-shadow: 0 6px 0 #bf360c, 0 10px 10px rgba(0,0,0,0.2);
+  cursor: pointer; position: relative; top: 0;
+  transition: all 0.05s;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.fire-btn:active {
+  top: 6px; box-shadow: 0 0 0 #bf360c, inset 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* Barra */
+.burn-progress-wrap {
+  width: 100%; height: 20px; background: #cfd8dc;
+  border-radius: 10px; overflow: hidden; position: relative;
+  border: 2px solid #b0bec5;
+}
+.burn-bar {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #ffeb3b, #ff9800, #ff3d00);
+  transition: width 0.08s linear;
+}
+
+/* Efecto de humo al enfriarse */
+.smoke-puff {
+  position: absolute; top: 20px; font-size: 40px;
+  opacity: 0; pointer-events: none;
+}
+.smoke-anim { animation: puff-up 0.6s ease-out; }
+
+@keyframes puff-up {
+  0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+  100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+}
+
+/* Animación Fuego Final */
+.fire-display {
+  position: absolute; bottom: 0; left:0; right:0;
+  display: flex; justify-content: center;
+  opacity: 0; transition: opacity 1s; z-index: 2;
+}
+.fire-display.active { opacity: 1; }
+.flame { font-size: 70px; position: absolute; bottom: -10px; animation: fire-dance 0.6s infinite alternate; }
+.f1 { left: 30%; animation-delay: 0s; }
+.f2 { left: 45%; animation-delay: 0.1s; transform: scale(1.3); z-index: 3; }
+.f3 { left: 60%; animation-delay: 0.2s; }
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  25% { transform: translate(-1px, -2px) rotate(-1deg); }
+  50% { transform: translate(-3px, 0px) rotate(1deg); }
+  75% { transform: translate(3px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -1px) rotate(-1deg); }
+}
+@keyframes fire-dance {
+  from { transform: scale(1) rotate(-5deg); }
+  to { transform: scale(1.1) rotate(5deg) translateY(-10px); }
+}
+/* --- ESTILOS 12 UVAS --- */
+.grapes-intro { text-align: center; padding: 10px; }
+
+.grapes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 320px;
+  margin: 0 auto 15px;
+}
+
+.grape-btn {
+  width: 48px; height: 48px;
+  background: radial-gradient(circle at 30% 30%, #ce93d8, #6a1b9a);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.3s;
+  position: relative;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+.grape-btn:active { transform: scale(0.9); }
+.grape-btn.eaten {
+  opacity: 0.4;
+  transform: scale(0.8);
+  background: #bdbdbd;
+  border-color: #eee;
+  pointer-events: none; 
+}
+.grape-btn::after {
+  content: ''; position: absolute; top: 8px; left: 8px;
+  width: 8px; height: 8px; background: rgba(255,255,255,0.5);
+  border-radius: 50%;
+}
+
+/* CAJA DE DESEOS (ESTADO INICIAL OCULTO) */
+.wish-box {
+  background: #fff;
+  border: 2px dashed #ce93d8;
+  padding: 15px;
+  border-radius: 12px;
+  margin: 10px auto;
+  min-height: 90px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  
+  /* Aquí está la clave: Oculto por defecto en CSS */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* CAJA DE DESEOS (ESTADO VISIBLE) */
+.wish-box.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.grape-progress {
+  height: 8px; background: #f3e5f5; border-radius: 10px; overflow: hidden; margin-top: 10px; border: 1px solid #e1bee7;
+}
+.grape-bar {
+  height: 100%; background: linear-gradient(90deg, #ab47bc, #8e24aa); transition: width 0.3s ease;
+}
+
+/* Animación de entrada extra (Pop) */
+.pop-in { animation: popInWish 0.3s forwards; }
+@keyframes popInWish {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
 
   </style>
   <!-- Favicon (emoji corazón) -->
@@ -1218,10 +1375,10 @@
 <body>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-  <span style="font-size:1.3em">🐨</span>
+  <span style="font-size:1.3em">🎆</span>
   <div>
-    <strong> Cada vez menos para vernos 🥳</strong><br>
-    <small>  Te extraño mucho koalita </small>
+    <strong> Ultimo día del año 🥂</strong><br>
+    <small>  Y tenemos actualizaciones 🎊 </small>
   </div>
   <button class="update-close" aria-label="Cerrar">✕</button>
 </div>
@@ -1698,6 +1855,8 @@
     <div class="memory-grid" id="memoryGrid"></div>
   </div>
 
+
+  
   <div id="memOverlay" class="mem-overlay" style="display:none;">
     <div class="mem-modal">
       <div id="memIcon" style="font-size:3.5em; margin-bottom:10px;"></div>
@@ -1716,6 +1875,90 @@
     </div>
   </div>
 </div>
+
+
+<div class="panel" id="burnPanel">
+  
+  <div id="burnIntro" class="burn-intro">
+    <div class="title" style="color:#d84315;">🔥 Ritual de Año Viejo 🔥</div>
+    <p class="muted">
+      Para recibir el 2026, primero debemos despedir lo viejo.<br>
+      ¿Estás lista para encender la llama?
+    </p>
+    <button id="startBurnBtn" class="action-button btn-pulse">
+      🕯️ Iniciar Ceremonia
+    </button>
+  </div>
+
+  <div id="burnGame" class="burn-game" style="display:none;">
+    <div class="row" style="justify-content: space-between; align-items: center;">
+      <h3 style="margin:0; font-size:1.1em; color:#d84315;">¡Quémalo Rápido!</h3>
+      <button id="closeBurnBtn" class="mini-btn">✕</button>
+    </div>
+    
+    <div class="monigote-scene">
+      <div id="monigote" class="monigote-figure">👹</div>
+      <div id="fireEffect" class="fire-display">
+        <div class="flame f1">🔥</div>
+        <div class="flame f2">🔥</div>
+        <div class="flame f3">🔥</div>
+      </div>
+      <div id="smokeEffect" class="smoke-puff">💨</div>
+    </div>
+
+    <div class="burn-progress-wrap">
+      <div id="burnBar" class="burn-bar"></div>
+      <span class="burn-icon">🌡️</span>
+    </div>
+    <p id="burnStatus" class="muted" style="font-size:0.8em; margin:5px 0;">0% - Está helado 🥶</p>
+
+    <button id="burnTapBtn" class="fire-btn">
+      🔥🔥 ¡FUEGO! 🔥🔥
+    </button>
+  </div>
+</div>
+
+
+<div class="panel" id="grapesPanel">
+  
+  <div id="grapesIntro" class="grapes-intro">
+    <div class="title" style="color:#6a1b9a;">🍇 Las 12 Uvas de la Suerte 🍇</div>
+    <p class="muted">
+      Una tradición para recibir nuestro 2026
+      .<br>
+      Tengo 12 deseos guardados para ti...
+    </p>
+    <button id="startGrapesBtn" class="action-button btn-pulse" style="background:#8e24aa;">
+      ✨ Pedir Deseos ✨
+    </button>
+  </div>
+
+  <div id="grapesGame" class="grapes-game" style="display:none;">
+    <div class="row" style="justify-content: space-between; align-items: center; margin-bottom:10px;">
+      <h3 style="margin:0; font-size:1.1em; color:#6a1b9a;">Cómete las 12 uvas 🍇</h3>
+      <button id="closeGrapesBtn" class="mini-btn">✕</button>
+    </div>
+
+    <p class="muted" style="font-size:0.9em; margin-bottom:12px;">
+      Toca cada uva para desbloquear un deseo.
+    </p>
+
+    <div class="grapes-grid" id="grapesGrid"></div>
+
+    <div id="wishDisplay" class="wish-box">
+      <span id="wishEmoji" style="font-size:2em; display:block; margin-bottom:5px;">✨</span>
+      <span id="wishText" style="font-weight:bold; color:#e91e63;">...</span>
+    </div>
+
+    <div class="grape-progress">
+      <div id="grapeBar" class="grape-bar" style="width:0%"></div>
+    </div>
+  </div>
+
+</div>
+
+
+
 
 <div id="memToast" class="mem-toast"></div>
 
@@ -3654,41 +3897,55 @@ document.addEventListener('DOMContentLoaded', function() {
   actionBtn.addEventListener('click', initGame);
 })();
 
-/* --- Lógica de las 12 Constelaciones (CORREGIDA) --- */
+/* --- Lógica de las 12 Constelaciones (MEJORADA Y VISIBLE) --- */
 (function(){
   const grid = document.getElementById('starGrid');
+  const toast = document.getElementById('memToast'); // Usamos el mensaje flotante existente
   if(!grid) return;
   
   const totalDays = 12; 
-  // Intentamos recuperar estado guardado
   let savedState = [];
   try { savedState = JSON.parse(localStorage.getItem('stars_2024') || '[]'); } catch(e){}
+
+  // Función interna para mostrar el mensaje bonito
+  function showStarMessage(text) {
+    if(!toast) { alert(text); return; } // Fallback por si acaso
+    
+    // Reiniciar animación para que aparezca de nuevo
+    toast.classList.remove('show');
+    void toast.offsetWidth; // Truco de magia para reiniciar CSS
+    
+    toast.textContent = text;
+    toast.classList.add('show');
+    
+    // Ocultar automáticamente a los 3 segundos
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
 
   for(let i=1; i<=totalDays; i++){
     const star = document.createElement('div');
     star.className = 'star-day';
     star.textContent = i;
     
-    // Si ya estaba marcada antes, la marcamos
+    // Marcar si ya estaba guardado
     if(savedState.includes(i)) star.classList.add('checked');
     
-    // --- AQUÍ ESTÁ EL ARREGLO PARA EL IPHONE/MÓVIL ---
-    // Detenemos la propagación en pointerdown para que el panel NO detecte que lo estás tocando
+    // --- Fix para iPhone/Móvil ---
     star.addEventListener('pointerdown', function(e){
       e.stopPropagation(); 
     }, {passive: false});
 
-    // Usamos click para la lógica de marcar/desmarcar
+    // Lógica del Click
     star.addEventListener('click', function(e){
-      e.stopPropagation(); // También detenemos el click por seguridad
+      e.stopPropagation();
       
       this.classList.toggle('checked');
-      
-      // Guardar estado
       const isChecked = this.classList.contains('checked');
+      
       if(isChecked) {
         savedState.push(i);
-        // Efectos bonitos
+        
+        // Efectos
         if(typeof window.confettiBurst === 'function') window.confettiBurst(12);
         if(navigator.vibrate) navigator.vibrate(40);
         
@@ -3698,10 +3955,18 @@ document.addEventListener('DOMContentLoaded', function() {
             "Mitocondria feliz ⚡", 
             "ADN procesando... 🧬", 
             "Órbita alineada 🪐", 
-            "Falta poquito ❤️"
+            "Preparando el reencuentro🌟",
+            "Misión Frankfurt iniciada 🛫",
+            "Falta poquito ❤️",
+            "Tic tac... ⏳",
+            "Te espero en 🇩🇪 ✈️",
+            "Ya casi nos vemos 🥰"
         ];
-        // Mostramos alerta solo a veces para no cansar, o usa tu sistema de toast si prefieres
-        // alert(msgs[Math.floor(Math.random()*msgs.length)]); 
+        
+        // AQUÍ ESTÁ EL ARREGLO: Elegimos mensaje y lo mostramos
+        const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+        showStarMessage(randomMsg); 
+
       } else {
         savedState = savedState.filter(d => d !== i);
       }
@@ -3710,6 +3975,262 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     grid.appendChild(star);
+  }
+})();
+
+/* --- LÓGICA RITUAL AÑO VIEJO (VERSIÓN DIFÍCIL) --- */
+(function(){
+  // Referencias a elementos
+  const intro = document.getElementById('burnIntro');
+  const game = document.getElementById('burnGame');
+  const startBtn = document.getElementById('startBurnBtn');
+  const closeBtn = document.getElementById('closeBurnBtn');
+  const tapBtn = document.getElementById('burnTapBtn');
+  
+  const bar = document.getElementById('burnBar');
+  const status = document.getElementById('burnStatus');
+  const monigote = document.getElementById('monigote');
+  const fire = document.getElementById('fireEffect');
+  const smoke = document.getElementById('smokeEffect');
+
+  if(!intro || !game) return;
+
+  // Configuración del juego
+  let heat = 0;
+  let isBurning = false;
+  let gameInterval = null;
+  
+  // EQUILIBRIO DE DIFICULTAD (Ajusta si es imposible)
+  const HEAT_PER_TAP = 14;    // Cuánto sube por toque
+  const BASE_DECAY = 2.5;     // Enfriamiento base
+  const DYNAMIC_DECAY = 0.08; // Factor de dificultad (más alto = más difícil al final)
+  const TICK_RATE = 100;      // Velocidad del bucle (ms)
+
+  // 1. Abrir el juego
+  startBtn.addEventListener('click', () => {
+    intro.style.display = 'none';
+    game.style.display = 'block';
+    game.classList.add('fade-in'); // Usa tu animación existente
+    resetGame();
+    startGameLoop();
+  });
+
+  // 2. Cerrar el juego
+  closeBtn.addEventListener('click', () => {
+    game.style.display = 'none';
+    intro.style.display = 'block';
+    stopGameLoop();
+  });
+
+  // 3. Mecánica principal (El Bucle)
+  function startGameLoop() {
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(() => {
+      if (isBurning) return;
+
+      // LÓGICA DE ENFRIAMIENTO DINÁMICO
+      // Cuanto más caliente, más rápido se enfría. 
+      // Al 90% de calor, baja ~10 puntos por tick. ¡Muy difícil!
+      let currentDecay = BASE_DECAY + (heat * DYNAMIC_DECAY);
+      
+      if (heat > 0) {
+        heat -= currentDecay;
+        if (heat < 0) heat = 0; // No bajar de 0
+      }
+      
+      updateUI();
+    }, TICK_RATE);
+  }
+
+  function stopGameLoop() {
+    if (gameInterval) clearInterval(gameInterval);
+  }
+
+  function resetGame() {
+    heat = 0;
+    isBurning = false;
+    monigote.style.opacity = '1';
+    monigote.style.transform = 'scale(1)';
+    monigote.className = 'monigote-figure'; // Quitar shakes
+    fire.classList.remove('active');
+    tapBtn.textContent = "🔥🔥 ¡FUEGO! 🔥🔥";
+    tapBtn.style.background = ""; // Reset color
+    tapBtn.disabled = false;
+    updateUI();
+  }
+
+  // 4. Interacción (Taps)
+  tapBtn.addEventListener('pointerdown', (e) => { // pointerdown es mejor que click para juegos rápidos
+    e.preventDefault(); // Evita zoom o selección
+    if (isBurning) return;
+
+    // Subir calor
+    heat += HEAT_PER_TAP;
+    
+    // Vibración corta para feedback táctil
+    if(navigator.vibrate) navigator.vibrate(20);
+
+    // Ganar
+    if (heat >= 100) {
+      heat = 100;
+      win();
+    }
+    
+    // Efecto humo si estaba enfriándose mucho (opcional visual)
+    smoke.classList.remove('smoke-anim');
+    
+    updateUI();
+  });
+
+  function updateUI() {
+    bar.style.width = heat + '%';
+    
+    // Cambiar clases según intensidad
+    monigote.className = 'monigote-figure'; // Reset
+    
+    if (heat < 30) {
+      status.textContent = Math.round(heat) + "% - ¡Dale más rápido 🐢🥶!";
+    } else if (heat < 60) {
+      status.textContent = Math.round(heat) + "% - ¡Se está calentando! ♨️";
+      monigote.classList.add('shaking-1');
+    } else if (heat < 90) {
+      status.textContent = Math.round(heat) + "% - ¡CASI ARDE! 🔥";
+      monigote.classList.add('shaking-2');
+    } else {
+      status.textContent = "¡¡¡DALE DALE DALE!!! 🧨";
+      monigote.classList.add('shaking-3');
+    }
+  }
+
+  function win() {
+    isBurning = true;
+    stopGameLoop();
+    updateUI(); // Asegurar barra llena
+
+    // UI de victoria
+    tapBtn.textContent = "✨ ¡AÑO VIEJO QUEMADO! ✨";
+    tapBtn.style.background = "#43a047"; // Verde
+    status.innerHTML = "<strong>¡Adiós 2025! ¡Hola 2026!</strong>";
+    status.style.color = "#d84315";
+
+    // Animación final
+    fire.classList.add('active');
+    
+    // Vibración de victoria
+    if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 500]);
+    
+    // Confeti masivo
+    if(typeof window.confettiBurst === 'function') window.confettiBurst(100);
+
+    // Desaparecer muñeco
+    setTimeout(() => {
+      monigote.style.transition = "transform 2s ease, opacity 2s ease";
+      monigote.style.transform = "scale(0) rotate(360deg)";
+      monigote.style.opacity = "0";
+    }, 500);
+  }
+
+})();
+
+
+/* --- LÓGICA DE LAS 12 UVAS (CORREGIDA) --- */
+(function(){
+  const intro = document.getElementById('grapesIntro');
+  const game = document.getElementById('grapesGame');
+  const startBtn = document.getElementById('startGrapesBtn');
+  const closeBtn = document.getElementById('closeGrapesBtn');
+  
+  const grid = document.getElementById('grapesGrid');
+  const wishBox = document.getElementById('wishDisplay');
+  const wishText = document.getElementById('wishText');
+  const wishEmoji = document.getElementById('wishEmoji');
+  const bar = document.getElementById('grapeBar');
+  
+  if(!grid) return;
+
+  // 1. Abrir/Cerrar
+  startBtn.addEventListener('click', () => {
+    intro.style.display = 'none';
+    game.style.display = 'block';
+    // Pequeña pausa para que la animación CSS funcione si usas fade-in
+    setTimeout(() => game.style.opacity = 1, 10);
+  });
+
+  closeBtn.addEventListener('click', () => {
+    game.style.display = 'none';
+    intro.style.display = 'block';
+  });
+
+  // 2. Lista de Deseos (¡Puedes editarlos!)
+  const WISHES = [
+    { t: "Salud para vos y tu familia ❤️", e: "🏥" },
+    { t: "Conocer Ecuador junto a ti 🇪🇨", e: "🛫" },
+     { t: "Verte graduar 🎓", e: "📜" },
+    { t: "Que cumplas tu sueño espacial 🚀", e: "👩🏻‍🚀" },
+    { t: "Que vivamos muchas experiencias juntos Camarada ✈️", e: "👩‍❤️‍💋‍👨" },
+    { t: "Que no dejemos de reir nunca 😂", e: "🤣" },    
+    { t: "Paciencia y amor eterno 👵👴", e: "⏳" },
+    { t: "Mucha música y conciertos 🎶", e: "🎧" },
+    { t: "Que exploremos y probemos nuevas cosas juntos 🔬", e: "🧬" },
+   
+    { t: "Maratonear todas tus series 📺", e: "🍿" },
+    { t: "Ser tu apoyo incondicional 🤝", e: "💪" },
+    { t: "¡Amarnos infinito este 2026! 🥂", e: "🎆" }
+  ];
+
+  let eatenCount = 0;
+  grid.innerHTML = ''; // Limpiar por si acaso
+
+  WISHES.forEach((wish) => {
+    const btn = document.createElement('button');
+    btn.className = 'grape-btn';
+    
+    btn.addEventListener('click', function() {
+      if (this.classList.contains('eaten')) return;
+
+      // Efecto visual
+      this.classList.add('eaten');
+      if (navigator.vibrate) navigator.vibrate(20);
+
+      // MOSTRAR EL MENSAJE
+      // 1. Ponemos el texto
+      wishText.textContent = wish.t;
+      wishEmoji.textContent = wish.e;
+      
+      // 2. Hacemos visible la caja (añadiendo la clase del CSS)
+      wishBox.classList.add('visible');
+      
+      // 3. Reiniciamos la animación de "pop" para que salte cada vez
+      wishBox.classList.remove('pop-in');
+      void wishBox.offsetWidth; // Truco para reiniciar animación
+      wishBox.classList.add('pop-in');
+
+      // Progreso
+      eatenCount++;
+      const pct = (eatenCount / 12) * 100;
+      bar.style.width = pct + '%';
+
+      // Final
+      if (eatenCount === 12) {
+        setTimeout(celebrateNewYear, 1000);
+      }
+    });
+
+    grid.appendChild(btn);
+  });
+
+  function celebrateNewYear() {
+    if(typeof window.confettiBurst === 'function') {
+        window.confettiBurst(100);
+        setTimeout(() => window.confettiBurst(100), 800);
+    }
+    
+    wishBox.style.background = "#fff9c4"; // Dorado claro
+    wishBox.style.borderColor = "#ffd700";
+    wishText.innerHTML = "¡FELIZ AÑO NUEVO AMOR! <br> 2026 ES NUESTRO 🥂✨";
+    wishEmoji.textContent = "🎆👩‍❤️‍💋‍👨🎆";
+    
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
   }
 })();
   </script>
