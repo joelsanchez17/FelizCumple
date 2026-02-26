@@ -1374,23 +1374,36 @@
 </head>
 <body>
   <div id="presence-indicator" style="
-    display: block;                  /* SIEMPRE VISIBLE */
-    background: #f0f0f0;             /* Gris por defecto */
-    color: #888;                     /* Texto gris */
-    padding: 10px 20px; 
-    border-radius: 50px; 
-    position: fixed; 
-    top: 20px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    z-index: 10060; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-    font-weight: bold; 
+    position: fixed;
+    bottom: 15px;           /* Pegado abajo */
+    left: 15px;             /* Pegado a la izquierda */
+    z-index: 10060;
+    
+    /* Diseño de cápsula minimalista */
+    background: rgba(255, 255, 255, 0.85); /* Semitransparente */
+    backdrop-filter: blur(5px);            /* Efecto vidrio */
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    
+    /* Flexbox para alinear puntito y texto */
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-family: 'Quicksand', sans-serif;
-    border: 1px solid #ccc;
-    transition: all 0.5s ease;       /* Transición suave de color */
+    font-size: 0.85em;      /* Letra pequeña y elegante */
+    transition: all 0.3s ease;
 ">
-    ⚪ Joel está desconectado (pero te piensa 💭)
+    <div id="status-dot" style="
+        width: 8px; 
+        height: 8px; 
+        border-radius: 50%; 
+        background: #ccc; 
+        transition: background 0.3s ease;
+    "></div>
+    
+    <span id="status-text" style="color: #999;">Joel desconectado</span>
 </div>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
