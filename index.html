@@ -1374,24 +1374,24 @@
 </head>
 <body>
   <div id="presence-indicator" style="
-      display: none; 
-      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
-      color: #c2185b; 
-      padding: 10px 20px; 
-      border-radius: 50px; 
-      position: fixed; 
-      top: 20px; 
-      left: 50%; 
-      transform: translateX(-50%); 
-      z-index: 10060; 
-      box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); 
-      font-weight: bold; 
-      font-family: 'Quicksand', sans-serif;
-      animation: fadeIn 0.5s ease-out;
-      border: 2px solid #fff;
-  ">
-      🟢 Joel está aquí contigo ahora ❤️
-  </div>
+    display: block;  /* <--- CAMBIO IMPORTANTE: Ahora siempre se ve */
+    background: #f0f0f0; /* Gris clarito (apagado) */
+    color: #888;         /* Texto gris */
+    padding: 10px 20px; 
+    border-radius: 50px; 
+    position: fixed; 
+    top: 20px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    z-index: 10060; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    font-weight: bold; 
+    font-family: 'Quicksand', sans-serif;
+    border: 1px solid #ccc;
+    transition: all 0.5s ease; /* Para que el cambio de color sea suave */
+">
+    ⚪ Joel está desconectado (pero te piensa 💭)
+</div>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
   <span style="font-size:1.3em">🎆</span>

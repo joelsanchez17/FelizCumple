@@ -32,34 +32,36 @@ const room = client.channel('room_amor', {
 room
   .on('presence', { event: 'sync' }, () => {
     const newState = room.presenceState();
-    console.log('📡 Sincronización de presencia:', newState);
+    console.log('📡 Estado sala:', newState);
     
-    // Verificar si "Joel" está en la lista de conectados
-    // newState devuelve un objeto con claves por usuario
     const users = Object.keys(newState);
-    
-    // Buscamos si alguna clave contiene la palabra 'Joel'
+    // Buscamos si "Joel" (tú) estás en la lista
     const isJoelOnline = users.some(user => user.includes('Joel'));
 
-    // Referencia al cartelito HTML
     const indicator = document.getElementById('presence-indicator');
     
-    // Lógica visual:
-    // Si NO soy Joel (soy ella) Y Joel está online -> Muestro el cartel
-    if (!amIJoel && isJoelOnline && indicator) {
-      indicator.style.display = 'block';
-      // Vibración suave si el dispositivo lo soporta
-      if (navigator.vibrate) navigator.vibrate([50, 50, 50]); 
-    } else if (indicator) {
-      indicator.style.display = 'none';
+    if (indicator) {
+        if (isJoelOnline) {
+            // --- MODO: JOEL ESTÁ ONLINE ---
+            indicator.innerHTML = '🟢 Joel está aquí contigo ahora ❤️';
+            indicator.style.background = 'linear-gradient(45deg, #ff9a9e, #fad0c4)';
+            indicator.style.color = '#c2185b';
+            indicator.style.border = '2px solid #fff';
+            indicator.style.boxShadow = '0 4px 15px rgba(233, 30, 99, 0.4)';
+            indicator.style.transform = 'translateX(-50%) scale(1.05)'; // Un poquito más grande
+            
+            // Vibrar solo cuando entras
+            if (!amIJoel && navigator.vibrate) navigator.vibrate([50, 50, 50]); 
+
+        } else {
+            // --- MODO: JOEL ESTÁ OFFLINE ---
+            // Volvemos al estado "apagado" pero visible
+            indicator.innerHTML = '⚪ Joel está desconectado (pero te piensa 💭)';
+            indicator.style.background = '#f0f0f0';
+            indicator.style.color = '#888';
+            indicator.style.border = '1px solid #ccc';
+            indicator.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+            indicator.style.transform = 'translateX(-50%) scale(1)';
+        }
     }
   })
-  .subscribe(async (status) => {
-    if (status !== 'SUBSCRIBED') { return; }
-    
-    // Una vez conectado exitosamente, enviamos nuestra señal de "Estoy aquí"
-    await room.track({
-      online_at: new Date().toISOString(),
-      location: amIJoel ? 'Alemania 🇩🇪' : 'Ecuador 🇪🇨'
-    });
-  });
