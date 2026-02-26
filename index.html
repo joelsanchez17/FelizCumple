@@ -8,6 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://www.youtube.com/iframe_api"></script>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#ff9a9e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/258/258380.png">
   
   <style>
     /* Estilos base */
@@ -4269,5 +4274,14 @@ document.addEventListener('DOMContentLoaded', function() {
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="realtime.js"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('App lista para instalar 📱', reg.scope))
+        .catch(err => console.log('Error SW:', err));
+    });
+  }
+</script>
   </body>
 </html>
