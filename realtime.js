@@ -29,33 +29,30 @@ const room = client.channel('room_amor', {
 });
 
 // 3. Escuchar cambios de estado
-room
-  .on('presence', { event: 'sync' }, () => {
+room.on('presence', { event: 'sync' }, () => {
     const newState = room.presenceState();
-    console.log('📡 Estado sala:', newState);
-    
     const users = Object.keys(newState);
-    // Buscamos si "Joel" (tú) estás en la lista
+    
+    // Verificamos si Joel está online
     const isJoelOnline = users.some(user => user.includes('Joel'));
-
     const indicator = document.getElementById('presence-indicator');
     
     if (indicator) {
         if (isJoelOnline) {
-            // --- MODO: JOEL ESTÁ ONLINE ---
+            // --- MODO: JOEL ONLINE (Verde y Brillante) ---
             indicator.innerHTML = '🟢 Joel está aquí contigo ahora ❤️';
             indicator.style.background = 'linear-gradient(45deg, #ff9a9e, #fad0c4)';
             indicator.style.color = '#c2185b';
             indicator.style.border = '2px solid #fff';
             indicator.style.boxShadow = '0 4px 15px rgba(233, 30, 99, 0.4)';
-            indicator.style.transform = 'translateX(-50%) scale(1.05)'; // Un poquito más grande
+            indicator.style.transform = 'translateX(-50%) scale(1.05)';
             
-            // Vibrar solo cuando entras
+            // Vibrar solo si soy ella y acabas de entrar
             if (!amIJoel && navigator.vibrate) navigator.vibrate([50, 50, 50]); 
 
         } else {
-            // --- MODO: JOEL ESTÁ OFFLINE ---
-            // Volvemos al estado "apagado" pero visible
+            // --- MODO: JOEL OFFLINE (Gris y Tranquilo) ---
+            // AQUÍ ESTÁ LA CLAVE: No usamos 'display: none', solo cambiamos colores
             indicator.innerHTML = '⚪ Joel está desconectado (pero te piensa 💭)';
             indicator.style.background = '#f0f0f0';
             indicator.style.color = '#888';
@@ -64,4 +61,4 @@ room
             indicator.style.transform = 'translateX(-50%) scale(1)';
         }
     }
-  })
+});
