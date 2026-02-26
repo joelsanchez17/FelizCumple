@@ -1380,36 +1380,46 @@
 <body>
   <div id="presence-indicator" style="
     position: fixed;
-    bottom: 15px;           /* Pegado abajo */
-    left: 15px;             /* Pegado a la izquierda */
+    bottom: 20px;
+    left: 20px;
     z-index: 10060;
-    
-    /* Diseño de cápsula minimalista */
-    background: rgba(255, 255, 255, 0.85); /* Semitransparente */
-    backdrop-filter: blur(5px);            /* Efecto vidrio */
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: 1px solid rgba(0,0,0,0.05);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    
-    /* Flexbox para alinear puntito y texto */
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-family: 'Quicksand', sans-serif;
-    font-size: 0.85em;      /* Letra pequeña y elegante */
+    gap: 10px;
     transition: all 0.3s ease;
 ">
-    <div id="status-dot" style="
-        width: 8px; 
-        height: 8px; 
-        border-radius: 50%; 
-        background: #ccc; 
-        transition: background 0.3s ease;
-    "></div>
-    
-    <span id="status-text" style="color: #999;">Joel desconectado</span>
+    <div style="
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 8px 16px;
+        border-radius: 30px;
+        border: 1px solid rgba(255,255,255,0.5);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex; align-items: center; gap: 8px;
+        font-family: 'Quicksand', sans-serif; font-size: 0.9em; color: #555;
+    ">
+        <div id="status-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #ccc; transition: all 0.3s;"></div>
+        <span id="status-text">Desconectado</span>
+    </div>
+
+    <div id="mimos-toolbar" style="
+        display: none; /* Oculto por defecto */
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 5px;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    ">
+        <button onclick="enviarMimo('beso')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 8px; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.8)'" onmouseup="this.style.transform='scale(1)'">💋</button>
+        <div style="width:1px; height:20px; background:#ddd; display:inline-block; vertical-align:middle;"></div>
+        <button onclick="enviarMimo('abrazo')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 8px; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.8)'" onmouseup="this.style.transform='scale(1)'">🐨</button>
+    </div>
 </div>
+
+<style>
+@keyframes popIn { from { opacity: 0; transform: scale(0.5) translateX(-20px); } to { opacity: 1; transform: scale(1) translateX(0); } }
+</style>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
   <span style="font-size:1.3em">🎆</span>
