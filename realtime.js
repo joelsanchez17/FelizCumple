@@ -77,7 +77,7 @@ function updateInterface(isOnline) {
         dot.style.boxShadow = 'none';
         
         // Mensaje explícito
-        text.innerText = `${targetIdentity} no está conectado`;
+        text.innerText = `${targetIdentity} está desconectado`;
         text.style.color = '#999';
         text.style.fontWeight = 'normal';
         
