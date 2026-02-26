@@ -1373,6 +1373,25 @@
 
 </head>
 <body>
+  <div id="presence-indicator" style="
+      display: none; 
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      color: #c2185b; 
+      padding: 10px 20px; 
+      border-radius: 50px; 
+      position: fixed; 
+      top: 20px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      z-index: 10060; 
+      box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); 
+      font-weight: bold; 
+      font-family: 'Quicksand', sans-serif;
+      animation: fadeIn 0.5s ease-out;
+      border: 2px solid #fff;
+  ">
+      🟢 Joel está aquí contigo ahora ❤️
+  </div>
     <!-- Cartel de actualización -->
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
   <span style="font-size:1.3em">🎆</span>
@@ -4233,6 +4252,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
   }
 })();
+
   </script>
-</body>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="realtime.js"></script>
+  </body>
 </html>
