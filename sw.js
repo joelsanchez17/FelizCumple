@@ -1,11 +1,15 @@
-const CACHE_NAME = 'love-app-v1';
+// sw.js
+
+// CAMBIO 1: Cambiamos v1 a v2. Esto obliga al navegador a actualizarse.
+const CACHE_NAME = 'love-app-v2'; 
+
 const ASSETS_TO_CACHE = [
   './index.html',
   './realtime.js',
+  './manifest.json', // Agregamos el manifiesto
+  './icono-app.png', // <--- IMPORTANTE: Agregamos la foto nueva para que cargue offline
   'https://unpkg.com/@supabase/supabase-js@2',
   'https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap'
-  // Aquí podrías añadir tus imágenes principales si quieres que carguen offline
-  // './princesa.jpg',
 ];
 
 // 1. Instalación: Guardamos lo básico
