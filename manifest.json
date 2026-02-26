@@ -1,6 +1,6 @@
 {
-  "name": "Nuestro Mundo ❤️",
-  "short_name": "J&M Love",
+  "name": "KoalaApp 🐨",
+  "short_name": "KoalaApp",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fad0c4",
@@ -8,12 +8,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/258/258380.png",
+      "src": "./icono-app.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/258/258380.png",
+      "src": "./icono-app.png",
       "sizes": "512x512",
       "type": "image/png"
     }
