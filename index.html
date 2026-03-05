@@ -251,18 +251,22 @@
     .update-drop.show{ animation: none; top: 14.5vh; opacity: 1; }
   }
   /* Foto de portada + subtítulo */
-  .intro-hero{
-    display:flex; flex-direction:column; align-items:center; gap:10px;
-    margin:6px 0 14px;
-    opacity:0; animation:fadeIn .6s ease-out .25s forwards;
-  }
-  .intro-photo{
-    width:min(220px, 60vw);
-    aspect-ratio:1/1; object-fit:cover;
-    border-radius:50%;
-    border:4px solid #fff;
-    box-shadow:0 10px 25px rgba(0,0,0,.18);
-  }
+.intro-hero {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 0px; /* Reducimos a 0 para eliminar espacio muerto */
+    margin: 5px 0 5px 0; /* Menos margen vertical */
+}
+
+.intro-photo {
+    width: 220px; /* Cambiado de 140px a 220px */
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
   .intro-subtitle{
     margin:0;
     font-weight:700; color:#5d4037;
@@ -720,33 +724,40 @@
   transform: rotateX(-180deg); /* flap abierto */
 }
 
-/* --- Estilos para la Caja de Regalo Interactiva --- */
 .gift-container {
-  margin: 20px auto;
-  text-align: center;
-  perspective: 800px; /* Para la animación 3D de la tapa */
+    margin: 10px auto 10px auto; /* Menos margen vertical */
+    text-align: center;
 }
 
 .gift-box {
-  position: relative;
-  width: 120px;
-  height: 100px;
-  background-color: #e91e63; /* Color de la caja */
-  border-radius: 8px;
-  margin: 0 auto;
-  cursor: pointer;
-  animation: wiggle 2.5s ease-in-out infinite;
-  transition: transform 0.3s ease;
+    position: relative;
+    width: 100px; /* Más pequeña */
+    height: 80px; /* Más pequeña */
+    background-color: #e91e63;
+    border-radius: 8px;
+    margin: 0 auto;
+    cursor: pointer;
 }
 
-.gift-box:hover {
-  transform: scale(1.05);
-  animation-play-state: paused; /* Detiene el meneo al pasar el cursor */
+.bouquet-img {
+    width: 100%;
+    max-width: 120px; /* Achicamos el ramo */
+    height: auto;
+    display: block;
+}
+
+.gift-message-hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    font-family: 'Pacifico', cursive;
+    font-size: 1.2em; /* Texto un poco más chico */
+    color: #c2185b;
+    margin-top: -50px; /* Ajuste para que no se encime tanto */
 }
 
 .lid {
   position: absolute;
-  width: 130px;
+  width: 110px;
   height: 30px;
   background-color: #c2185b; /* Color de la tapa */
   border-radius: 4px;
@@ -1355,6 +1366,138 @@
   100% { transform: scale(1); }
 }
 
+/* --- ESTRUCTURA APP SHELL --- */
+.bottom-nav { 
+  position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; 
+  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); 
+  display: flex; justify-content: space-around; align-items: center; 
+  z-index: 10000; border-top: 1px solid rgba(0,0,0,0.05); 
+  padding-bottom: env(safe-area-inset-bottom); 
+}
+.bottom-nav button { 
+  background: none; border: none; font-size: 1.5em; padding: 10px; 
+  cursor: pointer; opacity: 0.6; transition: opacity 0.3s, transform 0.2s; 
+}
+.bottom-nav button.active { opacity: 1; transform: scale(1.2); }
+
+.tab-content { display: none; padding-bottom: 80px; width: 100%; max-width: 700px; margin: 0 auto; }
+.tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+.intro-photo {
+    width: 250px; /* Cambiado de 140px a 220px */
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.flip-face .intro-photo {
+    display:block; 
+    width: 220px; /* Asegúrate que coincida con el de arriba */
+    aspect-ratio:1/1; 
+    object-fit:cover; 
+    border-radius:50%;
+    border:4px solid #fff; 
+    box-shadow:0 10px 25px rgba(0,0,0,.18); 
+}
+
+
+.sticker-toolbar .action-button {
+    padding: 4px 6px; /* Botones más pequeños */
+    font-size: 0.9em;
+}
+
+
+
+.gift-container {
+    margin: 10px auto 20px auto; /* 20px de margen inferior para separar del regalo */
+    text-align: center;
+    perspective: 800px;
+}
+
+/* 1. ESPACIADO FORZADO ENTRE BLOQUES */
+.intro-hero {
+    margin-bottom: 40px !important; /* Separación clara bajo la foto y el texto */
+    padding-bottom: 10px;
+}
+
+.gift-container {
+    margin-bottom: 40px !important; /* Separación clara bajo la caja de sorpresa */
+    padding-bottom: 10px;
+}
+
+/* 2. MEJORAR LEGIBILIDAD DEL TEXTO "Toca la foto..." */
+.intro-hero p.muted {
+    margin-top: 15px !important;
+    font-size: 0.9em !important;
+    font-weight: bold;
+    color: #444 !important; /* Color más oscuro para contraste */
+    background: rgba(255, 255, 255, 0.3); /* Fondo sutil para que resalte */
+    padding: 4px 10px;
+    border-radius: 10px;
+    display: inline-block;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5); /* Legibilidad extra */
+}
+
+/* 3. CONTROLAR TAMAÑO DE LA CAJA DE SORPRESA (Reducción forzada) */
+.gift-box {
+    width: 80px !important; /* Reducido de 100px a 80px */
+    height: 65px !important; /* Reducido de 80px a 65px */
+    margin: 0 auto 10px auto;
+}
+.bouquet-img {
+    max-width: 90px !important; /* Ramo más pequeño */
+}
+.lid {
+  position: absolute;
+  width: 90px; /* Ajustada para que sobresalga apenas de los 80px de la caja */
+  height: 25px; /* Ajustada para proporcionalidad */
+  background-color: #c2185b;
+  border-radius: 4px;
+  top: -15px; /* Ajustado para quedar encima */
+  left: -5px; /* Ajustado para centrarla en los 80px */
+  transform-origin: bottom center;
+  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+/* Esto soluciona la separación entre la foto y el "Bienvenida" */
+.flip { 
+  perspective: 1000px; 
+  display: inline-block; 
+  margin-bottom: 25px !important; /* <--- Esto es lo más importante */
+  margin-top: 10px;
+}
+
+/* Aseguramos que el contenedor general no tenga conflictos de altura */
+.intro-hero {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 10px; /* Un poco de aire entre elementos */
+    margin-bottom: 20px;
+}
+
+/* --- ENCABEZADO DE PANEL (NUEVO) --- */
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid rgba(233, 30, 99, 0.15); /* Línea suave rosa */
+  padding-bottom: 8px;
+}
+
+.panel-title {
+  font-family: 'Pacifico', cursive;
+  color: #e91e63; /* Tu color insignia */
+  font-size: 1.3em;
+  margin: 0;
+}
+
+.panel-icon {
+  font-size: 1.3em;
+}
+
   </style>
   <!-- Favicon (emoji corazón) -->
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
@@ -1378,378 +1521,714 @@
 
 </head>
 <body>
-  <div id="presence-indicator" style="
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 10060;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-">
-    <div id="status-capsule" onclick="toggleToolbar()" style="
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 8px 16px;
-        border-radius: 30px;
-        border: 1px solid rgba(255,255,255,0.5);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        display: flex; align-items: center; gap: 8px;
-        font-family: 'Quicksand', sans-serif; font-size: 0.9em; color: #555;
-        cursor: default; /* Cambiará a pointer cuando esté online */
-        transition: transform 0.1s;
-        user-select: none;
-    ">
-        <div id="status-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #ccc; transition: all 0.3s;"></div>
-        <span id="status-text">Desconectado</span>
-    </div>
+  <nav class="bottom-nav">
+    <button onclick="showTab(this, 'home')" class="active">🏠</button>
+    <button onclick="showTab(this, 'games')">🎮</button>
+    <button onclick="showTab(this, 'memories')">💖</button>
+    <button onclick="showTab(this, 'anniversary')">🗓️</button>
+  </nav>
 
-    <div id="mimos-toolbar" style="
-        display: none; /* Oculto siempre al inicio */
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 5px 8px;
-        border-radius: 30px;
-        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
-        animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    ">
-        <button onclick="enviarMimo('beso')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 6px;">💋</button>
-        <div style="width:1px; height:20px; background:#ddd; display:inline-block; vertical-align:middle;"></div>
-        <button onclick="enviarMimo('ojos')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 6px;">👀</button>
-        <div style="width:1px; height:20px; background:#ddd; display:inline-block; vertical-align:middle;"></div>
-        <button onclick="enviarMimo('toque')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 6px;">👆</button>
-    </div>
-</div>
-
-<style>
-@keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-</style>
+  <div id="home" class="tab-content active">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🏠</span>
+        <h2 class="panel-title">Bienvenida</h2>
+      </div>
+      </div>
+    
     <!-- Cartel de actualización -->
-  <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
-  <span style="font-size:1.3em">☀️</span>
-  <div>
-    <strong> Hay novedades 🐨</strong><br>
-    <small>  Pero antes un besote, muuuah </small>
-  </div>
-  <button class="update-close" aria-label="Cerrar">✕</button>
-</div>
+    <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
+    <h2 class="muted">Las horas se hacen eternas, pero nuestro momento está a punto de llegar.<br>Te extraño y ya voy por ti. </h2>
 
-  <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
-  <h2 class="muted">Las horas se hacen eternas, pero nuestro momento está a punto de llegar.<br>Te extraño y ya voy por ti. </h2>
-
-  <div class="intro-hero">
-    <!-- Flip card -->
-    <div class="flip" id="introFlip" aria-label="Foto interactiva (toca para girar)">
-      <div class="flip-inner">
-        <!-- Frente: foto + stickers -->
-        <div class="flip-face flip-front">
-          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa (frente)">
-          <div id="stickerBoard" class="sticker-board" aria-label="Tablero de stickers"></div>
+    <div class="intro-hero">
+      <!-- Flip card -->
+      <div class="flip" id="introFlip" aria-label="Foto interactiva (toca para girar)">
+        <div class="flip-inner">
+          <!-- Frente: foto + stickers -->
+          <div class="flip-face flip-front">
+            <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/princesa.jpg" alt="Mi princesa (frente)">
+            <div id="stickerBoard" class="sticker-board" aria-label="Tablero de stickers"></div>
+          </div>
+          <!-- Dorso: segunda foto -->
+          <div class="flip-face flip-back">
+            <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/alien.jpg" alt="Mi princesa (dorso)">
+            <div id="stickerBoardBack" class="sticker-board" aria-label="Tablero de stickers (dorso)"></div>
+          </div>
+          
         </div>
-        <!-- Dorso: segunda foto -->
-        <div class="flip-face flip-back">
-          <img class="intro-photo" src="https://joelsanchez17.github.io/FelizCumple/alien.jpg" alt="Mi princesa (dorso)">
-          <div id="stickerBoardBack" class="sticker-board" aria-label="Tablero de stickers (dorso)"></div>
+      </div>
+
+      <p class="intro-subtitle">Bienvenida a tu web, mi princesa ✨</p>
+
+      <!-- Tu toolbar de stickers (deja tus emojis como los tienes) -->
+      <div class="row sticker-toolbar">
+        <button class="action-button sticker-add" data-emoji="👩🏻‍🔬">👩🏻‍🔬</button>
+        <button class="action-button sticker-add" data-emoji="🐧">🐧</button>
+        <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
+        <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
+        <button class="action-button sticker-add" data-emoji="👑">👑</button>
+        <button class="action-button sticker-add" data-emoji="🌻">🌻</button>
+        <button class="action-button sticker-add" data-emoji="🐨">🐨</button>
+      </div>
+
+      <p class="muted" style="margin-top:6px;font-size:.9em">Toca la foto para girarla✨</p>
+    </div>
+
+    <div id="giftContainer" class="gift-container">
+      <div id="giftBox" class="gift-box" role="button" tabindex="0" aria-label="Toca para abrir tu sorpresa">
+        <div class="lid">
+          <div class="bow"></div>
+        </div>
+      </div>
+      <div id="flowers" class="flowers-hidden">
+        <img src="https://raw.githubusercontent.com/joelsanchez17/FelizCumple/main/flores.webp" alt="Ramo de rosas amarillas" class="bouquet-img">
+      </div>
+      <p id="giftMessage" class="gift-message-hidden">
+        Unas flores para ti mi princesa 👑
+      </p>
+      <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
+    </div>
+
+
+
+
+    <div class="panel audio-card">
+      <h3>¡Tienes un mensaje guardado! <span role="img" aria-label="shushing face">🤫</span></h3>
+        
+      <audio id="reunion-audio">
+            <source src="https://joelsanchez17.github.io/FelizCumple/audio.mp3" type="audio/mpeg">
+            Tu navegador no soporta la reproducción de audio.
+        </audio>
+
+        <button id="audio-btn" class="btn">
+            Presiona aquí para escuchar <span role="img" aria-label="headphones">🎧</span>
+        </button>
+        
+        <p id="audio-status" style="font-size: 13px; margin-top: 15px; color: #666;">
+            Subile el volumen...
+        </p>
+    </div>
+
+
+
+    <div class="panel" aria-live="polite">
+      <div class="title">Tiempo desde la ultima vez que nos vimos (19 dic 2025, 18:00 – Frankfurt)</div>
+      <div id="countup" class="big">00d 00h 00m 00s</div>
+      <div class="row">
+        <div class="chip">Cuenta ↑ desde: 2025-12-19 18:00 (CEST)</div>
+        <div class="chip">Zona: Frankfurt</div>
+      </div>
+    </div>
+
+    <div class="panel" aria-live="polite">
+      <div class="title">⏳ Tiempo para reencontrarnos en Frankfurt ❤️</div>
+      <div id="countdown" class="big">00d 00h 00m 00s</div>
+      <div class="row">
+        <div class="chip">Objetivo (Frankfurt): 2026-01-11 13:00</div>
+        <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
+      </div>
+    </div>
+      <div class="panel">
+      <div class="title"> El último porciento y el más largo </div>
+      <div class="meetbar"><div id="meetProgress"></div></div>
+      <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
+    </div>
+
+    <div class="panel ticket-wrapper" style="background: transparent; box-shadow: none; padding: 0;">
+      
+      <div class="ticket">
+        <div class="ticket-left">
+          <div class="ticket-header">
+            <span class="airline">SPACE-LOVE AIRLINES 🚀</span>
+            <span class="boarding-time">BOARDING: 12 DÍAS</span>
+          </div>
+          <div class="ticket-body">
+            <div class="route">
+              <h2>ECUADOR</h2>
+              <span class="plane-icon">✈️ ❤️</span>
+              <h2>FRANKFURT</h2>
+            </div>
+            <div class="flight-info">
+              <div class="info-group">
+                <span class="label">PASAJERA</span>
+                <span class="value">M Sc. Futura 👩🏻‍🚀</span>
+              </div>
+              <div class="info-group">
+                <span class="label">FECHA</span>
+                <span class="value">11 ENE 2026</span> </div>
+              <div class="info-group">
+                <span class="label">MISIÓN</span>
+                <span class="value">REGRESO A CASA 🌎🚀</span>
+              </div>
+              <div class="info-group">
+                <span class="label">ASIENTO</span>
+                <span class="value">EN MI CORAZÓN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ticket-right">
+          <div class="stub-info">
+            <span class="stub-label">FLIGHT</span>
+            <span class="stub-val">LOVE-24</span>
+          </div>
+          <div class="barcode">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="star-section">
+        <div class="star-countdown-title">✨ 12 Constelaciones para tu regreso ✨</div>
+        <div class="star-grid" id="starGrid">
+          </div>
+      </div>
+
+    </div>    
+
+    <div id="unlockLetter" class="unlock locked">
+      <span class="lock">🔒</span>
+      <strong>Una carta sellada en el tiempo</strong>
+      <p class="instructions muted" style="font-size: 0.9em;">
+        Este mensaje se revelará en el instante en que nos reencontremos.
+      </p>
+      
+      <div id="letterBody" style="display:none; margin-top:12px;">
+        <h3 style="font-family: 'Pacifico', cursive;">Mi princesa👑</h3>
+        <p>
+          La cuenta atrás ha terminado. Hoy, las horas y los minutos ya no importan. Solo importa tenerte aquí, frente a mí. Gracias por haber aguantado la espera y por ser, hoy y siempre, mi lugar feliz en el mundo 🍋🐧👑💖
+        </p>
+        <p>
+          Hoy, te prometo...
+        </p>
+        <ul>
+          <li>...que mi primer abrazo buscará recuperar cada día que estuvimos lejos.</li>
+          <li>...que mis ojos no dejarán de buscar los tuyos, para grabar este momento para siempre.</li>
+          <li>...que cuidaré de ti y te entregaré todo este amor que he guardado con ansias.</li>
+        </ul>
+        <p>
+          La espera terminó. Nuestra aventura juntos, ahora, continúa.
+        </p>
+        <p>
+          Te amo hoy y hasta que mi corazon deje de latir,<br>
+          Siempre tuyo Joel
+        </p>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="title">Botón de mimos</div>
+      <button id="loveBtn" class="action-button">Más amor ❤️</button>
+      <p id="loveMsg" class="muted" style="margin-top:8px"></p>
+    </div>
+
+    </div>
+  </div>
+
+  <div id="games" class="tab-content">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🎮</span>
+        <h2 class="panel-title">Juegos</h2>
+      </div>
+      </div>
+    <div class="panel">
+      <div class="title">Atrapa 20 corazones antes que muera 💘</div>
+      <div class="catch-area" id="catchArea">
+        <div class="catch-heart" id="catchHeart">💖</div>
+      </div>
+      <div class="row">
+        <button id="startCatch" class="action-button">🎯 Empezar / Reiniciar</button>
+        <div class="chip">Puntos: <span id="score">0</span></div>
+        <div class="chip">Tiempo: <span id="time">01:20</span></div>
+      </div>
+    </div>
+    
+    <div class="panel" id="quizPanel" aria-live="polite">
+      <div class="title">Mini-quiz de nosotros 💞</div>
+
+      <div class="chip">Pregunta <span id="quizNum">1</span> de <span id="quizTotal">1</span> •
+        Aciertos: <span id="quizScore">0</span>
+      </div>
+      
+
+      <h3 id="quizQ" class="muted" style="margin:10px 0 8px 0">Cargando…</h3>
+
+      <div id="quizOpts" class="quiz-grid" role="listbox" aria-labelledby="quizQ"></div>
+
+      <p id="quizFeedback" class="muted" style="min-height:1.6em; margin-top:8px;"></p>
+
+        <div class="row" style="margin-top:10px;">
+          <button id="quizNext" class="action-button" style="display:none;">Siguiente ➜</button>
+          <button id="quizRestart" class="action-button" style="display:none;">Reiniciar 🔁</button>
+        </div>
+    </div>
+
+    <div class="panel" id="memoryPanel" style="position: relative; min-height: 480px; overflow: hidden;">
+      
+      <div class="title" style="margin-bottom: 5px;"> 💘 Emojics de Amor</div>
+      
+      <div id="memStartScreen" class="mem-overlay-start">
+        <div style="text-align:center; padding: 20px;">
+          <div style="font-size:3.5em; margin-bottom:10px; animation: bounce 2s infinite;">🧠⚡</div>
+          <h3 style="margin: 10px 0;">Desafío de Memoria</h3>
+          <p class="muted" style="margin-bottom: 20px;">
+            Encuentra las <strong>14 parejas</strong>.<br>
+            Busca el ❄️ para ganar tiempo extra.
+          </p>
+          <button id="memStartBtn" class="action-button btn-pulse">▶️ JUGAR AHORA</button>
+        </div>
+      </div>
+
+      <div id="memGameUI" style="display:none; width: 100%;">
+        <div class="mem-stats-row">
+          <div class="chip">⏳ <span id="memTimer">90</span>s</div>
+          <button id="memRestartBtn" class="mini-btn">Reiniciar 🔄</button>
+          <div class="chip">Pares: <span id="memPairs">0</span>/14</div>
+        </div>
+
+        <div class="timer-container">
+          <div id="timerBar" class="timer-bar"></div>
+        </div>
+
+        <div class="memory-grid" id="memoryGrid"></div>
+      </div>
+
+
+      
+      <div id="memOverlay" class="mem-overlay" style="display:none;">
+        <div class="mem-modal">
+          <div id="memIcon" style="font-size:3.5em; margin-bottom:10px;"></div>
+          <h3 id="memTitle" style="margin:5px 0;"></h3>
+          <p id="memMsg" class="muted" style="margin:10px 0;"></p>
+          
+          <div id="memCoupon" class="coupon-ticket" style="display:none;">
+            <div class="coupon-left">🎟️</div>
+            <div class="coupon-right">
+              <strong>VALE POR:</strong>
+              <span>Una cita romántica donde tú elijas 🍷✨</span>
+            </div>
+          </div>
+
+          <button id="memActionBtn" class="action-button">Jugar de nuevo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="burnPanel">
+    
+      <div id="burnIntro" class="burn-intro">
+        <div class="title" style="color:#d84315;">🔥 Ritual de Año Viejo 🔥</div>
+        <p class="muted">
+          Para recibir el 2026, primero debemos despedir lo viejo.<br>
+          ¿Estás lista para encender la llama?
+        </p>
+        <button id="startBurnBtn" class="action-button btn-pulse">
+          🕯️ Iniciar Ceremonia
+        </button>
+      </div>
+
+      <div id="burnGame" class="burn-game" style="display:none;">
+        <div class="row" style="justify-content: space-between; align-items: center;">
+          <h3 style="margin:0; font-size:1.1em; color:#d84315;">¡Quémalo Rápido!</h3>
+          <button id="closeBurnBtn" class="mini-btn">✕</button>
         </div>
         
+        <div class="monigote-scene">
+          <div id="monigote" class="monigote-figure">👹</div>
+          <div id="fireEffect" class="fire-display">
+            <div class="flame f1">🔥</div>
+            <div class="flame f2">🔥</div>
+            <div class="flame f3">🔥</div>
+          </div>
+          <div id="smokeEffect" class="smoke-puff">💨</div>
+        </div>
+
+        <div class="burn-progress-wrap">
+          <div id="burnBar" class="burn-bar"></div>
+          <span class="burn-icon">🌡️</span>
+        </div>
+        <p id="burnStatus" class="muted" style="font-size:0.8em; margin:5px 0;">0% - Está helado 🥶</p>
+
+        <button id="burnTapBtn" class="fire-btn">
+          🔥🔥 ¡FUEGO! 🔥🔥
+        </button>
       </div>
     </div>
 
-    <p class="intro-subtitle">Bienvenida a tu web, mi princesa ✨</p>
 
-    <!-- Tu toolbar de stickers (deja tus emojis como los tienes) -->
-    <div class="row sticker-toolbar">
-      <button class="action-button sticker-add" data-emoji="👩🏻‍🔬">👩🏻‍🔬</button>
-      <button class="action-button sticker-add" data-emoji="🐧">🐧</button>
-      <button class="action-button sticker-add" data-emoji="🍋">🍋</button>
-      <button class="action-button sticker-add" data-emoji="🔬">🔬</button>
-      <button class="action-button sticker-add" data-emoji="👑">👑</button>
-      <button class="action-button sticker-add" data-emoji="🌻">🌻</button>
-      <button class="action-button sticker-add" data-emoji="🐨">🐨</button>
+    <div class="panel" id="grapesPanel">
+  
+      <div id="grapesIntro" class="grapes-intro">
+        <div class="title" style="color:#6a1b9a;">🍇 Las 12 Uvas de la Suerte 🍇</div>
+        <p class="muted">
+          Una tradición para recibir nuestro 2026
+          .<br>
+          Tengo 12 deseos guardados para ti...
+        </p>
+        <button id="startGrapesBtn" class="action-button btn-pulse" style="background:#8e24aa;">
+          ✨ Pedir Deseos ✨
+        </button>
+      </div>
+
+      <div id="grapesGame" class="grapes-game" style="display:none;">
+        <div class="row" style="justify-content: space-between; align-items: center; margin-bottom:10px;">
+          <h3 style="margin:0; font-size:1.1em; color:#6a1b9a;">Cómete las 12 uvas 🍇</h3>
+          <button id="closeGrapesBtn" class="mini-btn">✕</button>
+        </div>
+
+        <p class="muted" style="font-size:0.9em; margin-bottom:12px;">
+          Toca cada uva para desbloquear un deseo.
+        </p>
+
+        <div class="grapes-grid" id="grapesGrid"></div>
+
+        <div id="wishDisplay" class="wish-box">
+          <span id="wishEmoji" style="font-size:2em; display:block; margin-bottom:5px;">✨</span>
+          <span id="wishText" style="font-weight:bold; color:#e91e63;">...</span>
+        </div>
+
+        <div class="grape-progress">
+          <div id="grapeBar" class="grape-bar" style="width:0%"></div>
+        </div>
+      </div>
+
     </div>
 
-    <p class="muted" style="margin-top:6px;font-size:.9em">Toca la foto para girarla✨</p>
   </div>
-
-   <div id="giftContainer" class="gift-container">
-  <div id="giftBox" class="gift-box" role="button" tabindex="0" aria-label="Toca para abrir tu sorpresa">
-    <div class="lid">
-      <div class="bow"></div>
-    </div>
-  </div>
-  <div id="flowers" class="flowers-hidden">
-    <img src="https://raw.githubusercontent.com/joelsanchez17/FelizCumple/main/flores.webp" alt="Ramo de rosas amarillas" class="bouquet-img">
-  </div>
-  <p id="giftMessage" class="gift-message-hidden">
-    Unas flores para ti mi princesa 👑
-  </p>
-  <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
-</div>
-
-
-
-
-  <div class="panel audio-card">
-      <h3>¡Tienes un mensaje guardado! <span role="img" aria-label="shushing face">🤫</span></h3>
-      
-      <audio id="reunion-audio">
-          <source src="https://joelsanchez17.github.io/FelizCumple/audio.mp3" type="audio/mpeg">
-          Tu navegador no soporta la reproducción de audio.
-      </audio>
-
-      <button id="audio-btn" class="btn">
-          Presiona aquí para escuchar <span role="img" aria-label="headphones">🎧</span>
-      </button>
-      
-      <p id="audio-status" style="font-size: 13px; margin-top: 15px; color: #666;">
-          Subile el volumen...
-      </p>
-  </div>
-
-
-
-  <div class="panel" aria-live="polite">
-    <div class="title">Tiempo desde la ultima vez que nos vimos (19 dic 2025, 18:00 – Frankfurt)</div>
-    <div id="countup" class="big">00d 00h 00m 00s</div>
-    <div class="row">
-      <div class="chip">Cuenta ↑ desde: 2025-12-19 18:00 (CEST)</div>
-      <div class="chip">Zona: Frankfurt</div>
-    </div>
-  </div>
-
-  <div class="panel" aria-live="polite">
-    <div class="title">⏳ Tiempo para reencontrarnos en Frankfurt ❤️</div>
-    <div id="countdown" class="big">00d 00h 00m 00s</div>
-    <div class="row">
-      <div class="chip">Objetivo (Frankfurt): 2026-01-11 13:00</div>
-      <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
-    </div>
-  </div>
+  <div id="memories" class="tab-content">
     <div class="panel">
-    <div class="title"> El último porciento y el más largo </div>
-    <div class="meetbar"><div id="meetProgress"></div></div>
-    <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
+      <div class="panel-header">
+        <span class="panel-icon">💖</span>
+        <h2 class="panel-title">Nuestros Recuerdos</h2>
+      </div>
+      </div>
+    <div class="panel">
+      <div class="title">Nuestros Bellos Momentos ✨</div>
+      <div class="title"> Zusammen 👩🏻‍🔬👨🏻‍💻 💞 </div>
+      <div class="photo-gallery">
+        
+        <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Nuestra despedida 🥺">
+        <img src="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg" alt="Nos escapamos por la puerta 🤭">
+        <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Un lindo día en Hamburgo 🥰">
+        <img src="https://i.imgur.com/04vNGHg.jpeg" alt="Cuando conocí a tu familia 🫂🤗">
+        <img src="https://i.imgur.com/7piACeA.jpeg" alt="Tu, yo y Ana 👨‍👩‍👧">
+      
+      </div>
     </div>
 
-<div class="panel ticket-wrapper" style="background: transparent; box-shadow: none; padding: 0;">
-  
-  <div class="ticket">
-    <div class="ticket-left">
-      <div class="ticket-header">
-        <span class="airline">SPACE-LOVE AIRLINES 🚀</span>
-        <span class="boarding-time">BOARDING: 12 DÍAS</span>
+
+    <div class="panel" id="spotifyPanel">
+      <div class="title"> Conectados a la distancia 🎶</div>
+      <iframe
+        style="border-radius:12px"
+        src="https://open.spotify.com/embed/track/6VsvKPJ4xjVNKpI8VVZ3SV?utm_source=generator&theme=0"
+        width="100%" height="152" frameborder="0"
+        allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+      <p class="muted" style="margin-top:8px">
+        Si no ves el reproductor, abrilo en
+        <a href="https://open.spotify.com/track/6VsvKPJ4xjVNKpI8VVZ3SV" target="_blank" rel="noopener">Spotify</a>.
+      </p>
+    </div>
+
+
+
+    <div class="title">Our Invisible String 🧵</div>
+
+    <div id="invPanel" class="inv-panel">
+      <svg viewBox="0 0 900 520" role="img" aria-label="Nuestro hilo invisible">
+          <defs>
+          <!-- Gradiente Swiftie (Lover vibes) -->
+          <linearGradient id="threadGradSwiftie" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"  stop-color="#ff9ecb"/>
+              <stop offset="50%" stop-color="#f3b9ff"/>
+              <stop offset="100%" stop-color="#b3e5fc"/>
+          </linearGradient>
+
+          <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".25"/>
+          </filter>
+
+          <!-- Halo suave para el anillo brillante -->
+          <filter id="haloBlur" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6"/>
+          </filter>
+
+          <!-- Recorte circular para las fotos -->
+          <clipPath id="circleClip48">
+              <circle cx="0" cy="0" r="48"></circle>  <!-- r = 48 => foto 96x96 -->
+          </clipPath>
+          </defs>
+
+          <!-- ===== Extremo izquierdo: Quito, EC (Tú 👩🏻‍🔬) ===== -->
+          <!-- Centro del extremo: (170, 180) -->
+          <g id="endQuito" class="end end--quito" transform="translate(170,180)">
+              <g class="end-core">
+                  <circle class="halo" r="56" fill="url(#threadGradSwiftie)" filter="url(#haloBlur)" opacity=".35"></circle>
+                  <image href="https://joelsanchez17.github.io/FelizCumple/map_quito.jpg"
+                      x="-48" y="-48" width="96" height="96"
+                      preserveAspectRatio="xMidYMid slice" clip-path="url(#circleClip48)"></image>
+                  <circle r="52" fill="none" stroke="#ffffff" stroke-width="5"></circle>
+                  <circle r="52" fill="none" stroke="url(#threadGradSwiftie)" stroke-width="3" opacity=".9"></circle>
+              </g>
+              <text x="0" y="78" text-anchor="middle" font-family="Quicksand, system-ui" font-size="15">
+                  Tú 👩🏻‍🔬 · Quito, EC
+              </text>
+              </g>
+
+
+          <!-- ===== Extremo derecho: Mendoza, AR (Yo 👷‍♂️) ===== -->
+          <!-- Centro del extremo: (730, 360) -->
+          <g id="endMendoza" class="end end--mendoza" transform="translate(730,360)">
+              <g class="end-core">
+                  <circle class="halo" r="56" fill="url(#threadGradSwiftie)" filter="url(#haloBlur)" opacity=".35"></circle>
+                  <image href="https://joelsanchez17.github.io/FelizCumple/map_mendoza.jpg"
+                      x="-48" y="-48" width="96" height="96"
+                      preserveAspectRatio="xMidYMid slice" clip-path="url(#circleClip48)"></image>
+                  <circle r="52" fill="none" stroke="#ffffff" stroke-width="5"></circle>
+                  <circle r="52" fill="none" stroke="url(#threadGradSwiftie)" stroke-width="3" opacity=".9"></circle>
+              </g>
+              <text x="0" y="78" text-anchor="middle" font-family="Quicksand, system-ui" font-size="15">
+                  Yo 👨🏻‍💻 · Mendoza, AR
+              </text>
+              </g>
+
+
+          <!-- ===== Hilo entre ambos (toca solo el borde de cada anillo) ===== -->
+          <!-- Empieza cerca del borde derecho del anillo de Quito y termina cerca del borde izquierdo del de Mendoza -->
+          <path id="thread" class="thread"
+              d="M 210 172 C 370 60, 570 140, 690 338"
+              stroke="url(#threadGradSwiftie)" stroke-width="7" fill="none" filter="url(#soft)"/>
+
+          <!-- Charms (ajusta posiciones si quieres) -->
+          <g class="charms" font-size="22">
+          <text x="320" y="125">🎤🎸</text>
+          <text x="470" y="155">🦋</text>
+          <text x="570" y="230">❤️🧣</text>
+          </g>
+      </svg>
+
+      <p class="muted" style="margin-top:10px; font-style:italic;">
+          “And isn't it just so pretty to think all along there was some invisible string tying you to me?”
+      </p>
+    </div>
+
+    
+ 
+    <div class="panel" style="animation-delay: 1.4s;">
+      <div class="title">Lo primero que haré cuando te vea... ✨</div>
+      <ul class="paper-rings-list"> <li>Abrazarte tan fuerte que se nos olvide el tiempo.</li>
+        <li>Darte ese beso que llevo semanas esperando.</li>
+        <li>Mirarte a los ojos y sonreír, sabiendo que la espera terminó.</li>
+        <li>Decirte al oído lo mucho que te extrañé.</li>
+        <li>Tomar tu mano y no soltarla.</li>
+      </ul>
+    </div>
+
+    <div class="panel" id="scratchPanel" data-emoji="🎨,🖌️,✨,💞,🎵">
+      <div class="title">Rasca y florece 🌸</div>
+      <div class="scratch-wrap">
+        <div class="scratch-img" id="scratchImg"></div>
+          <canvas id="scratchCanvas" aria-label="Rascar para revelar"></canvas>
+          <div id="scratchMsg" class="scratch-msg" hidden>
+          Eres una artista que embellece todo lo que toca🎨💖🖌️ 
+        </div>
       </div>
-      <div class="ticket-body">
-        <div class="route">
-          <h2>ECUADOR</h2>
-          <span class="plane-icon">✈️ ❤️</span>
-          <h2>FRANKFURT</h2>
-        </div>
-        <div class="flight-info">
-          <div class="info-group">
-            <span class="label">PASAJERA</span>
-            <span class="value">M Sc. Futura 👩🏻‍🚀</span>
-          </div>
-          <div class="info-group">
-            <span class="label">FECHA</span>
-            <span class="value">11 ENE 2026</span> </div>
-          <div class="info-group">
-            <span class="label">MISIÓN</span>
-            <span class="value">REGRESO A CASA 🌎🚀</span>
-          </div>
-          <div class="info-group">
-            <span class="label">ASIENTO</span>
-            <span class="value">EN MI CORAZÓN</span>
-          </div>
-        </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button id="scratchReset" class="action-button">Reiniciar</button>
       </div>
     </div>
-    <div class="ticket-right">
-      <div class="stub-info">
-        <span class="stub-label">FLIGHT</span>
-        <span class="stub-val">LOVE-24</span>
+
+    <div class="panel">
+      <div class="title">Un mensajito especial 💌</div>
+      <p id="twTarget" class="muted" style="min-height:1.6em"></p>
+      <button id="twBtn" class="action-button">✍️ Escribir de nuevo</button>
+    </div>
+    <div class="panel">
+      <div class="title">Alguien más quiso ser parte …</div>
+      <button id="saludoBtn" class="action-button">Un saludito especial</button>
+      <div id="saludoBox" style="display:none; margin-top:12px;">
+          <img
+          id="saludoImg"
+          class="saludo-img"
+          src="https://joelsanchez17.github.io/FelizCumple/saludito.jpg"
+          alt="Saludito especial"
+          loading="lazy">
+          <p id="saludoText" class="muted" style="margin-top:8px;">
+          Un fuerte abrazo fraterno Compatriota,<br> ¡Feliz Cumpleaños! Que tengas mucha salud, alegría y que nunca falte la esperanza en un Ecuador mejor 🇪🇨
+          </p>
+      </div>        
+    </div>
+
+
+    <div class="panel">
+      <button id="revealMsgBtn" class="action-button">Presioná acá para una sorpresa final...</button>
+      <p id="secretMessage" style="display: none; margin-top: 15px; font-size: 1.1em; color: #c2185b; font-weight: bold;">
+        Hola mi pingüinita 🐧<br><br>
+        Te escribo algo con mi corazón en las manos.
+        Quiero desearte un muy feliz cumpleaños! 🎉🎂 Eres una persona que irradia alegría, felicidad y paz en cada paso que das. No dejes jamás que nadie borre esa sonrisa tan linda que tenés, ni esa mirada que tanto me gusta.<br><br>
+        Te extraño mucho. Me gustaría estar a tu lado para darte un fuerte abrazo y decirte cuánto te quiero y aprecio que estés en mi vida 💖<br><br>
+        Sé que llegará el día en que nos reencontremos y que toda la espera habrá valido la pena.<br><br>
+        Hasta entonces, a la distancia quiero decirte:<br><br>
+        TE AMO ❤️<br><br>
+        Tu Joel
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="title">Dale play a nuestra canción 🎶</div>
+      <button id="playSongBtn" class="action-button">▶️ Escuchar nuestra canción</button>
+      <div class="title"> para que escuches de fondo 🎤🎵</div>
+    </div>
+
+  </div>
+
+
+  <div id="anniversary" class="tab-content">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🗓️</span>
+        <h2 class="panel-title">4 Meses de contrastes</h2>
       </div>
-      <div class="barcode">
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+
+      <div class="title" style="color: #e91e63; font-weight: bold;">💃 Tu modo Ecuador</div>
+      <p class="muted" style="margin-bottom: 10px;">Cuando simplemente sos vos...</p>
+      
+      
+      
+      <div style="position: relative; overflow: hidden; padding-top: 56.25%; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <iframe src="https://drive.google.com/file/d/17TI3-rPgLoaCV7-4Lxl8jkVFK_c6JZmA/preview" width="640" height="480" allow="autoplay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
       </div>
+
+      <div class="title" style="color: #6a1b9a; font-weight: bold;">👩🏻‍🔬 Tu modo Alemania</div>
+      <p class="muted" style="margin-bottom: 10px;">Admiro mucho la pasión que le pones a lo que hacés.</p>
+      
+      <img src="chambea.jpg" 
+          alt="Trabajando brillante" 
+          style="width:100%; border-radius:12px; cursor:pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" 
+          onclick="openLight(this.src, 'La mujer más dedicada del mundo')">
+
+      <p class="muted" style="font-size:0.95em; margin-top:15px; font-style: italic;">
+        "Dos caras de la misma persona maravillosa. Te amo koalita."
+      </p>
     </div>
   </div>
-  
-  <div class="star-section">
-    <div class="star-countdown-title">✨ 12 Constelaciones para tu regreso ✨</div>
-    <div class="star-grid" id="starGrid">
+
+  <div id="presence-indicator" style="
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 10060;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    ">
+      <div id="status-capsule" onclick="toggleToolbar()" style="
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          padding: 8px 16px;
+          border-radius: 30px;
+          border: 1px solid rgba(255,255,255,0.5);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          display: flex; align-items: center; gap: 8px;
+          font-family: 'Quicksand', sans-serif; font-size: 0.9em; color: #555;
+          cursor: default; /* Cambiará a pointer cuando esté online */
+          transition: transform 0.1s;
+          user-select: none;
+      ">
+          <div id="status-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #ccc; transition: all 0.3s;"></div>
+          <span id="status-text">Desconectado</span>
+      </div>
+
+      <div id="mimos-toolbar" style="
+          display: none; /* Oculto siempre al inicio */
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          padding: 5px 8px;
+          border-radius: 30px;
+          box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+          animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      ">
+          <button onclick="enviarMimo('beso')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 6px;">💋</button>
+          <div style="width:1px; height:20px; background:#ddd; display:inline-block; vertical-align:middle;"></div>
+          <button onclick="enviarMimo('ojos')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 6px;">👀</button>
+          <div style="width:1px; height:20px; background:#ddd; display:inline-block; vertical-align:middle;"></div>
+          <button onclick="enviarMimo('toque')" style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 6px;">👆</button>
       </div>
   </div>
 
-</div>    
+
+  <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
+    <span style="font-size:1.3em">💘</span>
+    <div>
+      <strong> Felices 4 meses 🐨</strong><br>
+      <small>  Bienvenida a nuestro nuevo capítulo </small>
+    </div>
+    <button class="update-close" aria-label="Cerrar">✕</button>
+  </div>
+
+
+  <div id="spaceRocket" class="rocket-wrapper" aria-hidden="true">
+    <div class="rocket-body">
+      🚀
+      <div class="rocket-fire"></div>
+    </div>
+  </div>
+
+  
+  <!-- Lightbox con caption y botón cerrar -->
+  <div id="lightbox" class="lightbox" style="display:none">
+    <figure class="lightbox-content">
+      <img id="lightImg" alt="Foto">
+      <figcaption id="lightCaption"></figcaption>
+      <button id="lightClose" class="lightbox-close" aria-label="Cerrar">✕</button>
+    </figure>
+  </div>
+
+  
+  <!-- Corazones -->
+  <div id="hearts" class="hearts" aria-hidden="true"></div>
+
+
+  <div id="confetti"></div>
+
+  <button class="music-btn">🎵</button>
+
+  <div id="theme-fab-container" class="theme-fab-container" aria-live="polite">
+    <div id="theme-options" class="theme-options" aria-hidden="true"></div>
+    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Cambiar color de fondo" type="button">🎨</button>
+  </div>
+
+  
+
+  <style>
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+  </style>
+
 
     
 
-      <div id="unlockLetter" class="unlock locked">
-  <span class="lock">🔒</span>
-  <strong>Una carta sellada en el tiempo</strong>
-  <p class="instructions muted" style="font-size: 0.9em;">
-    Este mensaje se revelará en el instante en que nos reencontremos.
-  </p>
   
-<div id="letterBody" style="display:none; margin-top:12px;">
-    <h3 style="font-family: 'Pacifico', cursive;">Mi princesa👑</h3>
-    <p>
-      La cuenta atrás ha terminado. Hoy, las horas y los minutos ya no importan. Solo importa tenerte aquí, frente a mí. Gracias por haber aguantado la espera y por ser, hoy y siempre, mi lugar feliz en el mundo 🍋🐧👑💖
-    </p>
-    <p>
-      Hoy, te prometo...
-    </p>
-    <ul>
-      <li>...que mi primer abrazo buscará recuperar cada día que estuvimos lejos.</li>
-      <li>...que mis ojos no dejarán de buscar los tuyos, para grabar este momento para siempre.</li>
-      <li>...que cuidaré de ti y te entregaré todo este amor que he guardado con ansias.</li>
-    </ul>
-    <p>
-      La espera terminó. Nuestra aventura juntos, ahora, continúa.
-    </p>
-    <p>
-      Te amo hoy y hasta que mi corazon deje de latir,<br>
-      Siempre tuyo Joel
-    </p>
-  </div>
-</div>
 
 
-  <div class="panel">
-    <div class="title">Nuestros Bellos Momentos ✨</div>
-    <div class="title"> Zusammen 👩🏻‍🔬👨🏻‍💻 💞 </div>
-    <div class="photo-gallery">
-      
-      <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Nuestra despedida 🥺">
-      <img src="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg" alt="Nos escapamos por la puerta 🤭">
-      <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Un lindo día en Hamburgo 🥰">
-      <img src="https://i.imgur.com/04vNGHg.jpeg" alt="Cuando conocí a tu familia 🫂🤗">
-      <img src="https://i.imgur.com/7piACeA.jpeg" alt="Tu, yo y Ana 👨‍👩‍👧">
-      
-    </div>
-    
-  </div>
+  
 
 
 
 <!-- capa para fuegos (confetti/emoji) -->
 <div id="fwLayer" class="fireworks"></div>
 
-<div class="panel" id="spotifyPanel">
-  <div class="title"> Conectados a la distancia 🎶</div>
-  <iframe
-    style="border-radius:12px"
-    src="https://open.spotify.com/embed/track/6VsvKPJ4xjVNKpI8VVZ3SV?utm_source=generator&theme=0"
-    width="100%" height="152" frameborder="0"
-    allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-    loading="lazy"></iframe>
-  <p class="muted" style="margin-top:8px">
-    Si no ves el reproductor, abrilo en
-    <a href="https://open.spotify.com/track/6VsvKPJ4xjVNKpI8VVZ3SV" target="_blank" rel="noopener">Spotify</a>.
-  </p>
-</div>
-
-
-
-  <div class="title">Our Invisible String 🧵</div>
-
-    <div id="invPanel" class="inv-panel">
-    <svg viewBox="0 0 900 520" role="img" aria-label="Nuestro hilo invisible">
-        <defs>
-        <!-- Gradiente Swiftie (Lover vibes) -->
-        <linearGradient id="threadGradSwiftie" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%"  stop-color="#ff9ecb"/>
-            <stop offset="50%" stop-color="#f3b9ff"/>
-            <stop offset="100%" stop-color="#b3e5fc"/>
-        </linearGradient>
-
-        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".25"/>
-        </filter>
-
-        <!-- Halo suave para el anillo brillante -->
-        <filter id="haloBlur" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6"/>
-        </filter>
-
-        <!-- Recorte circular para las fotos -->
-        <clipPath id="circleClip48">
-            <circle cx="0" cy="0" r="48"></circle>  <!-- r = 48 => foto 96x96 -->
-        </clipPath>
-        </defs>
-
-        <!-- ===== Extremo izquierdo: Quito, EC (Tú 👩🏻‍🔬) ===== -->
-        <!-- Centro del extremo: (170, 180) -->
-        <g id="endQuito" class="end end--quito" transform="translate(170,180)">
-            <g class="end-core">
-                <circle class="halo" r="56" fill="url(#threadGradSwiftie)" filter="url(#haloBlur)" opacity=".35"></circle>
-                <image href="https://joelsanchez17.github.io/FelizCumple/map_quito.jpg"
-                    x="-48" y="-48" width="96" height="96"
-                    preserveAspectRatio="xMidYMid slice" clip-path="url(#circleClip48)"></image>
-                <circle r="52" fill="none" stroke="#ffffff" stroke-width="5"></circle>
-                <circle r="52" fill="none" stroke="url(#threadGradSwiftie)" stroke-width="3" opacity=".9"></circle>
-            </g>
-            <text x="0" y="78" text-anchor="middle" font-family="Quicksand, system-ui" font-size="15">
-                Tú 👩🏻‍🔬 · Quito, EC
-            </text>
-            </g>
-
-
-        <!-- ===== Extremo derecho: Mendoza, AR (Yo 👷‍♂️) ===== -->
-        <!-- Centro del extremo: (730, 360) -->
-        <g id="endMendoza" class="end end--mendoza" transform="translate(730,360)">
-            <g class="end-core">
-                <circle class="halo" r="56" fill="url(#threadGradSwiftie)" filter="url(#haloBlur)" opacity=".35"></circle>
-                <image href="https://joelsanchez17.github.io/FelizCumple/map_mendoza.jpg"
-                    x="-48" y="-48" width="96" height="96"
-                    preserveAspectRatio="xMidYMid slice" clip-path="url(#circleClip48)"></image>
-                <circle r="52" fill="none" stroke="#ffffff" stroke-width="5"></circle>
-                <circle r="52" fill="none" stroke="url(#threadGradSwiftie)" stroke-width="3" opacity=".9"></circle>
-            </g>
-            <text x="0" y="78" text-anchor="middle" font-family="Quicksand, system-ui" font-size="15">
-                Yo 👨🏻‍💻 · Mendoza, AR
-            </text>
-            </g>
-
-
-        <!-- ===== Hilo entre ambos (toca solo el borde de cada anillo) ===== -->
-        <!-- Empieza cerca del borde derecho del anillo de Quito y termina cerca del borde izquierdo del de Mendoza -->
-        <path id="thread" class="thread"
-            d="M 210 172 C 370 60, 570 140, 690 338"
-            stroke="url(#threadGradSwiftie)" stroke-width="7" fill="none" filter="url(#soft)"/>
-
-        <!-- Charms (ajusta posiciones si quieres) -->
-        <g class="charms" font-size="22">
-        <text x="320" y="125">🎤🎸</text>
-        <text x="470" y="155">🦋</text>
-        <text x="570" y="230">❤️🧣</text>
-        </g>
-    </svg>
-
-    <p class="muted" style="margin-top:10px; font-style:italic;">
-        “And isn't it just so pretty to think all along there was some invisible string tying you to me?”
-    </p>
-    </div>
-
-
-
-
-
-  <div class="panel">
-    <div class="title">Dale play a nuestra canción 🎶</div>
-    <button id="playSongBtn" class="action-button">▶️ Escuchar nuestra canción</button>
-    <div class="title"> para que escuches de fondo 🎤🎵</div>
-  </div>
   
-    <div id="spaceRocket" class="rocket-wrapper" aria-hidden="true">
-      <div class="rocket-body">
-        🚀
-        <div class="rocket-fire"></div>
-      </div>
-    </div>
+
+
+
+
+
+  
+  
+    
 
 
 
@@ -1767,7 +2246,7 @@
         <div class="star-divider">✨</div>
 
         <p class="dad-msg">
-          "Tu papá está orgulloso de vos"
+          "Estoy orgulloso de vos y de todo lo que has logrado. Este es solo el primer paso de una aventura increíble que nos espera. Te amo hasta la luna y más allá, mi pingüinita astronauta." 🚀❤️
         </p>
 
         <button class="action-button" onclick="closeLaunch()">Recibido, Houston ❤️</button>
@@ -1788,265 +2267,23 @@
       allowfullscreen></iframe>
   </div>
 
-  <!-- Corazones -->
-  <div id="hearts" class="hearts" aria-hidden="true"></div>
-
-  <div class="panel">
-    <div class="title">Botón de mimos</div>
-    <button id="loveBtn" class="action-button">Más amor ❤️</button>
-    <p id="loveMsg" class="muted" style="margin-top:8px"></p>
-  </div>
-
-  <div class="panel">
-    <div class="title">Atrapa 20 corazones antes que muera 💘</div>
-    <div class="catch-area" id="catchArea">
-      <div class="catch-heart" id="catchHeart">💖</div>
-    </div>
-    <div class="row">
-      <button id="startCatch" class="action-button">🎯 Empezar / Reiniciar</button>
-      <div class="chip">Puntos: <span id="score">0</span></div>
-      <div class="chip">Tiempo: <span id="time">01:20</span></div>
-    </div>
-  </div>
-
-
-
-
-  <div class="panel">
-    <div class="title">Un mensajito especial 💌</div>
-    <p id="twTarget" class="muted" style="min-height:1.6em"></p>
-    <button id="twBtn" class="action-button">✍️ Escribir de nuevo</button>
-    </div>
- <div class="panel">
-    <div class="title">Alguien más quiso ser parte …</div>
-    <button id="saludoBtn" class="action-button">Un saludito especial</button>
-    <div id="saludoBox" style="display:none; margin-top:12px;">
-        <img
-        id="saludoImg"
-        class="saludo-img"
-        src="https://joelsanchez17.github.io/FelizCumple/saludito.jpg"
-        alt="Saludito especial"
-        loading="lazy">
-        <p id="saludoText" class="muted" style="margin-top:8px;">
-        Un fuerte abrazo fraterno Compatriota,<br> ¡Feliz Cumpleaños! Que tengas mucha salud, alegría y que nunca falte la esperanza en un Ecuador mejor 🇪🇨
-        </p>
-    </div>
-    
-
-        
-  </div>
-    <div class="panel">
-    <button id="revealMsgBtn" class="action-button">Presioná acá para una sorpresa final...</button>
-    <p id="secretMessage" style="display: none; margin-top: 15px; font-size: 1.1em; color: #c2185b; font-weight: bold;">
-      Hola mi pingüinita 🐧<br><br>
-      Te escribo algo con mi corazón en las manos.
-      Quiero desearte un muy feliz cumpleaños! 🎉🎂 Eres una persona que irradia alegría, felicidad y paz en cada paso que das. No dejes jamás que nadie borre esa sonrisa tan linda que tenés, ni esa mirada que tanto me gusta.<br><br>
-      Te extraño mucho. Me gustaría estar a tu lado para darte un fuerte abrazo y decirte cuánto te quiero y aprecio que estés en mi vida 💖<br><br>
-      Sé que llegará el día en que nos reencontremos y que toda la espera habrá valido la pena.<br><br>
-      Hasta entonces, a la distancia quiero decirte:<br><br>
-      TE AMO ❤️<br><br>
-      Tu Joel
-    </p>
-  </div>
-  <!-- Lightbox con caption y botón cerrar -->
-  <div id="lightbox" class="lightbox" style="display:none">
-    <figure class="lightbox-content">
-      <img id="lightImg" alt="Foto">
-      <figcaption id="lightCaption"></figcaption>
-      <button id="lightClose" class="lightbox-close" aria-label="Cerrar">✕</button>
-    </figure>
-  </div>
-
-    <div class="panel" id="quizPanel" aria-live="polite">
-      <div class="title">Mini-quiz de nosotros 💞</div>
-
-      <div class="chip">Pregunta <span id="quizNum">1</span> de <span id="quizTotal">1</span> •
-        Aciertos: <span id="quizScore">0</span>
-      </div>
-      
-
-      <h3 id="quizQ" class="muted" style="margin:10px 0 8px 0">Cargando…</h3>
-
-      <div id="quizOpts" class="quiz-grid" role="listbox" aria-labelledby="quizQ"></div>
-
-      <p id="quizFeedback" class="muted" style="min-height:1.6em; margin-top:8px;"></p>
-
-        <div class="row" style="margin-top:10px;">
-          <button id="quizNext" class="action-button" style="display:none;">Siguiente ➜</button>
-          <button id="quizRestart" class="action-button" style="display:none;">Reiniciar 🔁</button>
-        </div>
-            </div>
-
-<div class="panel" id="memoryPanel" style="position: relative; min-height: 480px; overflow: hidden;">
   
-  <div class="title" style="margin-bottom: 5px;"> 💘 Emojics de Amor</div>
-  
-  <div id="memStartScreen" class="mem-overlay-start">
-    <div style="text-align:center; padding: 20px;">
-      <div style="font-size:3.5em; margin-bottom:10px; animation: bounce 2s infinite;">🧠⚡</div>
-      <h3 style="margin: 10px 0;">Desafío de Memoria</h3>
-      <p class="muted" style="margin-bottom: 20px;">
-        Encuentra las <strong>14 parejas</strong>.<br>
-        Busca el ❄️ para ganar tiempo extra.
-      </p>
-      <button id="memStartBtn" class="action-button btn-pulse">▶️ JUGAR AHORA</button>
-    </div>
-  </div>
 
-  <div id="memGameUI" style="display:none; width: 100%;">
-    <div class="mem-stats-row">
-      <div class="chip">⏳ <span id="memTimer">90</span>s</div>
-      <button id="memRestartBtn" class="mini-btn">Reiniciar 🔄</button>
-      <div class="chip">Pares: <span id="memPairs">0</span>/14</div>
-    </div>
-
-    <div class="timer-container">
-      <div id="timerBar" class="timer-bar"></div>
-    </div>
-
-    <div class="memory-grid" id="memoryGrid"></div>
-  </div>
+ 
 
 
-  
-  <div id="memOverlay" class="mem-overlay" style="display:none;">
-    <div class="mem-modal">
-      <div id="memIcon" style="font-size:3.5em; margin-bottom:10px;"></div>
-      <h3 id="memTitle" style="margin:5px 0;"></h3>
-      <p id="memMsg" class="muted" style="margin:10px 0;"></p>
-      
-      <div id="memCoupon" class="coupon-ticket" style="display:none;">
-        <div class="coupon-left">🎟️</div>
-        <div class="coupon-right">
-          <strong>VALE POR:</strong>
-          <span>Una cita romántica donde tú elijas 🍷✨</span>
-        </div>
-      </div>
-
-      <button id="memActionBtn" class="action-button">Jugar de nuevo</button>
-    </div>
-  </div>
-</div>
-
-
-<div class="panel" id="burnPanel">
-  
-  <div id="burnIntro" class="burn-intro">
-    <div class="title" style="color:#d84315;">🔥 Ritual de Año Viejo 🔥</div>
-    <p class="muted">
-      Para recibir el 2026, primero debemos despedir lo viejo.<br>
-      ¿Estás lista para encender la llama?
-    </p>
-    <button id="startBurnBtn" class="action-button btn-pulse">
-      🕯️ Iniciar Ceremonia
-    </button>
-  </div>
-
-  <div id="burnGame" class="burn-game" style="display:none;">
-    <div class="row" style="justify-content: space-between; align-items: center;">
-      <h3 style="margin:0; font-size:1.1em; color:#d84315;">¡Quémalo Rápido!</h3>
-      <button id="closeBurnBtn" class="mini-btn">✕</button>
-    </div>
-    
-    <div class="monigote-scene">
-      <div id="monigote" class="monigote-figure">👹</div>
-      <div id="fireEffect" class="fire-display">
-        <div class="flame f1">🔥</div>
-        <div class="flame f2">🔥</div>
-        <div class="flame f3">🔥</div>
-      </div>
-      <div id="smokeEffect" class="smoke-puff">💨</div>
-    </div>
-
-    <div class="burn-progress-wrap">
-      <div id="burnBar" class="burn-bar"></div>
-      <span class="burn-icon">🌡️</span>
-    </div>
-    <p id="burnStatus" class="muted" style="font-size:0.8em; margin:5px 0;">0% - Está helado 🥶</p>
-
-    <button id="burnTapBtn" class="fire-btn">
-      🔥🔥 ¡FUEGO! 🔥🔥
-    </button>
-  </div>
-</div>
-
-
-<div class="panel" id="grapesPanel">
-  
-  <div id="grapesIntro" class="grapes-intro">
-    <div class="title" style="color:#6a1b9a;">🍇 Las 12 Uvas de la Suerte 🍇</div>
-    <p class="muted">
-      Una tradición para recibir nuestro 2026
-      .<br>
-      Tengo 12 deseos guardados para ti...
-    </p>
-    <button id="startGrapesBtn" class="action-button btn-pulse" style="background:#8e24aa;">
-      ✨ Pedir Deseos ✨
-    </button>
-  </div>
-
-  <div id="grapesGame" class="grapes-game" style="display:none;">
-    <div class="row" style="justify-content: space-between; align-items: center; margin-bottom:10px;">
-      <h3 style="margin:0; font-size:1.1em; color:#6a1b9a;">Cómete las 12 uvas 🍇</h3>
-      <button id="closeGrapesBtn" class="mini-btn">✕</button>
-    </div>
-
-    <p class="muted" style="font-size:0.9em; margin-bottom:12px;">
-      Toca cada uva para desbloquear un deseo.
-    </p>
-
-    <div class="grapes-grid" id="grapesGrid"></div>
-
-    <div id="wishDisplay" class="wish-box">
-      <span id="wishEmoji" style="font-size:2em; display:block; margin-bottom:5px;">✨</span>
-      <span id="wishText" style="font-weight:bold; color:#e91e63;">...</span>
-    </div>
-
-    <div class="grape-progress">
-      <div id="grapeBar" class="grape-bar" style="width:0%"></div>
-    </div>
-  </div>
-
-</div>
-
-
-
-
-<div id="memToast" class="mem-toast"></div>
-
-
-                <div class="panel" style="animation-delay: 1.4s;">
-      <div class="title">Lo primero que haré cuando te vea... ✨</div>
-      <ul class="paper-rings-list"> <li>Abrazarte tan fuerte que se nos olvide el tiempo.</li>
-        <li>Darte ese beso que llevo semanas esperando.</li>
-        <li>Mirarte a los ojos y sonreír, sabiendo que la espera terminó.</li>
-        <li>Decirte al oído lo mucho que te extrañé.</li>
-        <li>Tomar tu mano y no soltarla.</li>
-      </ul>
-    </div>
-
-            <div class="panel" id="scratchPanel" data-emoji="🎨,🖌️,✨,💞,🎵">
-            <div class="title">Rasca y florece 🌸</div>
-            <div class="scratch-wrap">
-              <div class="scratch-img" id="scratchImg"></div>
-              <canvas id="scratchCanvas" aria-label="Rascar para revelar"></canvas>
-              <div id="scratchMsg" class="scratch-msg" hidden>
-                Eres una artista que embellece todo lo que toca🎨💖🖌️ 
-              </div>
-            </div>
-            <div class="row" style="gap:8px;margin-top:8px">
-              <button id="scratchReset" class="action-button">Reiniciar</button>
-            </div>
-          </div>
-
-
-<div id="theme-fab-container" class="theme-fab-container" aria-live="polite">
-  <div id="theme-options" class="theme-options" aria-hidden="true"></div>
-  <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Cambiar color de fondo" type="button">🎨</button>
-</div>
-
+  <div id="memToast" class="mem-toast"></div>
 
   <script>
+
+  function showTab(btn, tabId) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+      navigator.vibrate?.(10);
+      window.scrollTo(0, 0);
+    }
     // --- Contadores up/down ---
     const startBerlin = new Date("2025-12-19T18:30:00+02:00");
     const meetingBerlin = new Date("2026-01-11T13:30:00+02:00");
