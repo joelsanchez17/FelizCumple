@@ -1498,6 +1498,17 @@
   font-size: 1.3em;
 }
 
+/* --- AVATAR PARA HEADERS DE TABS --- */
+.header-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 3px 8px rgba(233, 30, 99, 0.35); /* Sombreado rosa sutil */
+  flex-shrink: 0; /* Evita que la foto se aplaste si el título es largo */
+}
+
   </style>
   <!-- Favicon (emoji corazón) -->
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
@@ -1581,10 +1592,10 @@
         </div>
       </div>
       <div id="flowers" class="flowers-hidden">
-        <img src="https://raw.githubusercontent.com/joelsanchez17/FelizCumple/main/flores.webp" alt="Ramo de rosas amarillas" class="bouquet-img">
+        <img src="nosotros.jpeg" alt="Ramo de rosas amarillas" class="bouquet-img">
       </div>
       <p id="giftMessage" class="gift-message-hidden">
-        Unas flores para ti mi princesa 👑
+        De incognitos a los besitos 
       </p>
       <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
     </div>
@@ -1728,8 +1739,8 @@
   <div id="games" class="tab-content">
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-icon">🎮</span>
-        <h2 class="panel-title">Juegos</h2>
+        <img src="bella1.jpeg" alt="Juegos" class="header-avatar">
+        <h2 class="panel-title">Juegos 🎮</h2>
       </div>
       </div>
     <div class="panel">
@@ -1899,8 +1910,8 @@
   <div id="memories" class="tab-content">
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-icon">💖</span>
-        <h2 class="panel-title">Nuestros Recuerdos</h2>
+        <img src="bella2.jpeg" alt="Recuerdos" class="header-avatar">
+        <h2 class="panel-title">Nuestros Recuerdos 💖</h2>
       </div>
       </div>
     <div class="panel">
@@ -2088,8 +2099,8 @@
   <div id="anniversary" class="tab-content">
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-icon">🗓️</span>
-        <h2 class="panel-title">4 Meses de contrastes</h2>
+        <img src="bella3.jpeg" alt="Aniversario" class="header-avatar">
+        <h2 class="panel-title">4 Meses de contrastes 🗓️</h2>
       </div>
 
       <div class="title" style="color: #e91e63; font-weight: bold;">💃 Tu modo Ecuador</div>
