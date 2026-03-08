@@ -15,29 +15,35 @@
   <link rel="apple-touch-icon" sizes="180x180" href="icono-app.png">
   
   <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
     /* Estilos base */
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
       background: linear-gradient(to right, #ff9a9e, #fad0c4);
       font-family: 'Quicksand', sans-serif;
       color: #333;
-      flex-direction: column;
       padding: 16px;
-      box-sizing: border-box;
       text-align: center;
+      overflow-x: hidden;
     }
     .lightbox{ z-index: 10050; }
     .panel {
       background: rgba(255,255,255,0.75);
       border-radius: 14px;
-      padding: 16px 20px;
+      padding: 16px;
       margin: 10px 0;
       box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-      max-width: 700px;
       width: 100%;
+      max-width: 100%;
       opacity: 0;
       animation: fadeIn 0.8s ease-out forwards;
     }
@@ -1381,7 +1387,12 @@
 }
 .bottom-nav button.active { opacity: 1; transform: scale(1.2); }
 
-.tab-content { display: none; padding-bottom: 80px; width: 100%; max-width: 700px; margin: 0 auto; }
+.tab-content {
+  display: none;
+  width: min(100%, 700px);
+  margin: 0 auto;
+  padding: 0 0 80px 0;
+}
 .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
 
 .intro-photo {
@@ -1510,6 +1521,29 @@
   flex-shrink: 0; /* Evita que la foto se aplaste si el título es largo */
 }
 
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .tab-content {
+    width: 100%;
+  }
+
+  .panel {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+
+  .panel-header {
+    gap: 10px;
+  }
+
+  .panel-title {
+    font-size: 1.15em;
+  }
+}
+
   </style>
   <!-- Favicon (emoji corazón) -->
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
@@ -1547,12 +1581,13 @@
         <h2 class="panel-title">Bienvenida</h2>
       </div>
       
+      
     
-    <!-- Cartel de actualización -->
-    <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
-    <h2 class="muted">Las horas se hacen eternas, pero nuestro momento está a punto de llegar.<br>Te extraño y ya voy por ti. </h2>
+      <!-- Cartel de actualización -->
+      <h1>Feliz Cumpleaños bonita 🎉🎂💖</h1>
+      <h2 class="muted">Las horas se hacen eternas, pero nuestro momento está a punto de llegar.<br>Te extraño y ya voy por ti. </h2>
 
-    <div class="intro-hero">
+      <div class="intro-hero">
       <!-- Flip card -->
       <div class="flip" id="introFlip" aria-label="Foto interactiva (toca para girar)">
         <div class="flip-inner">
@@ -1584,24 +1619,26 @@
       </div>
 
       <p class="muted" style="margin-top:6px;font-size:.9em">Toca la foto para girarla✨</p>
-    </div>
+      </div>
 
-    <div id="giftContainer" class="gift-container">
-      <div id="giftBox" class="gift-box" role="button" tabindex="0" aria-label="Toca para abrir tu sorpresa">
-        <div class="lid">
-          <div class="bow"></div>
+      <div id="giftContainer" class="gift-container">
+        <div id="giftBox" class="gift-box" role="button" tabindex="0" aria-label="Toca para abrir tu sorpresa">
+          <div class="lid">
+            <div class="bow"></div>
+          </div>
         </div>
+        <div id="flowers" class="flowers-hidden">
+          <img src="nosotros.jpeg" alt="Ramo de rosas amarillas" class="bouquet-img">
+        </div>
+        <p id="giftMessage" class="gift-message-hidden">
+          De incognitos a los besitos 
+        </p>
+        <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
       </div>
-      <div id="flowers" class="flowers-hidden">
-        <img src="nosotros.jpeg" alt="Ramo de rosas amarillas" class="bouquet-img">
-      </div>
-      <p id="giftMessage" class="gift-message-hidden">
-        De incognitos a los besitos 
-      </p>
-      <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
-    </div>
-  </div> <div class="panel audio-card">
-    <h3>¡Tienes un mensaje guardado! <span role="img" aria-label="shushing face">🤫</span></h3>
+    </div> 
+
+    <div class="panel audio-card">
+      <h3>¡Tienes un mensaje guardado! <span role="img" aria-label="shushing face">🤫</span></h3>
         
       <audio id="reunion-audio">
             <source src="https://joelsanchez17.github.io/FelizCumple/audio.mp3" type="audio/mpeg">
@@ -1615,6 +1652,21 @@
         <p id="audio-status" style="font-size: 13px; margin-top: 15px; color: #666;">
             Subile el volumen...
         </p>
+    </div>
+
+    <div class="panel" style="border: 2px solid #e1bee7; background: rgba(253, 246, 255, 0.85);">
+      <div class="title" style="color: #8e24aa; font-family: 'Pacifico', cursive; font-size: 1.4em;">La mujer que admiro 💜</div>
+      <p class="muted" style="margin-bottom: 12px; font-weight: 600;">Hoy celebro a la mujer increíble que eres. Admiro profundamente:</p>
+      
+      <ul style="list-style: none; padding-left: 0; text-align: left; font-size: 0.95em; color: #444;">
+        <li style="margin-bottom: 8px;">🚀 Tu valentía para cruzar el mundo y estudiar en Alemania.</li>
+        <li style="margin-bottom: 8px;">🧠 Tu inteligencia y dedicación que me sorprenden cada día.</li>
+        <li style="margin-bottom: 8px;">✨ La forma tan linda en que luchas por tus sueños.</li>
+      </ul>
+      
+      <button id="wdayBtn" class="action-button btn-pulse" style="background-color: #8e24aa; width: 100%; margin-top: 10px; font-size: 1.1em;">
+        Estoy muy orgulloso de vos koalita 💐
+      </button>
     </div>
 
 
@@ -1636,7 +1688,8 @@
         <div class="chip">¡Ya nos falta poquito! <span class="heart">💘</span></div>
       </div>
     </div>
-      <div class="panel">
+    
+    <div class="panel">
       <div class="title"> El último porciento y el más largo </div>
       <div class="meetbar"><div id="meetProgress"></div></div>
       <p class="muted" id="meetPct" style="margin-top:8px">0%</p>
@@ -1730,6 +1783,7 @@
       <p id="loveMsg" class="muted" style="margin-top:8px"></p>
     </div>
   </div>
+  
 
   <div id="games" class="tab-content">
     <div class="panel">
@@ -2165,10 +2219,19 @@
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
     <span style="font-size:1.3em">💘</span>
     <div>
-      <strong> Felices 4 meses 🐨</strong><br>
-      <small>  Bienvenida a nuestro nuevo capítulo </small>
+      <strong> Feliz día de la mujer </strong><br>
+      <small>  Te amo con el alma 🐨</small>
     </div>
     <button class="update-close" aria-label="Cerrar">✕</button>
+  </div>
+
+  <div id="wdayBanner" class="update-drop" style="display:none; background: linear-gradient(90deg, #f3e5f5, #e1bee7); color: #4a148c; border: 1px solid #ce93d8; z-index: 10001;" role="status" aria-live="polite">
+    <span style="font-size:1.4em">💜</span>
+    <div>
+      <strong>Feliz Día de la Mujer 👩🏻‍🔬✨</strong><br>
+      <small>A mi científica favorita. El espacio te queda chico.</small>
+    </div>
+    <button class="update-close" style="background: #8e24aa;" aria-label="Cerrar">✕</button>
   </div>
 
 
@@ -2215,12 +2278,12 @@
   
 
 
-  
+    
 
 
 
-<!-- capa para fuegos (confetti/emoji) -->
-<div id="fwLayer" class="fireworks"></div>
+  <!-- capa para fuegos (confetti/emoji) -->
+  <div id="fwLayer" class="fireworks"></div>
 
   
 
@@ -4536,6 +4599,72 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(err => console.log('Error SW:', err));
     });
   }
+
+  /* --- LÓGICA DÍA DE LA MUJER --- */
+(function(){
+  // 1. Mostrar el Banner Morado
+  const wBanner = document.getElementById('wdayBanner');
+  if (wBanner) {
+    wBanner.querySelector('.update-close').addEventListener('click', () => {
+      wBanner.classList.add('fade');
+      setTimeout(() => wBanner.remove(), 380);
+    });
+    
+    setTimeout(() => {
+      wBanner.style.display = 'flex';
+      requestAnimationFrame(() => wBanner.classList.add('show'));
+    }, 1500); // Aparece un segundo y medio después de cargar
+  }
+
+  // 2. Botón de Admiración (Lluvia de flores)
+  const wBtn = document.getElementById('wdayBtn');
+  if (wBtn) {
+    wBtn.addEventListener('click', () => {
+      if (typeof window.confettiBurst === 'function') {
+        // Hacemos una lluvia morada y dorada
+        const originalConfetti = window.confettiBurst;
+        window.confettiBurst = (n = 50) => {
+          const confettiBox = document.getElementById('confetti');
+          if(!confettiBox) return;
+          const colors = ['#8e24aa', '#ce93d8', '#ffd700', '#ffffff'];
+          for (let i = 0; i < n; i++){
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = (Math.random()*100) + 'vw';
+            p.style.background = colors[i % colors.length];
+            p.style.animationDelay = (Math.random()*0.8) + 's';
+            p.style.setProperty('--dur', (2.4 + Math.random()*1.6) + 's');
+            p.style.setProperty('--rot', (Math.random()*360) + 'deg');
+            confettiBox.appendChild(p);
+            setTimeout(() => p.remove(), 4000);
+          }
+        };
+        window.confettiBurst(60);
+        window.confettiBurst = originalConfetti; // Restaurar
+      }
+
+      // Lluvia de emojis de flores y corazones morados
+      const box = document.getElementById('hearts');
+      if (box) {
+        const emojis = ['💜', '💐', '🌷', '✨', '👩🏻‍🔬'];
+        for (let i = 0; i < 30; i++) {
+          const d = document.createElement('div');
+          d.className = 'heart-fall';
+          d.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          d.style.left = (Math.random() * 100) + 'vw';
+          d.style.animationDelay = (Math.random() * 1.5) + 's';
+          d.style.setProperty('--dur', (3 + Math.random() * 3) + 's');
+          d.style.setProperty('--size', (18 + Math.random() * 20) + 'px');
+          box.appendChild(d);
+          setTimeout(() => d.remove(), 7000);
+        }
+      }
+
+      if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+      wBtn.textContent = "¡Te amo mi Master! 💜";
+    });
+  }
+})();
 </script>
   </body>
 </html>
