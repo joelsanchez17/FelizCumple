@@ -1,0 +1,870 @@
+/* ============================================================
+   KoalaApp — Fase 2: Romantic Elegant UI Layer
+   Purpose: visual redesign only. No functionality changed.
+   This file intentionally loads after styles_cleaned.css.
+   ============================================================ */
+
+:root {
+  --app-bg-overlay:
+    radial-gradient(circle at top left, rgba(255,255,255,.52), rgba(255,255,255,0) 42%),
+    radial-gradient(circle at bottom right, rgba(255,245,248,.72), rgba(255,255,255,0) 46%);
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: rgba(255, 255, 255, 0.92);
+  --surface-soft: rgba(255, 255, 255, 0.56);
+  --text: #2f2a2d;
+  --text-soft: #6f6268;
+  --text-muted: #81737a;
+  --accent: #b64667;
+  --accent-strong: #8f2948;
+  --accent-soft: rgba(182, 70, 103, 0.14);
+  --accent-line: rgba(182, 70, 103, 0.18);
+  --gold: #c79a45;
+  --shadow-soft: 0 18px 48px rgba(76, 34, 48, 0.13);
+  --shadow-card: 0 12px 34px rgba(76, 34, 48, 0.12);
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --font-body: "Inter", "Quicksand", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-title: "Cormorant Garamond", Georgia, serif;
+}
+
+/* Theme-aware accents: keep her color picker, make the UI adapt softly. */
+html[data-theme="lavender"] {
+  --accent: #7462b8;
+  --accent-strong: #59469a;
+  --accent-soft: rgba(116, 98, 184, .14);
+  --accent-line: rgba(116, 98, 184, .2);
+}
+html[data-theme="ocean"] {
+  --accent: #337da3;
+  --accent-strong: #1d6488;
+  --accent-soft: rgba(51, 125, 163, .14);
+  --accent-line: rgba(51, 125, 163, .2);
+}
+html[data-theme="sunflower"],
+html[data-theme="golden_sunset"] {
+  --accent: #a96625;
+  --accent-strong: #7e4918;
+  --accent-soft: rgba(169, 102, 37, .14);
+  --accent-line: rgba(169, 102, 37, .22);
+}
+html[data-theme="peach"] {
+  --accent: #b5634f;
+  --accent-strong: #934635;
+  --accent-soft: rgba(181, 99, 79, .14);
+  --accent-line: rgba(181, 99, 79, .2);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  min-height: 100svh;
+  padding: 18px 14px 96px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.52;
+  letter-spacing: -0.01em;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: var(--app-bg-overlay);
+  z-index: -1;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 10px;
+  pointer-events: none;
+  border: 1px solid rgba(255,255,255,.36);
+  border-radius: 28px;
+  z-index: -1;
+}
+
+/* App width and tab rhythm */
+.tab-content {
+  width: min(100%, 720px);
+  padding-bottom: 104px;
+}
+
+.tab-content.active {
+  animation: elegantTabIn .34s ease-out;
+}
+
+@keyframes elegantTabIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards / panels */
+.panel,
+.audio-card,
+.unlock,
+.scratch-wrap,
+.catch-area,
+.mem-overlay-start,
+.mem-overlay {
+  border: 1px solid rgba(255,255,255,.72);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.88), rgba(255,255,255,.64));
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.panel {
+  border-radius: var(--radius-lg);
+  padding: 20px 18px;
+  margin: 14px 0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-line), transparent);
+  pointer-events: none;
+}
+
+/* Typography */
+h1 {
+  font-family: var(--font-title);
+  font-size: clamp(2.35rem, 12vw, 4.2rem);
+  font-weight: 700;
+  line-height: .94;
+  letter-spacing: -0.045em;
+  color: var(--accent-strong);
+  text-wrap: balance;
+  margin: 8px auto 12px;
+  max-width: 11ch;
+}
+
+h2,
+h3,
+.panel-title,
+.title,
+.star-countdown-title {
+  font-family: var(--font-title);
+  letter-spacing: -0.025em;
+}
+
+h2.muted,
+.muted {
+  color: var(--text-soft);
+}
+
+h2.muted {
+  font-family: var(--font-body);
+  font-size: .98rem;
+  line-height: 1.58;
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.panel-header {
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--accent-line);
+  margin-bottom: 16px;
+}
+
+.panel-icon {
+  display: none;
+}
+
+.panel-title {
+  color: var(--accent-strong);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+/* Hero image */
+.intro-hero {
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.flip {
+  filter: drop-shadow(0 18px 28px rgba(76,34,48,.18));
+}
+
+.flip-face .intro-photo,
+.intro-photo {
+  width: min(230px, 62vw);
+  border: 7px solid rgba(255,255,255,.88);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.8),
+    0 24px 48px rgba(76,34,48,.18);
+}
+
+.intro-subtitle {
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--accent-strong);
+  background: rgba(255,255,255,.68);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: 0 8px 24px rgba(76,34,48,.08);
+}
+
+/* Buttons */
+.action-button,
+.btn,
+.mini-btn,
+.quiz-btn,
+.fire-btn,
+.theme-toggle-btn,
+.update-close,
+.lightbox-close {
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+.action-button,
+.btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 999px;
+  color: #fff;
+  padding: 11px 18px;
+  box-shadow: 0 10px 24px rgba(76,34,48,.18);
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.action-button:hover,
+.btn:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  filter: brightness(1.03);
+}
+
+.action-button:active,
+.btn:active {
+  transform: translateY(1px) scale(.985);
+  box-shadow: 0 6px 16px rgba(76,34,48,.14);
+}
+
+/* Secondary chips and small controls */
+.chip,
+.quiz-btn,
+.mini-btn {
+  background: rgba(255,255,255,.76);
+  border: 1px solid var(--accent-line);
+  color: var(--text);
+  border-radius: 999px;
+}
+
+.row {
+  gap: 8px;
+}
+
+/* Reduce emoji heaviness without deleting content */
+.sticker-toolbar {
+  padding: 6px 4px 0;
+}
+
+.sticker-toolbar .action-button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  font-size: 1.05rem;
+  background: rgba(255,255,255,.72);
+  color: var(--accent-strong);
+  border: 1px solid var(--accent-line);
+  box-shadow: 0 8px 18px rgba(76,34,48,.08);
+}
+
+/* Gallery and media */
+.photo-gallery {
+  gap: 12px;
+}
+
+.photo-gallery img {
+  border-radius: 18px;
+  border: 5px solid rgba(255,255,255,.86);
+  box-shadow: 0 12px 26px rgba(76,34,48,.13);
+}
+
+/* Bottom navigation: four tabs, more mature app style */
+.bottom-nav {
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  width: auto;
+  height: 66px;
+  padding: 7px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.72);
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 18px 44px rgba(76,34,48,.18);
+}
+
+.bottom-nav button {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 18px;
+  font-size: 1rem;
+  color: var(--text-muted);
+  opacity: 1;
+  padding: 6px 4px;
+  min-width: 0;
+}
+
+.bottom-nav button.active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  transform: none;
+}
+
+.nav-icon {
+  font-size: 1.18rem;
+  line-height: 1;
+}
+
+.nav-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+/* Theme floating picker */
+.theme-fab-container {
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  left: 16px;
+  gap: 8px;
+}
+
+.theme-toggle-btn,
+.music-btn {
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,.86);
+  color: var(--accent-strong);
+  border: 1px solid rgba(255,255,255,.74);
+  box-shadow: 0 14px 30px rgba(76,34,48,.18);
+}
+
+.music-btn {
+  right: 16px;
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  background: var(--surface-strong);
+  color: var(--accent-strong);
+}
+
+.music-btn[aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #fff;
+}
+
+.theme-options {
+  border: 1px solid rgba(255,255,255,.74);
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 14px 34px rgba(76,34,48,.16);
+}
+
+.theme-options .color-circle {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 3px 10px rgba(76,34,48,.12);
+}
+
+/* Realtime status / mimos toolbar if present */
+#status-capsule,
+.status-capsule {
+  background: rgba(255,255,255,.76);
+  border: 1px solid rgba(255,255,255,.74);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(76,34,48,.12);
+}
+
+#mimos-toolbar {
+  background: rgba(255,255,255,.76);
+  border: 1px solid rgba(255,255,255,.74);
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgba(76,34,48,.14);
+}
+
+/* Letter / unlock */
+.unlock {
+  border-radius: var(--radius-md);
+  border-color: var(--accent-line);
+  background: rgba(255,255,255,.7);
+}
+
+.unlock.unlocked {
+  border-color: var(--accent);
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 18px 44px rgba(76,34,48,.17);
+}
+
+#letterBody {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.08rem;
+  color: #3b3337;
+}
+
+/* Game surfaces */
+.catch-area,
+.scratch-wrap,
+.memory-grid {
+  border-radius: var(--radius-md);
+}
+
+.memory-grid {
+  gap: 7px;
+}
+
+.mem-card .front,
+.mem-card .back,
+.front,
+.back {
+  border-radius: 10px;
+}
+
+.front {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,255,255,.42)),
+    repeating-linear-gradient(45deg, rgba(182,70,103,.18), rgba(182,70,103,.18) 5px, rgba(255,255,255,.35) 5px, rgba(255,255,255,.35) 10px);
+  color: var(--accent-strong);
+}
+
+.back {
+  border-color: var(--accent-line);
+}
+
+/* Ticket */
+.ticket {
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,247,250,.88));
+  box-shadow: 0 20px 46px rgba(76,34,48,.15);
+}
+
+.ticket-header {
+  border-bottom-color: var(--accent-line);
+  color: var(--accent-strong);
+}
+
+.ticket-right {
+  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+}
+
+.value {
+  color: var(--accent-strong);
+}
+
+/* Gift */
+.gift-box {
+  background: linear-gradient(145deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 16px 30px rgba(76,34,48,.16);
+}
+
+.lid {
+  background: var(--accent-strong);
+}
+
+.gift-message-hidden {
+  color: var(--accent-strong);
+  font-family: var(--font-title);
+  font-weight: 700;
+}
+
+/* Lightbox / overlays */
+.lightbox {
+  background: rgba(25, 18, 24, .72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.lightbox img {
+  border-radius: 22px;
+}
+
+.launch-overlay {
+  background: rgba(16, 13, 22, .78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.launch-content {
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,.22);
+  background:
+    radial-gradient(circle at top right, rgba(255,255,255,.13), rgba(255,255,255,0) 38%),
+    linear-gradient(145deg, rgba(48,31,54,.95), rgba(22,18,28,.94));
+  box-shadow: 0 24px 60px rgba(0,0,0,.32);
+}
+
+.launch-content h2 {
+  color: #f5d891;
+}
+
+/* Toasts and banners */
+.mem-toast,
+.update-drop {
+  font-family: var(--font-body);
+  border: 1px solid rgba(255,255,255,.32);
+  box-shadow: 0 18px 44px rgba(0,0,0,.22);
+}
+
+.update-drop {
+  background: rgba(255,255,255,.88);
+  color: var(--text);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Rocket: slightly smaller on mobile so it does not dominate */
+.rocket-wrapper {
+  font-size: 2.35rem;
+  right: 16px;
+}
+
+/* Mobile polish */
+@media (max-width: 600px) {
+  body {
+    padding: 12px 10px 106px;
+  }
+
+  body::after {
+    inset: 6px;
+    border-radius: 22px;
+  }
+
+  .panel {
+    padding: 18px 14px;
+    margin: 12px 0;
+    border-radius: 22px;
+  }
+
+  .panel-title {
+    font-size: 1.22rem;
+  }
+
+  h1 {
+    margin-top: 4px;
+  }
+
+  h2.muted {
+    font-size: .93rem;
+  }
+
+  .bottom-nav {
+    height: 64px;
+    left: 8px;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    border-radius: 22px;
+  }
+
+  .nav-label {
+    font-size: .64rem;
+  }
+
+  .theme-fab-container,
+  .music-btn {
+    bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+
+  .ticket {
+    border-radius: 18px;
+  }
+
+  .star-grid {
+    gap: 8px;
+  }
+
+  .star-day {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Accessibility: keep animations softer when requested */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+  }
+}
+/* Overrides for old inline visual styles: keeps behavior, normalizes look. */
+.panel {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.88), rgba(255,255,255,.64)) !important;
+  border: 1px solid rgba(255,255,255,.72) !important;
+}
+
+.title,
+.panel .title {
+  font-family: var(--font-title) !important;
+  color: var(--accent-strong) !important;
+  font-weight: 700;
+}
+
+.panel p[style],
+.panel div[style],
+.audio-card p[style] {
+  font-family: inherit;
+}
+
+.action-button[style],
+.btn[style] {
+  font-family: var(--font-body) !important;
+}
+
+.audio-card h3,
+.panel h3 {
+  color: var(--accent-strong);
+  font-family: var(--font-title);
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+#giftMessage,
+.gift-message-hidden {
+  font-family: var(--font-title) !important;
+  color: var(--accent-strong) !important;
+}
+
+#letterBody,
+#letterBody p {
+  font-family: "Cormorant Garamond", Georgia, serif !important;
+}
+
+
+/* ============================================================
+   Fase 2.1 — Fixes de Joel
+   - La paleta original vuelve a sentirse fuerte.
+   - El selector de colores queda claramente visible.
+   - Sorpresa elegante de actualización.
+   ============================================================ */
+
+/* No apagar el fondo elegido por ella: el overlay ahora acompaña, no tapa. */
+body.theme-picker-original-preserved::before {
+  opacity: .42;
+  mix-blend-mode: soft-light;
+}
+
+/* El botón de paleta vuelve a ser protagonista y fácil de encontrar en mobile. */
+.theme-fab-container {
+  z-index: 10120;
+}
+
+.theme-toggle-btn {
+  background: rgba(255,255,255,.96) !important;
+  color: #2f2a2d !important;
+  border: 1px solid rgba(255,255,255,.95) !important;
+  box-shadow: 0 16px 34px rgba(76,34,48,.24) !important;
+}
+
+.theme-toggle-btn::after {
+  content: "Paleta";
+  position: absolute;
+  left: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.9);
+  color: var(--accent-strong);
+  border: 1px solid rgba(255,255,255,.86);
+  font-size: .72rem;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(76,34,48,.12);
+  pointer-events: none;
+}
+
+.theme-fab-container.open .theme-toggle-btn::after {
+  content: "Elegí";
+}
+
+.theme-options {
+  padding: 9px !important;
+  gap: 9px !important;
+  background: rgba(255,255,255,.92) !important;
+  border: 1px solid rgba(255,255,255,.95) !important;
+}
+
+.theme-options .color-circle {
+  width: 34px !important;
+  height: 34px !important;
+  border: 3px solid rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 0 0 1px rgba(76,34,48,.08),
+    0 8px 18px rgba(76,34,48,.16) !important;
+}
+
+.theme-options .color-circle:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Cada tema recupera una presencia visual más clara en la UI elegante. */
+html[data-theme="original"] {
+  --surface: rgba(255,255,255,.76);
+  --accent: #e25c7a;
+  --accent-strong: #b72d55;
+}
+html[data-theme="sunset"] {
+  --accent: #d85a76;
+  --accent-strong: #aa2f52;
+}
+html[data-theme="lavender"] {
+  --accent: #8a6bd8;
+  --accent-strong: #6245b5;
+}
+html[data-theme="peach"] {
+  --accent: #d27656;
+  --accent-strong: #a94d35;
+}
+html[data-theme="ocean"] {
+  --accent: #3b91bd;
+  --accent-strong: #226f96;
+}
+html[data-theme="sunflower"] {
+  --accent: #d59a1f;
+  --accent-strong: #9e6800;
+}
+html[data-theme="golden_sunset"] {
+  --accent: #c97832;
+  --accent-strong: #985018;
+}
+
+/* Sorpresa de actualización */
+.romantic-update-surprise {
+  position: fixed;
+  left: 50%;
+  bottom: calc(176px + env(safe-area-inset-bottom));
+  width: min(92vw, 390px);
+  transform: translate(-50%, 18px) scale(.98);
+  opacity: 0;
+  z-index: 10110;
+  padding: 18px 44px 18px 18px;
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,248,251,.9));
+  border: 1px solid rgba(255,255,255,.92);
+  box-shadow: 0 24px 60px rgba(76,34,48,.26);
+  text-align: left;
+  color: var(--text);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.romantic-update-surprise.show {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  transition: opacity .32s ease, transform .32s ease;
+}
+
+.romantic-update-surprise.hide {
+  opacity: 0;
+  transform: translate(-50%, 14px) scale(.98);
+  transition: opacity .26s ease, transform .26s ease;
+}
+
+.romantic-update-surprise::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: 24px 24px 0 0;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--gold), transparent);
+}
+
+.surprise-kicker {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 800;
+  color: var(--accent-strong);
+  margin-bottom: 4px;
+}
+
+.surprise-title {
+  font-family: var(--font-title);
+  font-size: 1.35rem;
+  line-height: 1.05;
+  font-weight: 700;
+  color: var(--accent-strong);
+  margin-bottom: 8px;
+}
+
+.romantic-update-surprise p {
+  margin: 0;
+  font-size: .92rem;
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+.surprise-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(76,34,48,.08);
+  background: rgba(255,255,255,.76);
+  color: var(--accent-strong);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.romantic-update-surprise.sparked {
+  animation: surprisePulse .55s ease;
+}
+
+@keyframes surprisePulse {
+  0%,100% { transform: translate(-50%,0) scale(1); }
+  50% { transform: translate(-50%,-2px) scale(1.015); }
+}
+
+.elegant-spark {
+  position: fixed;
+  z-index: 10130;
+  pointer-events: none;
+  color: var(--accent-strong);
+  font-size: 20px;
+  text-shadow: 0 4px 12px rgba(76,34,48,.16);
+  animation: elegantSpark 1.1s ease-out forwards;
+}
+
+@keyframes elegantSpark {
+  from { opacity: 0; transform: translate(0,0) scale(.7) rotate(0); }
+  15% { opacity: 1; }
+  to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(var(--rot)); }
+}
+
+@media (max-width: 430px) {
+  .theme-toggle-btn::after {
+    display: none;
+  }
+  .romantic-update-surprise {
+    bottom: calc(156px + env(safe-area-inset-bottom));
+  }
+}
