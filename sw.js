@@ -1,12 +1,13 @@
 // sw.js
 
 // CAMBIO 1: Cambiamos v1 a v2. Esto obliga al navegador a actualizarse.
-const CACHE_NAME = 'love-app-v2'; 
+const CACHE_NAME = 'love-app-v3'; 
 
 const ASSETS_TO_CACHE = [
   './index.html',
   './realtime.js',
   './manifest.json', // Agregamos el manifiesto
+  './styles_cleaned.css', // Estilos separados y limpiados
   './icono-app.png', // <--- IMPORTANTE: Agregamos la foto nueva para que cargue offline
   'https://unpkg.com/@supabase/supabase-js@2',
   'https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap'
