@@ -6,10 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=3">
+  <link rel="stylesheet" href="./styles_elegant.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -36,11 +37,23 @@
 
 </head>
 <body>
-  <nav class="bottom-nav">
-    <button onclick="showTab(this, 'home')" class="active">🏠</button>
-    <button onclick="showTab(this, 'games')">🎮</button>
-    <button onclick="showTab(this, 'memories')">💖</button>
-    <button onclick="showTab(this, 'anniversary')">🗓️</button>
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <button onclick="showTab(this, 'home')" class="active" aria-label="Inicio">
+      <span class="nav-icon" aria-hidden="true">⌂</span>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button onclick="showTab(this, 'games')" aria-label="Juegos">
+      <span class="nav-icon" aria-hidden="true">✦</span>
+      <span class="nav-label">Juegos</span>
+    </button>
+    <button onclick="showTab(this, 'memories')" aria-label="Recuerdos">
+      <span class="nav-icon" aria-hidden="true">♡</span>
+      <span class="nav-label">Recuerdos</span>
+    </button>
+    <button onclick="showTab(this, 'anniversary')" aria-label="Fechas">
+      <span class="nav-icon" aria-hidden="true">◷</span>
+      <span class="nav-label">Fechas</span>
+    </button>
   </nav>
 
   <div id="home" class="tab-content active">
@@ -123,20 +136,7 @@
         </p>
     </div>
 
-    <div class="panel" style="border: 2px solid #e1bee7; background: rgba(253, 246, 255, 0.85);">
-      <div class="title" style="color: #8e24aa; font-family: 'Pacifico', cursive; font-size: 1.4em;">La mujer que admiro 💜</div>
-      <p class="muted" style="margin-bottom: 12px; font-weight: 600;">Hoy celebro a la mujer increíble que eres. Admiro profundamente:</p>
-      
-      <ul style="list-style: none; padding-left: 0; text-align: left; font-size: 0.95em; color: #444;">
-        <li style="margin-bottom: 8px;">🚀 Tu valentía para cruzar el mundo y estudiar en Alemania.</li>
-        <li style="margin-bottom: 8px;">🧠 Tu inteligencia y dedicación que me sorprenden cada día.</li>
-        <li style="margin-bottom: 8px;">✨ La forma tan linda en que luchas por tus sueños.</li>
-      </ul>
-      
-      <button id="wdayBtn" class="action-button btn-pulse" style="background-color: #8e24aa; width: 100%; margin-top: 10px; font-size: 1.1em;">
-        Estoy muy orgulloso de vos koalita 💐
-      </button>
-    </div>
+    
 
 
 
@@ -250,6 +250,21 @@
       <div class="title">Botón de mimos</div>
       <button id="loveBtn" class="action-button">Más amor ❤️</button>
       <p id="loveMsg" class="muted" style="margin-top:8px"></p>
+    </div>
+
+    <div class="panel" style="border: 2px solid #e1bee7; background: rgba(253, 246, 255, 0.85);">
+      <div class="title" style="color: #8e24aa; font-family: 'Pacifico', cursive; font-size: 1.4em;">La mujer que admiro 💜</div>
+      <p class="muted" style="margin-bottom: 12px; font-weight: 600;">Hoy celebro a la mujer increíble que eres. Admiro profundamente:</p>
+      
+      <ul style="list-style: none; padding-left: 0; text-align: left; font-size: 0.95em; color: #444;">
+        <li style="margin-bottom: 8px;">🚀 Tu valentía para cruzar el mundo y estudiar en Alemania.</li>
+        <li style="margin-bottom: 8px;">🧠 Tu inteligencia y dedicación que me sorprenden cada día.</li>
+        <li style="margin-bottom: 8px;">✨ La forma tan linda en que luchas por tus sueños.</li>
+      </ul>
+      
+      <button id="wdayBtn" class="action-button btn-pulse" style="background-color: #8e24aa; width: 100%; margin-top: 10px; font-size: 1.1em;">
+        Estoy muy orgulloso de vos koalita 💐
+      </button>
     </div>
   </div>
   
@@ -688,11 +703,20 @@
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
     <span style="font-size:1.3em">💘</span>
     <div>
-      <strong> Feliz día de la mujer </strong><br>
-      <small>  Te amo con el alma 🐨</small>
+      <strong> Hola koalita 🐨</strong><br>
+      <small>  Te deseo un hermoso día ☀️💋</small>
     </div>
     <button class="update-close" aria-label="Cerrar">✕</button>
   </div>
+
+  <!-- <div id="wdayBanner" class="update-drop" style="display:none; background: linear-gradient(90deg, #f3e5f5, #e1bee7); color: #4a148c; border: 1px solid #ce93d8; z-index: 10001;" role="status" aria-live="polite">
+    <span style="font-size:1.4em">💜</span>
+    <div>
+      <strong>Feliz Día de la Mujer 👩🏻‍🔬✨</strong><br>
+      <small>A mi científica favorita. El espacio te queda chico.</small>
+    </div>
+    <button class="update-close" style="background: #8e24aa;" aria-label="Cerrar">✕</button>
+  </div> -->
 
 
   <div id="spaceRocket" class="rocket-wrapper" aria-hidden="true">
@@ -720,6 +744,14 @@
   <div id="confetti"></div>
 
  
+
+  <!-- Fase 2.1: sorpresa elegante de actualización (no modifica funciones existentes) -->
+  <div id="romantic-update-surprise" class="romantic-update-surprise" aria-live="polite" style="display:none;">
+    <button class="surprise-close" type="button" aria-label="Cerrar sorpresa">×</button>
+    <div class="surprise-kicker">Nueva versión</div>
+    <div class="surprise-title">La página se vistió elegante para vos</div>
+    <p>El corazón de siempre, con un estilo más maduro. Tocá la tarjeta para descubrir un pequeño brillo.</p>
+  </div>
 
   <div id="theme-fab-container" class="theme-fab-container" aria-live="polite">
     <div id="theme-options" class="theme-options" aria-hidden="true"></div>
@@ -3118,6 +3150,76 @@ document.addEventListener('DOMContentLoaded', function() {
       wBtn.textContent = "¡Te amo mi Master! 💜";
     });
   }
+})();
+</script>
+
+<script>
+/* Fase 2.1 — fixes visuales seguros: paleta visible, fallback de imágenes locales y sorpresa de actualización. */
+(function(){
+  const ASSET_BASE = 'https://joelsanchez17.github.io/FelizCumple/';
+  const localAssetPattern = /^(?!https?:|data:|blob:|#|mailto:|tel:)([^?#]+?\.(?:png|jpe?g|webp|gif|svg))(?:[?#].*)?$/i;
+
+  // Si una imagen local no está en el deploy actual, intenta cargarla desde el repo público original.
+  document.querySelectorAll('img').forEach(img => {
+    const src = img.getAttribute('src') || '';
+    const match = src.match(localAssetPattern);
+    if (!match) return;
+    img.addEventListener('error', function handleImageError(){
+      img.removeEventListener('error', handleImageError);
+      const cleanName = match[1].replace(/^\.\//, '');
+      img.src = ASSET_BASE + cleanName;
+    });
+  });
+
+  // Mantiene la paleta original como protagonista visual: la clase sirve para que CSS no la apague.
+  const root = document.documentElement;
+  const observer = new MutationObserver(() => {
+    document.body.classList.add('theme-picker-original-preserved');
+  });
+  observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  document.body.classList.add('theme-picker-original-preserved');
+
+  // Sorpresa: aparece una sola vez por versión. No toca juegos, tabs, realtime ni música.
+  const SURPRISE_KEY = 'koala_phase_2_1_surprise_seen';
+  const card = document.getElementById('romantic-update-surprise');
+  if (!card || localStorage.getItem(SURPRISE_KEY) === '1') return;
+
+  const close = () => {
+    card.classList.add('hide');
+    localStorage.setItem(SURPRISE_KEY, '1');
+    setTimeout(() => { card.style.display = 'none'; }, 320);
+  };
+
+  const sparkle = () => {
+    const box = document.getElementById('hearts') || document.body;
+    const palette = ['✦','♡','✧','❀','⋆'];
+    const rect = card.getBoundingClientRect();
+    for (let i = 0; i < 28; i++) {
+      const el = document.createElement('div');
+      el.className = 'elegant-spark';
+      el.textContent = palette[i % palette.length];
+      el.style.left = (rect.left + rect.width * Math.random()) + 'px';
+      el.style.top = (rect.top + rect.height * Math.random()) + 'px';
+      el.style.setProperty('--dx', ((Math.random() - 0.5) * 180).toFixed(0) + 'px');
+      el.style.setProperty('--dy', (-60 - Math.random() * 120).toFixed(0) + 'px');
+      el.style.setProperty('--rot', ((Math.random() - 0.5) * 80).toFixed(0) + 'deg');
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1200);
+    }
+    if (navigator.vibrate) navigator.vibrate([18, 30, 18]);
+  };
+
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.surprise-close')) return;
+    sparkle();
+    card.classList.add('sparked');
+  });
+  card.querySelector('.surprise-close')?.addEventListener('click', close);
+
+  setTimeout(() => {
+    card.style.display = 'block';
+    requestAnimationFrame(() => card.classList.add('show'));
+  }, 1200);
 })();
 </script>
   </body>
