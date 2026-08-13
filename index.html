@@ -112,20 +112,6 @@
         <p class="muted" style="margin-top:6px;font-size:.9em">Toca la foto para girarla✨</p>
       </div>
 
-      <div id="giftContainer" class="gift-container">
-        <div id="giftBox" class="gift-box" role="button" tabindex="0" aria-label="Toca para abrir tu sorpresa">
-          <div class="lid">
-            <div class="bow"></div>
-          </div>
-        </div>
-        <div id="flowers" class="flowers-hidden">
-          <img src="nosotros.jpeg" alt="Ramo de rosas amarillas" class="bouquet-img">
-        </div>
-        <p id="giftMessage" class="gift-message-hidden">
-          De incognitos a los besitos
-        </p>
-        <button id="resetGiftBtn" class="action-button" style="display:none; margin-top:10px;">Abrir de nuevo</button>
-      </div>
     </div>
 
     <div class="panel audio-card">
@@ -769,7 +755,7 @@
   <div id="updateBanner" class="update-drop" style="display:none" role="status" aria-live="polite">
     <span style="font-size:1.3em">🎂</span>
     <div>
-      <strong>🎉 ¡Feliz Cumpleaños Princesa! 🎉</strong><br>
+      <strong>🎉 ¡Feliz Casi-Cumpleaños Princesa! 🎉</strong><br>
       <small>Este día es tan especial como vos 💖✨</small>
     </div>
     <button class="update-close" aria-label="Cerrar">✕</button>
@@ -2665,74 +2651,6 @@
         }
       } catch { }
 
-    })();
-
-    // --- Lógica para la Caja de Regalo Interactiva ---
-    (function () {
-      const giftContainer = document.getElementById('giftContainer');
-      const giftBox = document.getElementById('giftBox');
-      const resetBtn = document.getElementById('resetGiftBtn');
-      const giftMessage = document.getElementById('giftMessage');
-
-      if (!giftContainer || !giftBox || !resetBtn) return;
-
-      function openGift() {
-        if (giftContainer.classList.contains('open')) return; // No hacer nada si ya está abierta
-        if ("vibrate" in navigator) {
-          navigator.vibrate(100); // Vibra por 100 milisegundos
-        }
-
-
-        giftContainer.classList.add('open');
-
-        // Lanzar confeti dorado y amarillo (usando la función que ya existe)
-        setTimeout(() => {
-          if (typeof window.confettiBurst === 'function') {
-            const originalConfetti = window.confettiBurst;
-            // Creamos una versión temporal para este momento
-            window.confettiBurst = (n = 40) => {
-              const confettiBox = document.getElementById('confetti');
-              if (!confettiBox) return;
-              for (let i = 0; i < n; i++) {
-                const p = document.createElement('div');
-                p.className = 'confetti-piece';
-                // Colores temáticos: amarillos, dorados y blancos
-                const colors = ['#ffd700', '#ffec8b', '#ffffff', '#f8b500'];
-                p.style.left = (Math.random() * 100) + 'vw';
-                p.style.background = colors[i % colors.length];
-                p.style.animationDelay = (Math.random() * 0.8) + 's';
-                p.style.setProperty('--dur', (2.4 + Math.random() * 1.6) + 's');
-                p.style.setProperty('--rot', (Math.random() * 360) + 'deg');
-                confettiBox.appendChild(p);
-                setTimeout(() => p.remove(), 4000);
-              }
-            };
-            window.confettiBurst(60); // Lanza 60 piezas de confeti temático
-            window.confettiBurst = originalConfetti; // Restaura la función original
-          }
-        }, 500); // Espera medio segundo para el confeti
-
-        // Muestra el botón de reiniciar después de la animación
-        setTimeout(() => {
-          resetBtn.style.display = 'inline-block';
-        }, 1500);
-      }
-
-      function resetGift() {
-        giftContainer.classList.remove('open');
-        resetBtn.style.display = 'none';
-      }
-
-      giftBox.addEventListener('click', openGift);
-      resetBtn.addEventListener('click', resetGift);
-
-      // Para accesibilidad con teclado
-      giftBox.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openGift();
-        }
-      });
     })();
 
     /* --- NUEVO: Script para Reproducir el Audio con el Botón --- */
