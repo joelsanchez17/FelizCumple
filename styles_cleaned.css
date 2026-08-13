@@ -1479,6 +1479,25 @@ from { transform: translateX(-50%) scale(1); }
 
 /* GRID 4x7 EXACTO */
 
+.reasons-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px; margin-top: 16px;
+}
+/* iPhone y móviles: 2 columnas para que las cartas sean legibles */
+@media (max-width: 500px) {
+  .reasons-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .reasons-title { font-size: 1.5em; }
+  .r-front .r-num  { font-size: 2.4em; }
+  .r-front .r-heart { font-size: 1.3em; }
+  .r-back .r-back-num  { font-size: 0.8em; }
+  .r-back .r-back-text { font-size: 0.78em; line-height: 1.4; }
+  .r-card { aspect-ratio: 3/4; }
+}
+
 .memory-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -2234,8 +2253,9 @@ from { transform: scale(1) rotate(-5deg); }
 }
 
 @media (max-width: 480px) {
-body {
-    padding: 10px;
+  body {
+    padding: 8px;
+    font-size: 15px;
   }
 
   .tab-content {
@@ -2253,6 +2273,85 @@ body {
 
   .panel-title {
     font-size: 1.15em;
+  }
+
+  /* Titles */
+  h1 {
+    font-size: 1.9em;
+  }
+  h2 {
+    font-size: 1em;
+  }
+  .title {
+    font-size: 1em;
+  }
+  .big {
+    font-size: 1.5em;
+  }
+
+  /* Photo gallery: bigger on mobile */
+  .photo-gallery img {
+    width: 85px;
+    height: 85px;
+  }
+
+  /* Buttons: minimum 44px touch target */
+  .action-button {
+    min-height: 44px;
+    font-size: 0.95em;
+    padding: 10px 18px;
+  }
+  .btn {
+    min-height: 44px;
+  }
+
+  /* Countdown big numbers */
+  #countup, #countdown {
+    font-size: 1.4em;
+    letter-spacing: 0;
+  }
+
+  /* Candle countdown */
+  .bday-candle {
+    transform: scale(0.85);
+  }
+  #bdayCountdownText {
+    font-size: 1.4em !important;
+  }
+
+  /* Letter cards carousel */
+  .letter-card {
+    min-width: 220px;
+    padding: 16px 14px;
+  }
+  .letter-emoji { font-size: 1.8em; }
+  .letter-title { font-size: 1em; }
+  .letter-text  { font-size: 0.82em; }
+
+  /* Invisible string SVG */
+  #invPanel svg {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Star grid (velitas) */
+  .star-day {
+    font-size: 0.95em;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* Flip card */
+  .flip {
+    max-width: 280px;
+  }
+
+  /* Nav bar labels */
+  .nav-label {
+    font-size: 0.7em;
+  }
+  .nav-icon {
+    font-size: 1.3em;
   }
 }
 
