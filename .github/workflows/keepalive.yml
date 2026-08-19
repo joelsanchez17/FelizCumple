@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Ping Supabase
+      - name: Ping Supabase database
         run: |
           curl --fail --silent --show-error \
             -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
-            "https://xvdexhbasqbhvsuitucr.supabase.co/rest/v1/"
+            "https://xvdexhbasqbhvsuitucr.supabase.co/rest/v1/mimos?select=id&limit=1"
