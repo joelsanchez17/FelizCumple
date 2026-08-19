@@ -7,6 +7,8 @@ window._loveClient = client;
 window.partnerOnline = false;
 window.toggleToolbar = () => {};
 window.enviarMimo = () => {};
+window.enviarMensaje = () => {};
+window.enviarMensajePersonalizado = () => {};
 
 function decodeVapidKey(value) {
   const base64 = (value + '='.repeat((4 - value.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
@@ -68,6 +70,7 @@ async function startLoveRoom() {
       updateInterface(online);
     })
     .on('broadcast', { event: 'mimo' }, ({ payload }) => recibirMimo(payload.type))
+    .on('broadcast', { event: 'mensaje' }, ({ payload }) => mostrarMensaje(payload.text))
     .on('broadcast', { event: 'drawing' }, ({ payload }) => {
       window.dispatchEvent(new CustomEvent('lovedrawingreceived', { detail: payload }));
     })
@@ -107,6 +110,29 @@ async function startLoveRoom() {
     const emoji = type === 'beso' ? '💋' : type === 'ojos' ? '👀' : '👆';
     await sendPush(target, 'Un mimo para vos 💌', `${identity === 'joel' ? 'Joel' : 'Princesa'} te mandó un mimo ${emoji}`, { type: 'mimo' });
   };
+
+  window.enviarMensaje = async text => {
+    await room.send({ type:'broadcast', event:'mensaje', payload:{ text, from:identity } });
+    mostrarMensaje(text, true);
+    await sendPush(target, `${identity === 'joel' ? 'Joel' : 'Princesa'} pensó en vos`, text, { type:'mensaje', text });
+  };
+  window.enviarMensajePersonalizado = () => {
+    const input = document.getElementById('quickMessageInput');
+    const text = input?.value.trim();
+    if (!text) return;
+    input.value = '';
+    window.enviarMensaje(text);
+  };
+}
+
+function mostrarMensaje(text, mine = false) {
+  const toast = document.createElement('div');
+  toast.className = 'love-message-toast';
+  toast.textContent = mine ? `Enviado: ${text}` : text;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  navigator.vibrate?.([25, 35, 25]);
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 250); }, 2400);
 }
 
 function recibirMimo(type) {

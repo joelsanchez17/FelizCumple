@@ -566,7 +566,8 @@
       <!-- Acciones -->
       <div class="draw-actions">
         <button id="drawClear" class="action-button draw-clear" style="flex:1">Borrar</button>
-        <button id="drawSave" class="action-button draw-send" style="flex:2">Enviar a Joel</button>
+        <button id="drawSave" class="action-button draw-save" style="flex:1">Guardar</button>
+        <button id="drawSend" class="action-button draw-send" style="flex:1.5">Enviar a Joel</button>
       </div>
 
       <!-- Galería de dibujos guardados -->
@@ -767,6 +768,13 @@
     <p class="muted" style="font-size:0.95em; margin-top:15px; font-style: italic;">
       "Dos caras de la misma persona maravillosa. Te amo koalita."
     </p>
+
+    <div id="spaceRocket" class="rocket-wrapper" aria-hidden="true">
+      <div class="rocket-body">
+        🚀
+        <div class="rocket-fire"></div>
+      </div>
+    </div>
   </div>
   </div>
 
@@ -815,6 +823,16 @@
       <div style="width:1px; height:20px; background:#ddd; display:inline-block; vertical-align:middle;"></div>
       <button onclick="enviarMimo('toque')"
         style="border:none; background:transparent; font-size:1.4em; cursor:pointer; padding: 0 6px;">👆</button>
+      <div class="quick-messages">
+        <button onclick="enviarMensaje('Tistaño')">Tistaño</button>
+        <button onclick="enviarMensaje('Te amo')">Te amo</button>
+        <button onclick="enviarMensaje('Pienso en ti')">Pienso en ti</button>
+      </div>
+      <div class="custom-message">
+        <input id="quickMessageInput" maxlength="60" placeholder="Escribí algo..." aria-label="Mensaje personalizado"
+          onkeydown="if(event.key==='Enter') enviarMensajePersonalizado()">
+        <button onclick="enviarMensajePersonalizado()" aria-label="Enviar mensaje">Enviar</button>
+      </div>
     </div>
   </div>
 
@@ -836,14 +854,6 @@
     </div>
     <button class="update-close" style="background: #8e24aa;" aria-label="Cerrar">✕</button>
   </div> -->
-
-
-  <div id="spaceRocket" class="rocket-wrapper" aria-hidden="true">
-    <div class="rocket-body">
-      🚀
-      <div class="rocket-fire"></div>
-    </div>
-  </div>
 
 
   <!-- Lightbox con caption y botón cerrar -->
@@ -1261,7 +1271,19 @@
     }
     .draw-actions .action-button { border-radius:10px; box-shadow:none; font-weight:600; }
     .draw-actions .draw-clear { background:#eee9eb; color:#5d5157; }
+    .draw-actions .draw-save { background:#fff; color:#6549a8; border:1px solid rgba(101,73,168,.35); }
     .draw-actions .draw-send { background:#6f4cc3; }
+    #mimos-toolbar { flex-wrap:wrap; max-width:min(350px,calc(100vw - 150px)); border-radius:18px !important; }
+    .quick-messages { flex-basis:100%; display:flex; gap:5px; padding:5px 2px 1px; border-top:1px solid rgba(80,60,70,.1); }
+    .quick-messages button { flex:1; white-space:nowrap; border:0; border-radius:999px; padding:7px 9px; background:#f4edf9; color:#62488d; font:600 .72rem 'Quicksand',sans-serif; cursor:pointer; }
+    .custom-message { flex-basis:100%; display:flex; gap:5px; }
+    .custom-message input { min-width:0; flex:1; border:1px solid rgba(98,72,141,.2); border-radius:999px; padding:8px 11px; background:#fff; color:#44364c; font:.76rem 'Quicksand',sans-serif; outline:none; }
+    .custom-message input:focus { border-color:#8062b4; }
+    .custom-message button { border:0; border-radius:999px; padding:7px 11px; background:#6f4cc3; color:#fff; font:600 .72rem 'Quicksand',sans-serif; cursor:pointer; }
+    .love-message-toast { position:fixed; left:50%; bottom:150px; z-index:20100; max-width:calc(100vw - 40px); padding:12px 18px; border-radius:999px; background:#fff; color:#5e3f72; box-shadow:0 12px 35px rgba(66,39,79,.2); font:600 .9rem 'Quicksand',sans-serif; opacity:0; transform:translate(-50%,10px); transition:.22s ease; }
+    .love-message-toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (max-width:600px) { #mimos-toolbar { position:fixed; left:20px; bottom:130px; width:calc(100vw - 40px); max-width:350px; } }
+    @media (max-width:480px) { .draw-actions { flex-wrap:wrap; } .draw-actions .draw-clear { flex:.7 !important; } .draw-actions .draw-save { flex:1 !important; } .draw-actions .draw-send { flex-basis:100% !important; } }
     .draw-gallery {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
     }
@@ -2876,7 +2898,7 @@
       let scrollTimer = null;
 
       window.addEventListener('scroll', () => {
-        if (hasLaunched || !rocket) return;
+        if (hasLaunched || !rocket || !document.getElementById('anniversary')?.classList.contains('active')) return;
 
         // 1. Detectar movimiento para encender la llamita
         rocket.classList.add('moving');
@@ -3649,6 +3671,8 @@
       // En file:// simulamos las funciones para que no rompa nada
       window.toggleToolbar = () => { };
       window.enviarMimo = () => { };
+      window.enviarMensaje = () => { };
+      window.enviarMensajePersonalizado = () => { };
       window.partnerOnline = false;
     }
   </script>
@@ -4087,10 +4111,8 @@
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(arr)); } catch {}
   }
 
-  /* ---- Guardar ---- */
-  document.getElementById('drawSave')?.addEventListener('click', async () => {
-    if (!dirty) return;
-    // Exportar con fondo blanco (destination-over)
+  function exportDrawing() {
+    if (!dirty) return null;
     const offscreen = document.createElement('canvas');
     offscreen.width  = canvas.width;
     offscreen.height = canvas.height;
@@ -4098,22 +4120,41 @@
     octx.fillStyle = '#fffbfd';
     octx.fillRect(0, 0, offscreen.width, offscreen.height);
     octx.drawImage(canvas, 0, 0);
-    const dataURL = offscreen.toDataURL('image/png');
-
-    const date = new Date().toLocaleDateString('es', { day: '2-digit', month: 'short', year: '2-digit' });
+    return offscreen.toDataURL('image/png');
+  }
+  function saveLocal(dataURL, date) {
+    if (!dataURL) return;
     const saved = getSaved();
-    saved.push({ data: dataURL, date });
+    if (!saved.some(item => item.data === dataURL)) saved.push({ data: dataURL, date });
     if (saved.length > 30) saved.splice(0, saved.length - 30);
     setSaved(saved);
     renderGallery();
+  }
+  function buttonFeedback(button, text) {
+    const original = button.innerHTML;
+    button.innerHTML = text;
+    button.disabled = true;
+    setTimeout(() => { button.innerHTML = original; button.disabled = false; }, 1600);
+  }
 
-    // Feedback visual
-    if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
-    const btn = document.getElementById('drawSave');
-    const orig = btn.innerHTML;
-    btn.innerHTML = 'Enviado';
-    btn.disabled  = true;
-    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+  /* Guardar solamente en este dispositivo. */
+  document.getElementById('drawSave')?.addEventListener('click', () => {
+    const dataURL = exportDrawing();
+    if (!dataURL) return;
+    const date = new Date().toLocaleDateString('es', { day:'2-digit', month:'short', year:'2-digit' });
+    saveLocal(dataURL, date);
+    navigator.vibrate?.(20);
+    buttonFeedback(document.getElementById('drawSave'), 'Guardado');
+  });
+
+  /* Guardar y enviar a la otra persona. */
+  document.getElementById('drawSend')?.addEventListener('click', async () => {
+    const dataURL = exportDrawing();
+    if (!dataURL) return;
+    const date = new Date().toLocaleDateString('es', { day:'2-digit', month:'short', year:'2-digit' });
+    saveLocal(dataURL, date);
+
+    navigator.vibrate?.([30,40,30]);
 
     // Guardar en Supabase, avisar en tiempo real y enviar la notificación push.
     try {
@@ -4123,11 +4164,15 @@
       if (error) throw error;
       await window._loveRoom?.send({ type:'broadcast', event:'drawing', payload:{ data:dataURL, date, from } });
       await window.sendLovePush?.(from === 'joel' ? 'princesa' : 'joel', 'Un dibujo para vos 🎨', `${from === 'joel' ? 'Joel' : 'Princesa'} te mandó un dibujo 💌`, { type:'drawing' });
-    } catch (error) { console.warn('El dibujo quedó guardado localmente, pero no se pudo compartir:', error); }
+      buttonFeedback(document.getElementById('drawSend'), 'Enviado');
+    } catch (error) {
+      buttonFeedback(document.getElementById('drawSend'), 'No se pudo enviar');
+      console.warn('El dibujo quedó guardado localmente, pero no se pudo compartir:', error);
+    }
   });
 
   window.addEventListener('loveidentityready', event => {
-    const button = document.getElementById('drawSave');
+    const button = document.getElementById('drawSend');
     const title = document.getElementById('drawTitle');
     const targetName = event.detail.target === 'joel' ? 'Joel' : 'Princesa';
     if (button) button.innerHTML = `Enviar a ${targetName}`;
