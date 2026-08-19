@@ -503,7 +503,7 @@ from{transform:rotate(0)} to{transform:rotate(360deg)}
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 50%;
+  border-radius: 20px;
   pointer-events: none;
 }
 
@@ -548,7 +548,7 @@ from{transform:rotate(0)} to{transform:rotate(360deg)}
 .flip-front .sticker-board {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
+  border-radius: 20px;
   pointer-events: none;
 }
 
@@ -563,7 +563,7 @@ from{transform:rotate(0)} to{transform:rotate(360deg)}
 .flip-back .sticker-board {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
+  border-radius: 20px;
   pointer-events: none;
 }
 
@@ -587,7 +587,7 @@ from{transform:rotate(0)} to{transform:rotate(360deg)}
   position: absolute;
   inset: -8%;
   pointer-events: none;
-  border-radius: 50%;
+  border-radius: 20px;
   background: linear-gradient(120deg, rgba(255,255,255,0) 45%, rgba(255,255,255,.45) 50%, rgba(255,255,255,0) 55%);
   transform: translateX(-130%) rotate(0.001deg);
   filter: blur(1px);
@@ -2122,9 +2122,10 @@ from { transform: scale(1) rotate(-5deg); }
 
 .intro-photo {
   width: 250px;
-  aspect-ratio: 1/1;
+  aspect-ratio: 3/4;
   object-fit: cover;
-  border-radius: 50%;
+  object-position: top center;
+  border-radius: 20px;
   border: 3px solid #fff;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
@@ -2132,11 +2133,16 @@ from { transform: scale(1) rotate(-5deg); }
 .flip-face .intro-photo {
   display: block;
   width: 220px;
-  aspect-ratio: 1/1;
+  aspect-ratio: 3/4;
   object-fit: cover;
-  border-radius: 50%;
-  border: 4px solid #fff;
-  box-shadow: 0 10px 25px rgba(0,0,0,.18);
+  object-position: top center;
+  border-radius: 20px;
+  border: 4px solid rgba(255,255,255,.95);
+  box-shadow:
+    0 12px 32px rgba(233,30,99,.22),
+    0 2px 8px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.6);
+  transition: box-shadow .3s;
 }
 
 .sticker-toolbar .action-button {
