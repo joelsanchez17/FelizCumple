@@ -84,18 +84,16 @@ async function startLoveRoom() {
     if (!dot || !text || !capsule) return;
     dot.style.background = online ? '#4caf50' : '#ccc';
     dot.style.boxShadow = online ? '0 0 8px #4caf50' : 'none';
-    text.innerText = online ? `${targetName} está aquí ❤️` : `${targetName} está desconectado`;
+    text.innerText = online ? `${targetName} está aquí` : `${targetName} no está ahora`;
     text.style.color = online ? '#2e7d32' : '#999';
     text.style.fontWeight = online ? 'bold' : 'normal';
-    capsule.style.cursor = online ? 'pointer' : 'default';
-    capsule.title = 'Mantené presionado 3 segundos para cambiar quién sos';
-    if (!online && toolbar) toolbar.style.display = 'none';
+    capsule.style.cursor = 'pointer';
+    capsule.title = 'Tocá para enviarle algo. Mantené presionado para cambiar quién sos.';
     if (online && window.lastState !== 'online') navigator.vibrate?.([50, 50, 50]);
     window.lastState = online ? 'online' : 'offline';
   }
 
   window.toggleToolbar = () => {
-    if (!window.partnerOnline) return;
     const toolbar = document.getElementById('mimos-toolbar');
     if (!toolbar) return;
     const visible = toolbar.style.display === 'flex';

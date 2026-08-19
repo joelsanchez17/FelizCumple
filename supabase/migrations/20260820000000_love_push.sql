@@ -28,3 +28,5 @@ create policy "remove subscription from this device"
   on public.push_subscriptions for delete to anon, authenticated using (identity in ('joel', 'princesa'));
 create policy "share drawings"
   on public.drawings for insert to anon, authenticated with check (from_identity in ('joel', 'princesa'));
+create policy "read shared drawings"
+  on public.drawings for select to anon, authenticated using (true);

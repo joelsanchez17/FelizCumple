@@ -530,17 +530,16 @@
     <!-- ===== CANVAS DE DIBUJO ===== -->
     <div class="panel draw-panel" id="drawingPanel">
       <div class="draw-panel-header">
-        <span class="draw-panel-icon">🎨</span>
         <div>
-          <div class="title" style="margin:0;">Dibujame algo 💌</div>
-          <p class="muted" style="font-size:.82em; margin:2px 0 0;">Tu rinconcito de arte para Joel ✏️</p>
+          <div class="title" id="drawTitle" style="margin:0;">Un dibujo para Joel</div>
+          <p class="muted" id="drawSubtitle" style="font-size:.82em; margin:2px 0 0;">Dejá algo hecho por vos.</p>
         </div>
       </div>
 
       <!-- Canvas -->
       <div class="draw-wrap">
         <canvas id="loveCanvas" class="love-canvas"></canvas>
-        <div class="draw-hint" id="drawHint">✏️ Tocá para empezar a dibujar</div>
+        <div class="draw-hint" id="drawHint">Empezá por donde quieras</div>
       </div>
 
       <!-- Paleta de colores -->
@@ -566,13 +565,13 @@
 
       <!-- Acciones -->
       <div class="draw-actions">
-        <button id="drawClear" class="action-button" style="background:#999; flex:1">🗑️ Limpiar</button>
-        <button id="drawSave" class="action-button" style="flex:2">💾 Guardar para Joel</button>
+        <button id="drawClear" class="action-button draw-clear" style="flex:1">Borrar</button>
+        <button id="drawSave" class="action-button draw-send" style="flex:2">Enviar a Joel</button>
       </div>
 
       <!-- Galería de dibujos guardados -->
       <div id="drawGalleryWrap" style="display:none; margin-top:16px;">
-        <div class="title" style="font-size:.9em; margin-bottom:8px;">📁 Tus dibujos guardados</div>
+        <div class="title" style="font-size:.9em; margin-bottom:8px;">Dibujos guardados</div>
         <div id="drawGallery" class="draw-gallery"></div>
       </div>
     </div>
@@ -790,7 +789,7 @@
           box-shadow: 0 4px 15px rgba(0,0,0,0.1);
           display: flex; align-items: center; gap: 8px;
           font-family: 'Quicksand', sans-serif; font-size: 0.9em; color: #555;
-          cursor: default; /* Cambiará a pointer cuando esté online */
+          cursor: pointer;
           transition: transform 0.1s;
           user-select: none;
       ">
@@ -1191,30 +1190,31 @@
 
     /* ===== CANVAS DE DIBUJO ===== */
     .draw-panel {
-      background: linear-gradient(145deg, #fff9fb 0%, #fdf2f8 100%);
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(75,55,67,.12);
     }
     .draw-panel-header {
       display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
     }
-    .draw-panel-icon { font-size: 2em; }
+    #drawTitle { font-family:'Cormorant Garamond',serif; font-size:1.35rem; color:#44343c; letter-spacing:.01em; }
 
     .draw-wrap {
       position: relative; margin-bottom: 12px;
     }
     .love-canvas {
       width: 100%; height: 260px;
-      border-radius: 14px;
-      border: 2px solid rgba(233,30,99,.18);
-      background: #fffbfd;
+      border-radius: 10px;
+      border: 1px solid rgba(75,55,67,.2);
+      background: #fffdfc;
       display: block;
       touch-action: none;
       cursor: crosshair;
-      box-shadow: 0 4px 16px rgba(233,30,99,.1);
+      box-shadow: inset 0 1px 2px rgba(75,55,67,.04);
     }
     .draw-hint {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: .85em; color: #ccc; pointer-events: none;
+      font-size: .82em; color: #aaa0a5; pointer-events: none;
       transition: opacity .3s;
     }
     .draw-hint.hidden { opacity: 0; }
@@ -1259,6 +1259,9 @@
     .draw-actions {
       display: flex; gap: 8px; margin-bottom: 4px;
     }
+    .draw-actions .action-button { border-radius:10px; box-shadow:none; font-weight:600; }
+    .draw-actions .draw-clear { background:#eee9eb; color:#5d5157; }
+    .draw-actions .draw-send { background:#6f4cc3; }
     .draw-gallery {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
     }
@@ -4108,7 +4111,7 @@
     if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
     const btn = document.getElementById('drawSave');
     const orig = btn.innerHTML;
-    btn.innerHTML = '✅ ¡Guardado con amor!';
+    btn.innerHTML = 'Enviado';
     btn.disabled  = true;
     setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
 
@@ -4125,7 +4128,27 @@
 
   window.addEventListener('loveidentityready', event => {
     const button = document.getElementById('drawSave');
-    if (button) button.innerHTML = `💾 Guardar para ${event.detail.target === 'joel' ? 'Joel' : 'Princesa'}`;
+    const title = document.getElementById('drawTitle');
+    const targetName = event.detail.target === 'joel' ? 'Joel' : 'Princesa';
+    if (button) button.innerHTML = `Enviar a ${targetName}`;
+    if (title) title.textContent = `Un dibujo para ${targetName}`;
+
+    // Recuperar lo que la otra persona mandó mientras esta app estaba cerrada.
+    window._loveClient?.from('drawings')
+      .select('data,date')
+      .eq('from_identity', event.detail.target)
+      .order('created_at', { ascending:false })
+      .limit(30)
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        const saved = getSaved();
+        data.reverse().forEach(item => {
+          if (!saved.some(drawing => drawing.data === item.data)) saved.push(item);
+        });
+        if (saved.length > 30) saved.splice(0, saved.length - 30);
+        setSaved(saved);
+        renderGallery();
+      });
   });
   window.addEventListener('lovedrawingreceived', event => {
     const item = event.detail;
