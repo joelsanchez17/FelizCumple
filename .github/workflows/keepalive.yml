@@ -15,4 +15,6 @@ jobs:
         run: |
           curl --fail --silent --show-error \
             -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
             "https://xvdexhbasqbhvsuitucr.supabase.co/rest/v1/mimos?select=id&limit=1"
+          echo "✅ Supabase sigue activo"

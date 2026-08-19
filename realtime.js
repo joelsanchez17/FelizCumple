@@ -1,8 +1,8 @@
 // realtime.js
 
 // CONFIGURACIÓN
-const SUPABASE_URL = 'https://xvdexhbasqbhvsuitucr.supabase.co'; 
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2ZGV4aGJhc3FiaHZzdWl0dWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNjUxMjUsImV4cCI6MjA4NzY0MTEyNX0.mp1xMZ4NCxunOAQS82d2YEnweJi6ptNKReFZjQJDGmk'; 
+const SUPABASE_URL = 'https://xvdexhbasqbhvsuitucr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_seKLcc9W-48bDasah75j4A_fOm3yMxJ';
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -19,6 +19,9 @@ window.partnerOnline = false;
 const room = client.channel('room_amor', {
   config: { presence: { key: myIdentity } },
 });
+
+// Exponer room globalmente para que otras features lo usen (ej: canvas de dibujo)
+window._loveRoom = room;
 
 room
   .on('presence', { event: 'sync' }, () => {
