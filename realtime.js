@@ -1,174 +1,132 @@
-// realtime.js
-
-// CONFIGURACIÓN
 const SUPABASE_URL = 'https://xvdexhbasqbhvsuitucr.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_seKLcc9W-48bDasah75j4A_fOm3yMxJ';
-
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const LABEL = { joel: 'Joel 👨🏻‍💻', princesa: 'Princesa 👩🏻‍🔬' };
 
-// 1. IDENTIDAD
-const urlParams = new URLSearchParams(window.location.search);
-const amIJoel = urlParams.get('user') === 'joel';
-const myIdentity = amIJoel ? 'Joel 👨🏻‍💻' : 'Princesa 👩🏻‍🔬';
-const targetIdentity = amIJoel ? 'Princesa' : 'Joel';
-
-// Variable global para saber el estado
+window._loveClient = client;
 window.partnerOnline = false;
+window.toggleToolbar = () => {};
+window.enviarMimo = () => {};
 
-// Conectar al canal
-const room = client.channel('room_amor', {
-  config: { presence: { key: myIdentity } },
-});
+function decodeVapidKey(value) {
+  const base64 = (value + '='.repeat((4 - value.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+  return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
+}
 
-// Exponer room globalmente para que otras features lo usen (ej: canvas de dibujo)
-window._loveRoom = room;
-
-room
-  .on('presence', { event: 'sync' }, () => {
-    const state = room.presenceState();
-    const users = Object.keys(state);
-    const isPartnerOnline = users.some(user => user.includes(targetIdentity));
-    updateInterface(isPartnerOnline);
-  })
-  .on('broadcast', { event: 'mimo' }, ({ payload }) => {
-    recibirMimo(payload.type);
-  })
-  .subscribe(async (status) => {
-    if (status === 'SUBSCRIBED') {
-      await room.track({
-        online_at: new Date().toISOString(),
-        location: 'Misma Ciudad 🏠❤️'
+async function subscribeToPush(identity) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
+  try {
+    const permission = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
+    if (permission !== 'granted') return;
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+      });
+      if (!response.ok) throw new Error('No se pudo obtener la clave VAPID pública');
+      const { publicKey } = await response.json();
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: decodeVapidKey(publicKey)
       });
     }
-  });
+    const push = subscription.toJSON();
+    // Si este mismo dispositivo cambió de identidad, quitamos la asociación anterior.
+    await client.from('push_subscriptions').delete().eq('endpoint', push.endpoint).neq('identity', identity);
+    const { error } = await client.from('push_subscriptions').upsert({
+      identity, endpoint: push.endpoint, p256dh: push.keys?.p256dh, auth: push.keys?.auth,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'identity' });
+    if (error) throw error;
+  } catch (error) { console.warn('No se pudieron activar las notificaciones:', error); }
+}
 
-// --- FUNCIONES DE INTERFAZ ---
+async function sendPush(to, title, body, data = {}) {
+  try {
+    const { error } = await client.functions.invoke('send-push', { body: { to, title, body, data } });
+    if (error) throw error;
+  } catch (error) { console.warn('No se pudo enviar la notificación:', error); }
+}
+window.sendLovePush = sendPush;
 
-function updateInterface(isOnline) {
-    window.partnerOnline = isOnline; // Guardamos estado global
-    
+async function startLoveRoom() {
+  const identity = await window.requestLoveIdentity();
+  const target = identity === 'joel' ? 'princesa' : 'joel';
+  const targetName = target === 'joel' ? 'Joel' : 'Princesa';
+  window.loveIdentity = identity;
+  window.loveTargetIdentity = target;
+  window.dispatchEvent(new CustomEvent('loveidentityready', { detail: { identity, target } }));
+  subscribeToPush(identity);
+
+  const room = client.channel('room_amor', { config: { presence: { key: identity } } });
+  window._loveRoom = room;
+  room
+    .on('presence', { event: 'sync' }, () => {
+      const state = room.presenceState();
+      const online = Object.keys(state).includes(target) || Object.values(state).flat().some(item => item?.identity === target);
+      updateInterface(online);
+    })
+    .on('broadcast', { event: 'mimo' }, ({ payload }) => recibirMimo(payload.type))
+    .on('broadcast', { event: 'drawing' }, ({ payload }) => {
+      window.dispatchEvent(new CustomEvent('lovedrawingreceived', { detail: payload }));
+    })
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') await room.track({ identity, label: LABEL[identity], online_at: new Date().toISOString() });
+    });
+
+  function updateInterface(online) {
+    window.partnerOnline = online;
     const dot = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
     const capsule = document.getElementById('status-capsule');
     const toolbar = document.getElementById('mimos-toolbar');
-    
-    if (!dot || !text) return;
+    if (!dot || !text || !capsule) return;
+    dot.style.background = online ? '#4caf50' : '#ccc';
+    dot.style.boxShadow = online ? '0 0 8px #4caf50' : 'none';
+    text.innerText = online ? `${targetName} está aquí ❤️` : `${targetName} está desconectado`;
+    text.style.color = online ? '#2e7d32' : '#999';
+    text.style.fontWeight = online ? 'bold' : 'normal';
+    capsule.style.cursor = online ? 'pointer' : 'default';
+    capsule.title = 'Mantené presionado 3 segundos para cambiar quién sos';
+    if (!online && toolbar) toolbar.style.display = 'none';
+    if (online && window.lastState !== 'online') navigator.vibrate?.([50, 50, 50]);
+    window.lastState = online ? 'online' : 'offline';
+  }
 
-    if (isOnline) {
-        // --- ONLINE ---
-        dot.style.background = '#4caf50';
-        dot.style.boxShadow = '0 0 8px #4caf50';
-        
-        // Mensaje cuando está conectado
-        text.innerText = `${targetIdentity} está aquí ❤️`;
-        text.style.color = '#2e7d32';
-        text.style.fontWeight = 'bold';
-        
-        // Habilitar clic
-        capsule.style.cursor = 'pointer';
-        capsule.title = "Toca para interactuar";
-        
-        // Vibrar suave SOLO si acaba de conectarse
-        if (window.lastState !== 'online') {
-             if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-        }
-        window.lastState = 'online';
-
-    } else {
-        // --- OFFLINE (EL CAMBIO QUE PEDISTE) ---
-        dot.style.background = '#ccc';
-        dot.style.boxShadow = 'none';
-        
-        // Mensaje explícito
-        text.innerText = `${targetIdentity} está desconectado`;
-        text.style.color = '#999';
-        text.style.fontWeight = 'normal';
-        
-        // Deshabilitar clic y ocultar toolbar si estaba abierta
-        capsule.style.cursor = 'default';
-        capsule.title = "";
-        if(toolbar) toolbar.style.display = 'none';
-        
-        window.lastState = 'offline';
-    }
-}
-
-// --- NUEVA FUNCIÓN: TOGGLE TOOLBAR ---
-window.toggleToolbar = () => {
-    if (!window.partnerOnline) return; // Si no está conectado, no hace nada
-
+  window.toggleToolbar = () => {
+    if (!window.partnerOnline) return;
     const toolbar = document.getElementById('mimos-toolbar');
-    if (toolbar) {
-        // Alternar entre flex y none
-        const isVisible = toolbar.style.display === 'flex';
-        toolbar.style.display = isVisible ? 'none' : 'flex';
-        
-        // Feedback táctil al abrir
-        if (!isVisible && navigator.vibrate) navigator.vibrate(10);
-    }
-};
+    if (!toolbar) return;
+    const visible = toolbar.style.display === 'flex';
+    toolbar.style.display = visible ? 'none' : 'flex';
+    if (!visible) navigator.vibrate?.(10);
+  };
 
-// --- ENVIAR ---
-window.enviarMimo = async (tipo) => {
-    await room.send({
-        type: 'broadcast',
-        event: 'mimo',
-        payload: { type: tipo }
-    });
-    mostrarEfecto(tipo, true);
-    // Opcional: cerrar toolbar después de enviar para mantener limpieza
-    // document.getElementById('mimos-toolbar').style.display = 'none';
-};
-
-// --- RECIBIR ---
-function recibirMimo(tipo) {
-    if (navigator.vibrate) {
-        if (tipo === 'beso') navigator.vibrate([50, 50, 50]);
-        if (tipo === 'ojos') navigator.vibrate([200]);
-        if (tipo === 'toque') navigator.vibrate([30]); 
-    }
-    mostrarEfecto(tipo, false);
+  window.enviarMimo = async type => {
+    await room.send({ type: 'broadcast', event: 'mimo', payload: { type, from: identity } });
+    mostrarEfecto(type, true);
+    const emoji = type === 'beso' ? '💋' : type === 'ojos' ? '👀' : '👆';
+    await sendPush(target, 'Un mimo para vos 💌', `${identity === 'joel' ? 'Joel' : 'Princesa'} te mandó un mimo ${emoji}`, { type: 'mimo' });
+  };
 }
 
-// --- EFECTOS VISUALES (ACTUALIZADOS) ---
-function mostrarEfecto(tipo, esMio) {
-    let emoji = '💋';
-    if (tipo === 'ojos') emoji = '👀';
-    if (tipo === 'toque') emoji = '👆';
-    
-    const cantidad = 12;
-    
-    for (let i = 0; i < cantidad; i++) {
-        const el = document.createElement('div');
-        el.innerText = emoji;
-        el.style.position = 'fixed';
-        el.style.zIndex = '10070';
-        el.style.fontSize = (20 + Math.random() * 30) + 'px';
-        el.style.pointerEvents = 'none';
-        
-        if (esMio) {
-            el.style.left = '40px'; 
-            el.style.bottom = '70px';
-        } else {
-            // Si recibo, aparecen aleatoriamente en pantalla
-            el.style.left = (Math.random() * window.innerWidth) + 'px';
-            el.style.bottom = (Math.random() * window.innerHeight/2) + 'px';
-        }
-        
-        el.style.transition = `all ${1 + Math.random()}s ease-out`;
-        document.body.appendChild(el);
-
-        setTimeout(() => {
-            // Animación diferente según el tipo
-            if (tipo === 'toque') {
-                el.style.transform = `scale(1.5)`; // El toque hace un "zoom"
-                el.style.opacity = '0';
-            } else {
-                el.style.transform = `translateY(-100px) rotate(${Math.random()*30}deg)`;
-                el.style.opacity = '0';
-            }
-        }, 50);
-
-        setTimeout(() => el.remove(), 1500);
-    }
+function recibirMimo(type) {
+  const patterns = { beso: [50, 50, 50], ojos: [200], toque: [30] };
+  navigator.vibrate?.(patterns[type] || [30]);
+  mostrarEfecto(type, false);
 }
+
+function mostrarEfecto(type, mine) {
+  const emoji = type === 'ojos' ? '👀' : type === 'toque' ? '👆' : '💋';
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('div');
+    el.innerText = emoji;
+    Object.assign(el.style, { position: 'fixed', zIndex: '10070', fontSize: `${20 + Math.random() * 30}px`, pointerEvents: 'none', left: mine ? '40px' : `${Math.random() * innerWidth}px`, bottom: mine ? '70px' : `${Math.random() * innerHeight / 2}px`, transition: `all ${1 + Math.random()}s ease-out` });
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.transform = type === 'toque' ? 'scale(1.5)' : `translateY(-100px) rotate(${Math.random() * 30}deg)`; el.style.opacity = '0'; }, 50);
+    setTimeout(() => el.remove(), 1500);
+  }
+}
+
+startLoveRoom().catch(error => console.error('No se pudo iniciar la conexión:', error));

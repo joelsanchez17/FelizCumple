@@ -43,6 +43,18 @@
 </head>
 
 <body>
+  <div id="identityModal" class="identity-modal" role="dialog" aria-modal="true" aria-labelledby="identityTitle" hidden>
+    <div class="identity-card">
+      <div class="identity-heart">💞</div>
+      <h2 id="identityTitle">¿Quién sos?</h2>
+      <p>Elegí tu perfil para conectar este dispositivo.</p>
+      <div class="identity-options">
+        <button type="button" data-identity="joel"><span>Joel 👨🏻‍💻</span><small>Joel abre el suyo</small></button>
+        <button type="button" data-identity="princesa"><span>Princesa 👩🏻‍🔬</span><small>Ella abre el suyo</small></button>
+      </div>
+      <small class="identity-note">Después podés cambiarlo manteniendo presionado el estado durante 3 segundos.</small>
+    </div>
+  </div>
   <nav class="bottom-nav" aria-label="Navegación principal">
     <button onclick="showTab(this, 'home')" class="active" aria-label="Inicio">
       <span class="nav-icon" aria-hidden="true">⌂</span>
@@ -492,6 +504,8 @@
           alt="Nos escapamos por la puerta 🤭">
         <img src="bonita_2.jpeg" alt="Mi bonita 💖">
         <img src="bonita_3.jpeg" alt="Ella 🥰">
+        <img src="princesa.jpg" alt="Mi princesa favorita 👸🏻">
+        <img src="alien.jpg" alt="Mirá ese look 😍">
         <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Un lindo día en Hamburgo 🥰">
         <img src="https://i.imgur.com/04vNGHg.jpeg" alt="Cuando conocí a tu familia 🫂🤗">
         <img src="https://i.imgur.com/7piACeA.jpeg" alt="Tu, yo y Ana 👨‍👩‍👧">
@@ -513,12 +527,64 @@
     </div>
 
 
+    <!-- ===== CANVAS DE DIBUJO ===== -->
+    <div class="panel draw-panel" id="drawingPanel">
+      <div class="draw-panel-header">
+        <span class="draw-panel-icon">🎨</span>
+        <div>
+          <div class="title" style="margin:0;">Dibujame algo 💌</div>
+          <p class="muted" style="font-size:.82em; margin:2px 0 0;">Tu rinconcito de arte para Joel ✏️</p>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="draw-wrap">
+        <canvas id="loveCanvas" class="love-canvas"></canvas>
+        <div class="draw-hint" id="drawHint">✏️ Tocá para empezar a dibujar</div>
+      </div>
+
+      <!-- Paleta de colores -->
+      <div class="draw-toolbar">
+        <div class="draw-colors">
+          <button class="draw-color active" data-color="#e91e63" style="background:#e91e63" title="Rosa"></button>
+          <button class="draw-color" data-color="#9c27b0" style="background:#9c27b0" title="Violeta"></button>
+          <button class="draw-color" data-color="#f44336" style="background:#f44336" title="Rojo"></button>
+          <button class="draw-color" data-color="#ff9800" style="background:#ff9800" title="Naranja"></button>
+          <button class="draw-color" data-color="#4caf50" style="background:#4caf50" title="Verde"></button>
+          <button class="draw-color" data-color="#2196f3" style="background:#2196f3" title="Azul"></button>
+          <button class="draw-color" data-color="#795548" style="background:#795548" title="Marrón"></button>
+          <button class="draw-color" data-color="#212121" style="background:#212121" title="Negro"></button>
+        </div>
+
+        <div class="draw-tools">
+          <button class="draw-size active" data-size="3" title="Fino"><span>•</span></button>
+          <button class="draw-size" data-size="8" title="Mediano"><span>•</span></button>
+          <button class="draw-size" data-size="18" title="Grueso"><span>•</span></button>
+          <button class="draw-eraser" id="drawEraser" title="Borrador">⬜</button>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="draw-actions">
+        <button id="drawClear" class="action-button" style="background:#999; flex:1">🗑️ Limpiar</button>
+        <button id="drawSave" class="action-button" style="flex:2">💾 Guardar para Joel</button>
+      </div>
+
+      <!-- Galería de dibujos guardados -->
+      <div id="drawGalleryWrap" style="display:none; margin-top:16px;">
+        <div class="title" style="font-size:.9em; margin-bottom:8px;">📁 Tus dibujos guardados</div>
+        <div id="drawGallery" class="draw-gallery"></div>
+      </div>
+    </div>
+
+
     <div class="panel love-letters-panel">
       <div class="title">💌 Cartas a través del tiempo</div>
       <p class="muted" style="margin-bottom: 14px;">Un pensamiento por cada mes juntos...</p>
       <div class="letters-carousel" id="lettersCarousel"></div>
       <p class="muted" style="margin-top: 10px; font-size: 0.85em;">← Desliza para leer más →</p>
     </div>
+
 
     <div class="title">Our Invisible String 🧵</div>
 
@@ -1122,9 +1188,121 @@
       line-height: 1.65;
       font-family: 'Quicksand', sans-serif;
     }
+
+    /* ===== CANVAS DE DIBUJO ===== */
+    .draw-panel {
+      background: linear-gradient(145deg, #fff9fb 0%, #fdf2f8 100%);
+    }
+    .draw-panel-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+    }
+    .draw-panel-icon { font-size: 2em; }
+
+    .draw-wrap {
+      position: relative; margin-bottom: 12px;
+    }
+    .love-canvas {
+      width: 100%; height: 260px;
+      border-radius: 14px;
+      border: 2px solid rgba(233,30,99,.18);
+      background: #fffbfd;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+      box-shadow: 0 4px 16px rgba(233,30,99,.1);
+    }
+    .draw-hint {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85em; color: #ccc; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .draw-hint.hidden { opacity: 0; }
+
+    .draw-toolbar {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
+    }
+    .draw-colors {
+      display: flex; gap: 7px; justify-content: center; flex-wrap: wrap;
+    }
+    .draw-color {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 3px solid transparent; cursor: pointer;
+      transition: transform .15s, border-color .15s;
+      padding: 0; flex-shrink: 0;
+    }
+    .draw-color.active {
+      border-color: #333; transform: scale(1.25);
+    }
+    .draw-tools {
+      display: flex; gap: 8px; justify-content: center; align-items: center;
+    }
+    .draw-size {
+      background: #fce4ec; border: 2px solid #f48fb1;
+      border-radius: 50%; cursor: pointer; padding: 0;
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, transform .15s;
+      font-size: 1em; color: #c2185b;
+    }
+    .draw-size:nth-child(1) span { font-size: .55em; }
+    .draw-size:nth-child(2) span { font-size: .85em; }
+    .draw-size:nth-child(3) span { font-size: 1.3em; }
+    .draw-size.active { background: #e91e63; color: #fff; border-color: #c2185b; transform: scale(1.1); }
+    .draw-eraser {
+      background: #f5f5f5; border: 2px solid #ddd;
+      border-radius: 8px; cursor: pointer;
+      padding: 6px 10px; font-size: 1em; transition: background .15s;
+    }
+    .draw-eraser.active { background: #fff9c4; border-color: #f9a825; }
+
+    .draw-actions {
+      display: flex; gap: 8px; margin-bottom: 4px;
+    }
+    .draw-gallery {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .draw-thumb {
+      border-radius: 10px; border: 2px solid rgba(233,30,99,.15);
+      overflow: hidden; aspect-ratio: 4/3;
+      position: relative; cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .draw-thumb:hover { transform: scale(1.04); box-shadow: 0 6px 18px rgba(233,30,99,.2); }
+    .draw-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .draw-thumb-date {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,.45); color: #fff;
+      font-size: .6em; text-align: center; padding: 3px;
+      font-family: 'Quicksand', sans-serif;
+    }
+    .draw-thumb-del {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(255,255,255,.85); border: none;
+      border-radius: 50%; width: 22px; height: 22px;
+      font-size: .7em; cursor: pointer; display: none;
+      align-items: center; justify-content: center;
+    }
+    .draw-thumb:hover .draw-thumb-del { display: flex; }
+    .identity-modal { position:fixed; inset:0; z-index:20000; padding:22px; display:grid; place-items:center; background:rgba(52,22,38,.48); backdrop-filter:blur(12px); }
+    .identity-modal[hidden] { display:none; }
+    .identity-card { width:min(430px,100%); padding:28px 22px 22px; text-align:center; border:1px solid rgba(255,255,255,.75); border-radius:28px; background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(255,241,247,.98)); box-shadow:0 24px 70px rgba(99,31,65,.3); animation:identityIn .35s cubic-bezier(.2,.8,.2,1); }
+    .identity-heart { font-size:2.4rem; margin-bottom:4px; }
+    .identity-card h2 { margin:4px 0 6px; color:#8e244d; font-family:'Cormorant Garamond',serif; font-size:2rem; }
+    .identity-card>p { margin:0 0 20px; color:#78616b; }
+    .identity-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .identity-options button { min-height:112px; padding:15px 10px; border:1px solid rgba(233,30,99,.2); border-radius:18px; background:white; color:#5e3446; box-shadow:0 6px 20px rgba(173,57,104,.08); cursor:pointer; transition:.18s; }
+    .identity-options button:active { transform:scale(.97); }
+    .identity-options button:hover { border-color:#e91e63; box-shadow:0 9px 25px rgba(173,57,104,.16); }
+    .identity-options span { display:block; font:700 1.05rem 'Quicksand',sans-serif; margin-bottom:8px; }
+    .identity-options small,.identity-note { color:#9b7a88; line-height:1.4; }
+    .identity-note { display:block; margin-top:17px; }
+    @keyframes identityIn { from { opacity:0; transform:translateY(16px) scale(.97); } }
+    @media (max-width:390px) { .identity-options { grid-template-columns:1fr; } .identity-options button { min-height:86px; } }
   </style>
 
   <script>
+
 
     function showTab(btn, tabId) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -3417,6 +3595,47 @@
 
   </script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    (() => {
+      const KEY = 'love_identity';
+      const modal = document.getElementById('identityModal');
+      let resolver;
+      const valid = value => value === 'joel' || value === 'princesa';
+      function openModal() {
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        return new Promise(resolve => { resolver = resolve; });
+      }
+      window.requestLoveIdentity = () => {
+        const saved = localStorage.getItem(KEY);
+        return valid(saved) ? Promise.resolve(saved) : openModal();
+      };
+      modal.querySelectorAll('[data-identity]').forEach(button => button.addEventListener('click', () => {
+        const identity = button.dataset.identity;
+        localStorage.setItem(KEY, identity);
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        resolver?.(identity);
+        resolver = null;
+      }));
+      const capsule = document.getElementById('status-capsule');
+      let timer = null, longPressed = false;
+      const cancel = () => { clearTimeout(timer); timer = null; };
+      capsule?.addEventListener('pointerdown', () => {
+        longPressed = false;
+        timer = setTimeout(() => {
+          longPressed = true;
+          navigator.vibrate?.([40,40,80]);
+          localStorage.removeItem(KEY);
+          openModal().then(() => location.reload());
+        }, 3000);
+      });
+      ['pointerup','pointercancel','pointerleave'].forEach(type => capsule?.addEventListener(type, cancel));
+      capsule?.addEventListener('click', event => {
+        if (longPressed) { event.preventDefault(); event.stopImmediatePropagation(); }
+      }, true);
+    })();
+  </script>
   <!-- Supabase realtime solo funciona en http/https, no en file:// -->
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
@@ -3697,6 +3916,232 @@
       }, 1200);
     })();
   </script>
+
+<script>
+/* ===== CANVAS DE DIBUJO - Dibujame algo 💌 ===== */
+(function () {
+  const canvas  = document.getElementById('loveCanvas');
+  const hint    = document.getElementById('drawHint');
+  const gallery = document.getElementById('drawGallery');
+  const galWrap = document.getElementById('drawGalleryWrap');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const SAVE_KEY = 'love_drawings_v2';
+
+  /* ---- Dimensionar canvas al tamaño real del elemento ---- */
+  function syncSize() {
+    const w = canvas.offsetWidth || 320;
+    const h = canvas.offsetHeight || 260;
+    // Captura imagen actual si ya tenía algo
+    let snap = null;
+    if (canvas.width > 0 && canvas.height > 0) {
+      try { snap = ctx.getImageData(0, 0, canvas.width, canvas.height); } catch {}
+    }
+    canvas.width  = w;
+    canvas.height = h;
+    fillBg();
+    if (snap) ctx.putImageData(snap, 0, 0);
+  }
+
+  function fillBg() {
+    ctx.fillStyle = '#fffbfd';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+
+  syncSize();
+  // Re-sync on resize (orientation change)
+  window.addEventListener('resize', () => { syncSize(); });
+
+  /* ---- Estado ---- */
+  let drawing = false, erasing = false;
+  let color = '#e91e63', brushSize = 3;
+  let lastX = 0, lastY = 0;
+  let dirty = false;
+
+  /* ---- Coordenadas corregidas por escala CSS vs canvas real ---- */
+  function getXY(e) {
+    const r  = canvas.getBoundingClientRect();
+    const sx = canvas.width  / r.width;
+    const sy = canvas.height / r.height;
+    const src = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - r.left) * sx,
+      y: (src.clientY - r.top)  * sy
+    };
+  }
+
+  /* ---- Dibujo ---- */
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    const p = getXY(e);
+    lastX = p.x; lastY = p.y;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    if (!dirty) {
+      dirty = true;
+      hint?.classList.add('hidden');
+      if (navigator.vibrate) navigator.vibrate(5);
+    }
+  }
+
+  function doDraw(e) {
+    e.preventDefault();
+    if (!drawing) return;
+    const p = getXY(e);
+    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = erasing ? brushSize * 4 : brushSize;
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    lastX = p.x; lastY = p.y;
+  }
+
+  function endDraw() { drawing = false; ctx.beginPath(); }
+
+  canvas.addEventListener('pointerdown',  startDraw, { passive: false });
+  canvas.addEventListener('pointermove',  doDraw,    { passive: false });
+  canvas.addEventListener('pointerup',    endDraw);
+  canvas.addEventListener('pointercancel',endDraw);
+
+  /* ---- Colores ---- */
+  document.querySelectorAll('.draw-color').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.draw-color').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      color   = btn.dataset.color;
+      erasing = false;
+      document.getElementById('drawEraser')?.classList.remove('active');
+    });
+  });
+
+  /* ---- Tamaños ---- */
+  document.querySelectorAll('.draw-size').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.draw-size').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      brushSize = parseInt(btn.dataset.size);
+      erasing   = false;
+      document.getElementById('drawEraser')?.classList.remove('active');
+    });
+  });
+
+  /* ---- Borrador ---- */
+  document.getElementById('drawEraser')?.addEventListener('click', function () {
+    erasing = !erasing;
+    this.classList.toggle('active', erasing);
+  });
+
+  /* ---- Limpiar ---- */
+  document.getElementById('drawClear')?.addEventListener('click', () => {
+    ctx.globalCompositeOperation = 'source-over';
+    fillBg();
+    dirty = false;
+    hint?.classList.remove('hidden');
+    if (navigator.vibrate) navigator.vibrate(20);
+  });
+
+  /* ---- Galería ---- */
+  function renderGallery() {
+    if (!gallery) return;
+    const saved = getSaved();
+    gallery.innerHTML = '';
+    if (!saved.length) { if (galWrap) galWrap.style.display = 'none'; return; }
+    if (galWrap) galWrap.style.display = 'block';
+
+    saved.slice().reverse().forEach((item, revIdx) => {
+      const realIdx = saved.length - 1 - revIdx;
+      const wrap = document.createElement('div');
+      wrap.className = 'draw-thumb';
+      wrap.innerHTML = `
+        <img src="${item.data}" alt="Dibujo ${item.date}" loading="lazy">
+        <div class="draw-thumb-date">${item.date}</div>
+        <button class="draw-thumb-del" title="Borrar">✕</button>
+      `;
+      wrap.querySelector('img').addEventListener('click', () => {
+        window.openLight?.(item.data, '💌 Dibujo del ' + item.date);
+      });
+      wrap.querySelector('.draw-thumb-del').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const all = getSaved();
+        all.splice(realIdx, 1);
+        setSaved(all);
+        renderGallery();
+      });
+      gallery.appendChild(wrap);
+    });
+  }
+
+  function getSaved() {
+    try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '[]'); } catch { return []; }
+  }
+  function setSaved(arr) {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(arr)); } catch {}
+  }
+
+  /* ---- Guardar ---- */
+  document.getElementById('drawSave')?.addEventListener('click', async () => {
+    if (!dirty) return;
+    // Exportar con fondo blanco (destination-over)
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = canvas.width;
+    offscreen.height = canvas.height;
+    const octx = offscreen.getContext('2d');
+    octx.fillStyle = '#fffbfd';
+    octx.fillRect(0, 0, offscreen.width, offscreen.height);
+    octx.drawImage(canvas, 0, 0);
+    const dataURL = offscreen.toDataURL('image/png');
+
+    const date = new Date().toLocaleDateString('es', { day: '2-digit', month: 'short', year: '2-digit' });
+    const saved = getSaved();
+    saved.push({ data: dataURL, date });
+    if (saved.length > 30) saved.splice(0, saved.length - 30);
+    setSaved(saved);
+    renderGallery();
+
+    // Feedback visual
+    if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+    const btn = document.getElementById('drawSave');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ ¡Guardado con amor!';
+    btn.disabled  = true;
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+
+    // Guardar en Supabase, avisar en tiempo real y enviar la notificación push.
+    try {
+      const from = window.loveIdentity || localStorage.getItem('love_identity');
+      if (!from || !window._loveClient) throw new Error('La identidad todavía no está lista');
+      const { error } = await window._loveClient.from('drawings').insert({ from_identity: from, data: dataURL, date });
+      if (error) throw error;
+      await window._loveRoom?.send({ type:'broadcast', event:'drawing', payload:{ data:dataURL, date, from } });
+      await window.sendLovePush?.(from === 'joel' ? 'princesa' : 'joel', 'Un dibujo para vos 🎨', `${from === 'joel' ? 'Joel' : 'Princesa'} te mandó un dibujo 💌`, { type:'drawing' });
+    } catch (error) { console.warn('El dibujo quedó guardado localmente, pero no se pudo compartir:', error); }
+  });
+
+  window.addEventListener('loveidentityready', event => {
+    const button = document.getElementById('drawSave');
+    if (button) button.innerHTML = `💾 Guardar para ${event.detail.target === 'joel' ? 'Joel' : 'Princesa'}`;
+  });
+  window.addEventListener('lovedrawingreceived', event => {
+    const item = event.detail;
+    if (!item?.data) return;
+    const saved = getSaved();
+    if (!saved.some(drawing => drawing.data === item.data)) {
+      saved.push({ data:item.data, date:item.date });
+      if (saved.length > 30) saved.splice(0, saved.length - 30);
+      setSaved(saved);
+      renderGallery();
+    }
+  });
+
+  renderGallery();
+})();
+</script>
 </body>
 
 </html>
