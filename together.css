@@ -396,10 +396,12 @@ body.together-active #presence-indicator { display: none !important; }
 /* Objetos de la habitación: el objeto mismo es el control. */
 .house-window,
 .house-ac-unit,
+.house-heater,
 .house-lamp,
 .house-plant { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 .house-window:active,
 .house-ac-unit:active,
+.house-heater:active,
 .house-lamp:active,
 .house-plant:active { filter:brightness(.96); }
 
@@ -434,8 +436,23 @@ body.together-active #presence-indicator { display: none !important; }
 .house-interior.ac-on .house-ac-unit { color:#286d86; border-color:rgba(62,155,190,.38); background:#effaff; box-shadow:0 5px 15px rgba(67,163,197,.18),0 0 0 2px rgba(118,205,233,.12); }
 .house-interior.ac-on .house-ac-unit small { color:#438ba4; }
 .house-ac-unit:focus-visible,
+.house-heater:focus-visible,
 .house-window:focus-visible,
 .house-plant:focus-visible { outline:3px solid var(--together-wine); outline-offset:3px; }
+
+/* Radiador pequeño bajo la ventana. */
+.house-heater { position:absolute; z-index:4; left:50%; top:116px; width:50px; height:29px; padding:4px 5px 3px; border:1px solid rgba(103,73,83,.16); border-radius:6px; color:#8e777f; background:#fff8f4; box-shadow:0 4px 9px rgba(72,45,55,.1); cursor:pointer; transform:translateX(-50%); }
+.house-heater > span { display:flex; justify-content:center; gap:3px; height:11px; }
+.house-heater > span i { display:block; width:4px; height:11px; border-radius:3px; background:#d8c5c1; box-shadow:inset 1px 0 rgba(255,255,255,.55); }
+.house-heater > small { display:block; min-height:0; margin-top:2px; color:#a08a91; font:700 .36rem/1 'Quicksand',sans-serif; }
+.house-heater::before,.house-heater::after { content:""; position:absolute; top:-11px; width:8px; height:10px; opacity:0; border-left:2px solid #e79361; border-radius:50%; }
+.house-heater::before { left:13px; }
+.house-heater::after { right:10px; animation-delay:.35s !important; }
+.house-interior.heater-on .house-heater { color:#a54e27; border-color:rgba(221,119,63,.38); background:#fff0e4; box-shadow:0 4px 11px rgba(205,104,54,.2),0 0 13px rgba(238,144,86,.18); }
+.house-interior.heater-on .house-heater > span i { background:#dc8758; }
+.house-interior.heater-on .house-heater > small { color:#b35d35; }
+.house-interior.heater-on .house-heater::before,.house-interior.heater-on .house-heater::after { opacity:.75; animation:heaterWarm 1.5s ease-in-out infinite; }
+@keyframes heaterWarm { 50% { opacity:.25; transform:translateY(-4px) skewX(-8deg); } }
 
 /* Las luces ya no dependen de la presencia: ambos comparten su estado. */
 .house-person .house-lamp:not(.is-lit) b { background:#bdaab2; box-shadow:none; }
@@ -462,6 +479,7 @@ body.together-active #presence-indicator { display: none !important; }
 
 @media (max-width:430px) {
   .house-ac-unit { right:8px; top:82px; width:58px; height:32px; }
+  .house-heater { top:102px; width:47px; height:27px; }
   .house-table { width:56px; margin-top:43px; transform:scale(.92); transform-origin:top center; }
   .house-table > small { width:74px; font-size:.38rem; }
   .house-light-notify-row { font-size:.46rem; }

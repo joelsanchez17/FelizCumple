@@ -33,8 +33,12 @@
   let pendingLightTarget = null;
   let windowOpen = false;
   let acOn = false;
+  let heaterOn = false;
   const lampStates = { joel: false, princesa: false };
-  let plantState = { watered_at: null, watered_by: null };
+  let plantState = { watered_at: null, watered_by: null, reference_at: null };
+  const houseWeatherTemps = { joel: null, princesa: null };
+  let activeHouseConditions = new Set();
+  let conditionTimer;
   const refreshTables = new Set();
 
   const $ = selector => document.querySelector(selector);
@@ -43,6 +47,44 @@
   function toast(message) {
     if (typeof window.mostrarMensaje === 'function') window.mostrarMensaje(message);
     else console.info(message);
+  }
+
+  function showHouseJoke(key, message) {
+    const storageKey = `love_house_joke_${key}`;
+    const lastShown = Number(localStorage.getItem(storageKey) || 0);
+    if (Date.now() - lastShown < 6 * 60 * 60 * 1000) return;
+    localStorage.setItem(storageKey, String(Date.now()));
+    toast(message);
+  }
+
+  function evaluateHouseConditions(showNew = true) {
+    const conditions = [];
+    const period = $('#loveHouse')?.dataset.time;
+    const daytime = period === 'morning' || period === 'day';
+    const localTemperature = houseWeatherTemps[identity];
+    if (acOn && heaterOn) conditions.push(['ac_heater', '¿Aire y calefacción juntos? Elegí un clima, mi amor 😂']);
+    if (windowOpen && acOn) conditions.push(['dubai', '¿Qué estamos, en Dubái? El aire prendido y la ventana abierta 😂']);
+    if (acOn && Number.isFinite(localTemperature) && localTemperature < 20) {
+      conditions.push(['cold_ac', `${Math.round(localTemperature)}° y el aire prendido… ¿queremos guardar pingüinos? 🐧`]);
+    }
+    if (daytime && (lampStates.joel || lampStates.princesa)) conditions.push(['day_lights', 'No sabía que acá regalaban la luz 💡']);
+
+    const plantReference = plantState.watered_at || plantState.reference_at;
+    if (plantReference) {
+      const dryHours = (Date.now() - new Date(plantReference).getTime()) / 3600000;
+      if (dryHours >= 48) conditions.push(['plant_days', 'La plantita ya está preparando una denuncia por abandono 💧']);
+      else if (dryHours >= 12) conditions.push(['plant_hours', 'La plantita preguntó si el agua también está a distancia 🌱']);
+    }
+
+    const nextKeys = new Set(conditions.map(([key]) => key));
+    const newlyActive = conditions.find(([key]) => !activeHouseConditions.has(key));
+    activeHouseConditions = nextKeys;
+    if (showNew && newlyActive) showHouseJoke(...newlyActive);
+  }
+
+  function queueHouseConditionCheck(showNew = true) {
+    clearTimeout(conditionTimer);
+    conditionTimer = setTimeout(() => evaluateHouseConditions(showNew), 650);
   }
 
   function reportError(error, fallback) {
@@ -116,8 +158,8 @@
 
   async function loadHouseWeather() {
     const locations = [
-      { element:'#houseWeatherGermany', latitude:49.44, longitude:7.77 },
-      { element:'#houseWeatherEcuador', latitude:-0.18, longitude:-78.47 }
+      { person:'joel', element:'#houseWeatherGermany', latitude:49.44, longitude:7.77 },
+      { person:'princesa', element:'#houseWeatherEcuador', latitude:-0.18, longitude:-78.47 }
     ];
     await Promise.all(locations.map(async location => {
       const output = $(location.element);
@@ -134,6 +176,7 @@
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Open-Meteo ${response.status}`);
         const weather = (await response.json()).current;
+        houseWeatherTemps[location.person] = Number(weather.temperature_2m);
         output.textContent = `${weatherSymbol(weather.weather_code, weather.is_day === 1)} ${Math.round(weather.temperature_2m)}°`;
         output.title = `${Math.round(weather.temperature_2m)} °C`;
       } catch (error) {
@@ -141,6 +184,7 @@
         output.textContent = 'Clima —';
       }
     }));
+    queueHouseConditionCheck(true);
   }
 
   function renderPresence(detail = window.lovePresenceState || {}) {
@@ -215,6 +259,19 @@
     if (announce) toast(acOn ? 'AC encendido ❄️' : 'AC apagado');
   }
 
+  function setHeaterState(on, announce = false) {
+    heaterOn = Boolean(on);
+    $('.house-interior')?.classList.toggle('heater-on', heaterOn);
+    const heater = $('#houseHeater');
+    if (heater) {
+      heater.setAttribute('aria-pressed', String(heaterOn));
+      heater.setAttribute('aria-label', heaterOn ? 'Apagar la calefacción' : 'Encender la calefacción');
+      const status = heater.querySelector('small');
+      if (status) status.textContent = heaterOn ? 'encendida' : 'apagada';
+    }
+    if (announce) toast(heaterOn ? 'Calefacción encendida 🔥' : 'Calefacción apagada');
+  }
+
   function setLampState(person, on, announce = false) {
     if (!PEOPLE[person]) return;
     lampStates[person] = Boolean(on);
@@ -226,7 +283,11 @@
   }
 
   function setPlantState(state = {}, announce = false) {
-    plantState = { watered_at: state.watered_at || null, watered_by: state.watered_by || null };
+    plantState = {
+      watered_at: state.watered_at || null,
+      watered_by: state.watered_by || null,
+      reference_at: state.watered_at || state.reference_at || plantState.reference_at || null
+    };
     const plant = $('#housePlant');
     const status = $('#housePlantStatus');
     if (plantState.watered_at) {
@@ -242,9 +303,11 @@
   function applyHouseDevice(device, state, announce = false) {
     if (device === 'window') setWindowState(state?.open ?? state, announce);
     if (device === 'ac') setAcState(state?.on ?? state, announce);
+    if (device === 'heater') setHeaterState(state?.on ?? state, announce);
     if (device === 'lamp_joel') setLampState('joel', state?.on ?? state, announce);
     if (device === 'lamp_princesa') setLampState('princesa', state?.on ?? state, announce);
     if (device === 'plant') setPlantState(state, announce);
+    if (announce) queueHouseConditionCheck(true);
   }
 
   async function saveHouseDevice(device, state) {
@@ -262,23 +325,34 @@
   async function loadHouseDevices() {
     const { data, error } = await client.from('house_devices').select('*');
     if (error) return reportError(error, 'No se pudo cargar el estado de la casita');
-    (data || []).forEach(row => applyHouseDevice(row.device, row.state));
+    (data || []).forEach(row => applyHouseDevice(row.device, row.device === 'plant'
+      ? { ...row.state, reference_at:row.state?.watered_at || row.updated_at }
+      : row.state));
   }
 
   async function toggleHouseWindow() {
     setWindowState(!windowOpen, true);
     await saveHouseDevice('window', { open:windowOpen });
+    queueHouseConditionCheck(true);
   }
 
   async function toggleHouseAc() {
     setAcState(!acOn, true);
     await saveHouseDevice('ac', { on:acOn });
+    queueHouseConditionCheck(true);
+  }
+
+  async function toggleHouseHeater() {
+    setHeaterState(!heaterOn, true);
+    await saveHouseDevice('heater', { on:heaterOn });
+    queueHouseConditionCheck(true);
   }
 
   async function toggleHouseLamp(person) {
     if (!PEOPLE[person]) return;
     setLampState(person, !lampStates[person], true);
     await saveHouseDevice(`lamp_${person}`, { on:lampStates[person] });
+    queueHouseConditionCheck(true);
   }
 
   async function waterHousePlant() {
@@ -287,6 +361,7 @@
     $('#housePlant')?.classList.add('is-watering');
     setTimeout(() => $('#housePlant')?.classList.remove('is-watering'), 900);
     await saveHouseDevice('plant', state);
+    queueHouseConditionCheck(false);
   }
 
   function renderHeartStates() {
@@ -667,6 +742,7 @@
     $('#houseLightCancel')?.addEventListener('click', closeHouseLightConfirm);
     $('#houseWindow')?.addEventListener('click', toggleHouseWindow);
     $('#houseAc')?.addEventListener('click', toggleHouseAc);
+    $('#houseHeater')?.addEventListener('click', toggleHouseHeater);
     $('#housePlant')?.addEventListener('click', waterHousePlant);
     $('#heartChoices')?.addEventListener('click', event => {
       const button = event.target.closest('[data-mood]');
@@ -712,10 +788,12 @@
     setInterval(applyLocalTime, 10 * 60 * 1000);
     setInterval(updateHouseClocks, 30 * 1000);
     setInterval(loadHouseWeather, 15 * 60 * 1000);
+    setInterval(() => queueHouseConditionCheck(true), 60 * 60 * 1000);
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
     if ($('#houseLightNotify')) $('#houseLightNotify').textContent = `Avisarle a ${PEOPLE[target]} 🔔`;
     await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices()]);
+    queueHouseConditionCheck(true);
     subscribeToChanges();
     if (location.hash === '#together') {
       history.replaceState(null, '', location.pathname + location.search);

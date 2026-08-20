@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=9">
+  <link rel="stylesheet" href="./together.css?v=10">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -434,6 +434,10 @@
           <button id="houseAc" class="house-ac-unit" type="button" aria-label="Encender el aire acondicionado" aria-pressed="false">
             <strong>AC</strong><i aria-hidden="true"></i><span aria-hidden="true"></span>
             <small>apagado</small>
+          </button>
+          <button id="houseHeater" class="house-heater" type="button" aria-label="Encender la calefacción" aria-pressed="false">
+            <span aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <small>apagada</small>
           </button>
           <div class="house-people">
               <article id="houseJoel" class="house-person house-person-joel">
@@ -4060,7 +4064,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=21', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=22', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -4957,7 +4961,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=2"></script>
+<script src="./together.js?v=3"></script>
 </body>
 
 </html>
