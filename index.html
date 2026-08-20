@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=4">
+  <link rel="stylesheet" href="./together.css?v=5">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -416,12 +416,16 @@
           <div class="house-window" aria-hidden="true">
             <div class="house-sky"><i></i><i></i><i></i><i></i><i></i><b></b></div>
           </div>
+          <div class="house-clocks" aria-label="Hora en Kaiserslautern y Quito">
+            <div><span id="houseClockGermany">--:--</span><small>Kaiserslautern</small></div>
+            <div><span id="houseClockEcuador">--:--</span><small>Quito</small></div>
+          </div>
           <div class="house-picture" aria-hidden="true">♡</div>
           <div class="house-people">
               <article id="houseJoel" class="house-person house-person-joel">
                 <div class="house-person-scene">
                   <div class="house-avatar"><img src="perfil_yo.jpg" alt=""></div>
-                <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
+                <button class="house-lamp" type="button" data-lamp-for="joel" aria-label="Dejar una luz para Joel" title="Dejar una luz para Joel"><b></b><i></i></button>
                 </div>
                 <strong>Joel</strong>
                 <span id="houseJoelPresence">No está ahora</span>
@@ -431,7 +435,7 @@
               <article id="housePrincesa" class="house-person house-person-princesa">
                 <div class="house-person-scene">
                   <div class="house-avatar"><img src="princesa2.jpg" alt=""></div>
-                <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
+                <button class="house-lamp" type="button" data-lamp-for="princesa" aria-label="Dejar una luz para Princesa" title="Dejar una luz para Princesa"><b></b><i></i></button>
                 </div>
                 <strong>Princesa</strong>
                 <span id="housePrincesaPresence">No está ahora</span>

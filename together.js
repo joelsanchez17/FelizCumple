@@ -75,6 +75,18 @@
     if ($('#houseTimeLabel')) $('#houseTimeLabel').textContent = labels[period];
   }
 
+  function updateHouseClocks() {
+    const now = new Date();
+    const format = timeZone => new Intl.DateTimeFormat('es', {
+      timeZone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(now);
+    if ($('#houseClockGermany')) $('#houseClockGermany').textContent = format('Europe/Berlin');
+    if ($('#houseClockEcuador')) $('#houseClockEcuador').textContent = format('America/Guayaquil');
+  }
+
   function renderPresence(detail = window.lovePresenceState || {}) {
     const joelOnline = detail.joel === true || (identity === 'joel' && initialized);
     const princesaOnline = detail.princesa === true || (identity === 'princesa' && initialized);
@@ -89,6 +101,27 @@
       : princesaOnline ? 'Princesa está por acá.'
       : 'Ahora la casa está descansando.';
     if ($('#housePresenceMessage')) $('#housePresenceMessage').textContent = message;
+  }
+
+  async function leaveHouseLight(person) {
+    if (person !== target) {
+      toast('Esa es tu propia lámpara ♡');
+      return;
+    }
+    const lamp = $(`[data-lamp-for="${person}"]`);
+    lamp?.classList.add('light-sent');
+    lamp && (lamp.disabled = true);
+    try {
+      await window.sendLovePush(target, 'Te dejaron una luz encendida 💡', `${PEOPLE[identity]} dejó una luz esperándote en la casita`, { type: 'house-light' });
+      await window._loveRoom?.send({ type:'broadcast', event:'mensaje', payload:{ text:'Dejé una luz encendida para vos 💡', from:identity } });
+      toast(`Dejaste una luz para ${PEOPLE[target]}`);
+      navigator.vibrate?.([12, 35, 12]);
+    } catch (error) {
+      lamp?.classList.remove('light-sent');
+      toast('No pudimos avisarle, probá otra vez');
+    } finally {
+      if (lamp) setTimeout(() => { lamp.disabled = false; lamp.classList.remove('light-sent'); }, 2500);
+    }
   }
 
   function renderHeartStates() {
@@ -458,6 +491,10 @@
   }
 
   function bindEvents() {
+    $('.house-interior')?.addEventListener('click', event => {
+      const lamp = event.target.closest('[data-lamp-for]');
+      if (lamp) leaveHouseLight(lamp.dataset.lampFor);
+    });
     $('#heartChoices')?.addEventListener('click', event => {
       const button = event.target.closest('[data-mood]');
       if (button) chooseMood(button.dataset.mood);
@@ -479,7 +516,7 @@
     $('#journalMore')?.addEventListener('click', () => { journalLimit += 20; loadJournal(); });
     window.addEventListener('lovepresencechange', event => renderPresence(event.detail));
     navigator.serviceWorker?.addEventListener('message', event => {
-      if (event.data?.type === 'notification-click' && ['house-note', 'heart'].includes(event.data?.data?.type)) openTogether();
+      if (event.data?.type === 'notification-click' && ['house-note', 'heart', 'house-light'].includes(event.data?.data?.type)) openTogether();
     });
   }
 
@@ -493,7 +530,9 @@
     $('#romantic-update-surprise')?.remove();
     bindEvents();
     applyLocalTime();
+    updateHouseClocks();
     setInterval(applyLocalTime, 10 * 60 * 1000);
+    setInterval(updateHouseClocks, 30 * 1000);
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
     await Promise.all([loadHearts(), loadNotes(), loadJournal()]);
