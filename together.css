@@ -413,7 +413,17 @@ body.together-active #presence-indicator { display: none !important; }
 .house-window-pane-left::after,
 .house-window-pane-right::after { content:""; position:absolute; top:46%; width:3px; height:12px; border-radius:3px; background:rgba(91,65,76,.48); }
 .house-window-pane-left::after { right:3px; }
-.house-window-pane-right::after { left:3px; }
+.house-window-pane-right::after { display:none; }
+.love-house .house-window:not(.is-open) .house-window-pane {
+  opacity:1;
+  background:linear-gradient(180deg,#eef5f6,#d6e4e8);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.38);
+}
+.love-house[data-time="morning"] .house-window:not(.is-open) .house-window-pane { background:linear-gradient(180deg,#f8dfd2,#ecd0c5); }
+.love-house[data-time="evening"] .house-window:not(.is-open) .house-window-pane { background:linear-gradient(180deg,#b89baa,#967f93); }
+.love-house[data-time="night"] .house-window:not(.is-open) .house-window-pane { background:linear-gradient(180deg,#716675,#5b5263); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
+.house-window:not(.is-open) .house-window-pane-left { border-right:1px solid rgba(85,68,78,.34); }
+.house-window:not(.is-open) .house-window-pane-right { border-left:1px solid rgba(255,255,255,.3); }
 
 /* El aire se reconoce aun estando apagado. */
 .house-ac-unit { display:block; height:34px; width:66px; padding:4px 7px; color:#66515a; text-align:left; cursor:pointer; }

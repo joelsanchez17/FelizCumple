@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=8">
+  <link rel="stylesheet" href="./together.css?v=9">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4060,7 +4060,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=20', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=21', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
