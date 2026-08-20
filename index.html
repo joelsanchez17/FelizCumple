@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=6">
   <link rel="stylesheet" href="./together.css?v=1">
-  <link rel="stylesheet" href="./app_refresh.css?v=1">
+  <link rel="stylesheet" href="./app_refresh.css?v=2">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -754,6 +754,29 @@
       <div class="draw-wrap">
         <canvas id="loveCanvas" class="love-canvas"></canvas>
         <div class="draw-hint" id="drawHint">Empezá por donde quieras</div>
+      </div>
+
+      <div class="draw-mode-tools" role="toolbar" aria-label="Herramientas de dibujo">
+        <button id="drawPen" class="active" type="button" aria-pressed="true"><span>✎</span>Dibujar</button>
+        <button id="drawTextTool" type="button" aria-pressed="false"><span>T</span>Texto</button>
+        <span class="draw-tool-divider" aria-hidden="true"></span>
+        <button id="drawUndo" class="draw-history-button" type="button" title="Deshacer" aria-label="Deshacer" disabled>↶</button>
+        <button id="drawRedo" class="draw-history-button" type="button" title="Rehacer" aria-label="Rehacer" disabled>↷</button>
+      </div>
+
+      <div id="drawTextPanel" class="draw-text-panel" hidden>
+        <label for="drawTextInput">Escribí algo para dejar en el dibujo</label>
+        <textarea id="drawTextInput" maxlength="80" rows="2" placeholder="Te extraño, un lugar, una fecha…"></textarea>
+        <div class="draw-text-options">
+          <label for="drawTextSize">Tamaño</label>
+          <select id="drawTextSize">
+            <option value="24">Pequeño</option>
+            <option value="34" selected>Mediano</option>
+            <option value="48">Grande</option>
+          </select>
+          <button id="drawTextPlace" type="button">Elegir dónde va</button>
+        </div>
+        <small>Después tocá el lienzo para colocarlo. Usará el color elegido.</small>
       </div>
 
       <!-- Paleta de colores -->
@@ -4353,6 +4376,43 @@
 
   const ctx = canvas.getContext('2d');
   const SAVE_KEY = 'love_drawings_v2';
+  const DEFAULT_HINT = 'Empezá por donde quieras';
+
+  /* ---- Estado y memoria de edición ---- */
+  let drawing = false, erasing = false;
+  let color = '#e91e63', brushSize = 3;
+  let lastX = 0, lastY = 0;
+  let dirty = false;
+  let toolMode = 'pen';
+  let pendingText = '';
+  const undoStack = [];
+  const redoStack = [];
+  const HISTORY_LIMIT = 20;
+
+  function snapshot() {
+    return { image: ctx.getImageData(0, 0, canvas.width, canvas.height), dirty };
+  }
+  function updateHistoryButtons() {
+    const undo = document.getElementById('drawUndo');
+    const redo = document.getElementById('drawRedo');
+    if (undo) undo.disabled = undoStack.length === 0;
+    if (redo) redo.disabled = redoStack.length === 0;
+  }
+  function rememberBeforeChange() {
+    undoStack.push(snapshot());
+    if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
+    redoStack.length = 0;
+    updateHistoryButtons();
+  }
+  function restoreSnapshot(state) {
+    if (!state) return;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.putImageData(state.image, 0, 0);
+    dirty = state.dirty;
+    hint.textContent = DEFAULT_HINT;
+    hint.classList.toggle('hidden', dirty);
+  }
 
   /* ---- Dimensionar canvas al tamaño real del elemento ---- */
   function syncSize() {
@@ -4380,12 +4440,6 @@
   // Re-sync on resize (orientation change)
   window.addEventListener('resize', () => { syncSize(); });
 
-  /* ---- Estado ---- */
-  let drawing = false, erasing = false;
-  let color = '#e91e63', brushSize = 3;
-  let lastX = 0, lastY = 0;
-  let dirty = false;
-
   /* ---- Coordenadas corregidas por escala CSS vs canvas real ---- */
   function getXY(e) {
     const r  = canvas.getBoundingClientRect();
@@ -4401,8 +4455,14 @@
   /* ---- Dibujo ---- */
   function startDraw(e) {
     e.preventDefault();
-    drawing = true;
     const p = getXY(e);
+    if (toolMode === 'text') {
+      if (pendingText) placeText(p);
+      else document.getElementById('drawTextInput')?.focus();
+      return;
+    }
+    rememberBeforeChange();
+    drawing = true;
     lastX = p.x; lastY = p.y;
     ctx.beginPath();
     ctx.moveTo(lastX, lastY);
@@ -4427,12 +4487,103 @@
     lastX = p.x; lastY = p.y;
   }
 
-  function endDraw() { drawing = false; ctx.beginPath(); }
+  function endDraw() {
+    drawing = false;
+    ctx.beginPath();
+    ctx.globalCompositeOperation = 'source-over';
+  }
 
   canvas.addEventListener('pointerdown',  startDraw, { passive: false });
   canvas.addEventListener('pointermove',  doDraw,    { passive: false });
   canvas.addEventListener('pointerup',    endDraw);
   canvas.addEventListener('pointercancel',endDraw);
+
+  /* ---- Lápiz, texto y deshacer/rehacer ---- */
+  function setTool(mode) {
+    toolMode = mode;
+    erasing = mode === 'eraser';
+    pendingText = '';
+    const pen = document.getElementById('drawPen');
+    const text = document.getElementById('drawTextTool');
+    const eraser = document.getElementById('drawEraser');
+    const textPanel = document.getElementById('drawTextPanel');
+    pen?.classList.toggle('active', mode === 'pen');
+    text?.classList.toggle('active', mode === 'text');
+    eraser?.classList.toggle('active', mode === 'eraser');
+    pen?.setAttribute('aria-pressed', String(mode === 'pen'));
+    text?.setAttribute('aria-pressed', String(mode === 'text'));
+    if (textPanel) textPanel.hidden = mode !== 'text';
+    canvas.style.cursor = mode === 'text' ? 'text' : 'crosshair';
+    hint.textContent = DEFAULT_HINT;
+    hint.classList.toggle('hidden', dirty);
+  }
+
+  function splitTextIntoLines(text, maxWidth) {
+    const result = [];
+    text.split(/\n/).forEach(paragraph => {
+      const words = paragraph.trim().split(/\s+/).filter(Boolean);
+      if (!words.length) { result.push(''); return; }
+      let line = words.shift();
+      words.forEach(word => {
+        const candidate = `${line} ${word}`;
+        if (ctx.measureText(candidate).width <= maxWidth) line = candidate;
+        else { result.push(line); line = word; }
+      });
+      result.push(line);
+    });
+    return result.slice(0, 5);
+  }
+
+  function placeText(point) {
+    const size = parseInt(document.getElementById('drawTextSize')?.value || '34', 10);
+    const x = Math.max(10, Math.min(point.x, canvas.width - 45));
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = color;
+    ctx.font = `600 ${size}px "Cormorant Garamond", Georgia, serif`;
+    ctx.textBaseline = 'top';
+    const lines = splitTextIntoLines(pendingText, Math.max(70, canvas.width - x - 12));
+    const lineHeight = Math.round(size * 1.12);
+    const y = Math.max(8, Math.min(point.y, canvas.height - lines.length * lineHeight - 8));
+    rememberBeforeChange();
+    lines.forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
+    ctx.restore();
+    dirty = true;
+    hint.classList.add('hidden');
+    const input = document.getElementById('drawTextInput');
+    if (input) input.value = '';
+    navigator.vibrate?.(15);
+    setTool('pen');
+  }
+
+  document.getElementById('drawPen')?.addEventListener('click', () => setTool('pen'));
+  document.getElementById('drawTextTool')?.addEventListener('click', () => {
+    setTool('text');
+    setTimeout(() => document.getElementById('drawTextInput')?.focus(), 80);
+  });
+  document.getElementById('drawTextPlace')?.addEventListener('click', () => {
+    const input = document.getElementById('drawTextInput');
+    const value = input?.value.trim();
+    if (!value) { input?.focus(); return; }
+    pendingText = value;
+    hint.textContent = 'Tocá donde querés colocar el texto';
+    hint.classList.remove('hidden');
+    canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  document.getElementById('drawUndo')?.addEventListener('click', () => {
+    if (!undoStack.length) return;
+    redoStack.push(snapshot());
+    restoreSnapshot(undoStack.pop());
+    updateHistoryButtons();
+    navigator.vibrate?.(8);
+  });
+  document.getElementById('drawRedo')?.addEventListener('click', () => {
+    if (!redoStack.length) return;
+    undoStack.push(snapshot());
+    restoreSnapshot(redoStack.pop());
+    updateHistoryButtons();
+    navigator.vibrate?.(8);
+  });
 
   /* ---- Colores ---- */
   document.querySelectorAll('.draw-color').forEach(btn => {
@@ -4440,8 +4591,7 @@
       document.querySelectorAll('.draw-color').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       color   = btn.dataset.color;
-      erasing = false;
-      document.getElementById('drawEraser')?.classList.remove('active');
+      if (toolMode === 'eraser') setTool('pen');
     });
   });
 
@@ -4451,23 +4601,25 @@
       document.querySelectorAll('.draw-size').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       brushSize = parseInt(btn.dataset.size);
-      erasing   = false;
-      document.getElementById('drawEraser')?.classList.remove('active');
+      if (toolMode === 'eraser') setTool('pen');
     });
   });
 
   /* ---- Borrador ---- */
   document.getElementById('drawEraser')?.addEventListener('click', function () {
-    erasing = !erasing;
-    this.classList.toggle('active', erasing);
+    setTool(toolMode === 'eraser' ? 'pen' : 'eraser');
   });
 
   /* ---- Limpiar ---- */
   document.getElementById('drawClear')?.addEventListener('click', () => {
+    if (!dirty) return;
+    rememberBeforeChange();
     ctx.globalCompositeOperation = 'source-over';
     fillBg();
     dirty = false;
+    hint.textContent = DEFAULT_HINT;
     hint?.classList.remove('hidden');
+    setTool('pen');
     if (navigator.vibrate) navigator.vibrate(20);
   });
 
