@@ -4096,7 +4096,7 @@
       const wrap = document.createElement('div');
       wrap.className = 'draw-thumb';
       wrap.innerHTML = `
-        <img src="${item.data}" alt="Dibujo ${item.date}" loading="lazy">
+        <img src="${item.data}" alt="Dibujo ${item.date}">
         <div class="draw-thumb-date">${item.date}</div>
         <button class="draw-thumb-del" title="Borrar">✕</button>
       `;
@@ -4121,6 +4121,19 @@
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(arr)); } catch {}
   }
 
+  function mergeDrawing(saved, item) {
+    if (item.id) {
+      if (saved.some(drawing => drawing.id === item.id)) return false;
+      // Vincular dibujos guardados por versiones anteriores, que no tenían UUID.
+      const legacy = saved.find(drawing => !drawing.id && drawing.data === item.data && drawing.date === item.date);
+      if (legacy) { legacy.id = item.id; return true; }
+    } else if (saved.some(drawing => !drawing.id && drawing.data === item.data && drawing.date === item.date)) {
+      return false;
+    }
+    saved.push(item);
+    return true;
+  }
+
   function exportDrawing() {
     if (!dirty) return null;
     const offscreen = document.createElement('canvas');
@@ -4132,10 +4145,10 @@
     octx.drawImage(canvas, 0, 0);
     return offscreen.toDataURL('image/png');
   }
-  function saveLocal(dataURL, date) {
+  function saveLocal(dataURL, date, id = `local-${Date.now()}-${Math.random().toString(16).slice(2)}`) {
     if (!dataURL) return;
     const saved = getSaved();
-    if (!saved.some(item => item.data === dataURL)) saved.push({ data: dataURL, date });
+    mergeDrawing(saved, { id, data:dataURL, date });
     if (saved.length > 30) saved.splice(0, saved.length - 30);
     setSaved(saved);
     renderGallery();
@@ -4162,7 +4175,8 @@
     const dataURL = exportDrawing();
     if (!dataURL) return;
     const date = new Date().toLocaleDateString('es', { day:'2-digit', month:'short', year:'2-digit' });
-    saveLocal(dataURL, date);
+    const id = crypto.randomUUID();
+    saveLocal(dataURL, date, id);
 
     navigator.vibrate?.([30,40,30]);
 
@@ -4176,7 +4190,7 @@
         'Un dibujo para vos 🎨',
         `${from === 'joel' ? 'Joel' : 'Princesa'} te mandó un dibujo 💌`,
         { type:'drawing' },
-        { from_identity:from, data:dataURL, date }
+        { id, from_identity:from, data:dataURL, date }
       );
       buttonFeedback(document.getElementById('drawSend'), 'Enviado');
     } catch (error) {
@@ -4198,9 +4212,7 @@
     }).then(({ data, error }) => {
         if (error || !data?.drawings) return;
         const saved = getSaved();
-        data.drawings.reverse().forEach(item => {
-          if (!saved.some(drawing => drawing.data === item.data)) saved.push(item);
-        });
+        data.drawings.reverse().forEach(item => mergeDrawing(saved, item));
         if (saved.length > 30) saved.splice(0, saved.length - 30);
         setSaved(saved);
         renderGallery();
@@ -4210,8 +4222,7 @@
     const item = event.detail;
     if (!item?.data) return;
     const saved = getSaved();
-    if (!saved.some(drawing => drawing.data === item.data)) {
-      saved.push({ data:item.data, date:item.date });
+    if (mergeDrawing(saved, { id:item.id, data:item.data, date:item.date })) {
       if (saved.length > 30) saved.splice(0, saved.length - 30);
       setSaved(saved);
       renderGallery();
