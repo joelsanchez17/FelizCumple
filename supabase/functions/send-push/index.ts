@@ -48,7 +48,7 @@ Deno.serve(async request => {
         p256dh: subscription.p256dh,
         auth: subscription.auth,
         updated_at: new Date().toISOString()
-      }, { onConflict: 'identity' });
+      }, { onConflict: 'endpoint' });
       if (error) throw error;
       return json({ subscribed: true, identity });
     }
@@ -62,20 +62,32 @@ Deno.serve(async request => {
       const { error: drawingError } = await supabase.from('drawings').insert(drawing);
       if (drawingError) throw drawingError;
     }
-    const { data: row, error } = await supabase
+    const { data: rows, error } = await supabase
       .from('push_subscriptions')
       .select('endpoint,p256dh,auth')
-      .eq('identity', to)
-      .maybeSingle();
+      .eq('identity', to);
     if (error) throw error;
-    if (!row) return json({ delivered: false, reason: 'El destinatario todavía no activó notificaciones' }, 202);
+    if (!rows?.length) return json({ delivered: false, reason: 'El destinatario todavía no activó notificaciones' }, 202);
 
     webpush.setVapidDetails(subject, publicKey, privateKey);
-    await webpush.sendNotification({
-      endpoint: row.endpoint,
-      keys: { p256dh: row.p256dh, auth: row.auth }
-    }, JSON.stringify({ title, body, data }));
-    return json({ delivered: true });
+    let delivered = 0;
+    const expired: string[] = [];
+    await Promise.all(rows.map(async row => {
+      try {
+        await webpush.sendNotification({
+          endpoint: row.endpoint,
+          keys: { p256dh: row.p256dh, auth: row.auth }
+        }, JSON.stringify({ title, body, data }));
+        delivered++;
+      } catch (pushError) {
+        const status = pushError && typeof pushError === 'object' && 'statusCode' in pushError
+          ? Number(pushError.statusCode) : 0;
+        if (status === 404 || status === 410) expired.push(row.endpoint);
+        else throw pushError;
+      }
+    }));
+    if (expired.length) await supabase.from('push_subscriptions').delete().in('endpoint', expired);
+    return json({ delivered: delivered > 0, devices: delivered, expired: expired.length });
   } catch (error) {
     console.error(error);
     const status = error && typeof error === 'object' && 'statusCode' in error ? Number(error.statusCode) : 500;

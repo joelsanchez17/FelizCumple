@@ -1,7 +1,7 @@
 create table if not exists public.push_subscriptions (
   id uuid default gen_random_uuid() primary key,
-  identity text unique not null check (identity in ('joel', 'princesa')),
-  endpoint text not null,
+  identity text not null check (identity in ('joel', 'princesa')),
+  endpoint text unique not null,
   p256dh text not null,
   auth text not null,
   updated_at timestamptz default now() not null
