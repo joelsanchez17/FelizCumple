@@ -741,37 +741,168 @@
 
 
   <div id="anniversary" class="tab-content">
-    <div class="panel">
-      <div class="panel-header">
-        <img src="bella3.jpeg" alt="Aniversario" class="header-avatar">
-        <h2 class="panel-title">4 Meses de contrastes 🗓️</h2>
-      </div>
 
-      <div class="title" style="color: #e91e63; font-weight: bold;">💃 Tu modo Ecuador</div>
-      <p class="muted" style="margin-bottom: 10px;">Cuando simplemente sos vos...</p>
-
-
-
-      <!-- Google Drive no permite embedding directo; usamos link abierto -->
-      <div style="text-align:center; padding: 20px 0;">
-        <p class="muted" style="margin-bottom:12px;">🎬 Presioná para ver el video</p>
-        <a href="https://drive.google.com/file/d/17TI3-rPgLoaCV7-4Lxl8jkVFK_c6JZmA/view" target="_blank" rel="noopener"
-          class="action-button" style="display:inline-block; text-decoration:none; padding:12px 24px;">
-          ▶️ Ver video en Drive
-        </a>
-      </div>
+    <!-- ===== HEADER ===== -->
+    <div class="tl-hero">
+      <div class="tl-hero-label">Nuestra historia ✨</div>
+      <h2 class="tl-hero-title">El camino que nos trajo hasta acá</h2>
+      <p class="tl-hero-sub">Cada fecha es un capítulo de algo muy bonito 💞</p>
     </div>
 
-    <div class="title" style="color: #6a1b9a; font-weight: bold;">👩🏻‍🔬 Tu modo Alemania</div>
-    <p class="muted" style="margin-bottom: 10px;">Admiro mucho la pasión que le pones a lo que hacés.</p>
+    <!-- ===== TIMELINE ===== -->
+    <div class="tl-wrap">
 
-    <img src="chambea.jpg" alt="Trabajando brillante"
-      style="width:100%; border-radius:12px; cursor:pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
-      onclick="openLight(this.src, 'La mujer más dedicada del mundo')">
+      <!-- 1 — Primer beso -->
+      <div class="tl-item tl-left">
+        <div class="tl-dot">💋</div>
+        <div class="tl-card">
+          <img src="bella1.jpeg" class="tl-photo" alt="Nuestro primer beso"
+            onclick="openLight('bella1.jpeg','Julio 2024 — Nuestro primer beso 💋')">
+          <div class="tl-body">
+            <span class="tl-badge">Julio 2024</span>
+            <div class="tl-card-title">Nuestro primer beso 💋</div>
+            <p class="tl-text">El momento que lo cambió todo. Un beso que guardo en la memoria en modo replay infinito.</p>
+          </div>
+        </div>
+      </div>
 
-    <p class="muted" style="font-size:0.95em; margin-top:15px; font-style: italic;">
-      "Dos caras de la misma persona maravillosa. Te amo koalita."
-    </p>
+      <!-- 2 — Halloween -->
+      <div class="tl-item tl-right">
+        <div class="tl-dot">🎃</div>
+        <div class="tl-card">
+          <img src="halloween.jpg" class="tl-photo" alt="Halloween juntos"
+            onclick="openLight('halloween.jpg','Halloween — Disfrazados y enamorados 🎃')">
+          <div class="tl-body">
+            <span class="tl-badge">Oct 2024</span>
+            <div class="tl-card-title">Halloween juntos 🎃</div>
+            <p class="tl-text">Nuestro primer Halloween. Me mostraste que incluso con disfraz sos la más linda del lugar.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 — Primer beso + nosotros -->
+      <div class="tl-item tl-left">
+        <div class="tl-dot">🍔</div>
+        <div class="tl-card">
+          <img src="nosotros.jpeg" class="tl-photo" alt="La hamburguesa que lo cambió todo"
+            onclick="openLight('nosotros.jpeg','La hamburguesa que lo cambió todo 🍔')">
+          <div class="tl-body">
+            <span class="tl-badge">Nov 2024</span>
+            <div class="tl-card-title">La hamburguesa que lo cambió todo 🍔</div>
+            <p class="tl-text">Una hamburguesa, una flor y una mirada. Ese día lo supe: sos especial.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 — Besos -->
+      <div class="tl-item tl-right">
+        <div class="tl-dot">💕</div>
+        <div class="tl-card">
+          <img src="besos.jpg" class="tl-photo" alt="Nuestros momentos juntos"
+            onclick="openLight('besos.jpg','Nuestros momentos 💕')">
+          <div class="tl-body">
+            <span class="tl-badge">Dic 2024</span>
+            <div class="tl-card-title">Primera Navidad juntos 🎄</div>
+            <p class="tl-text">Nuestro primer mes oficial. Cada día descubrí algo nuevo que me enamoraba más de vos.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 — Dimos el primer paso -->
+      <div class="tl-item tl-left">
+        <div class="tl-dot">👫</div>
+        <div class="tl-card">
+          <img src="bella2.jpeg" class="tl-photo" alt="Dimos el primer paso"
+            onclick="openLight('bella2.jpeg','Junio 2025 — Dimos el primer paso 👫')">
+          <div class="tl-body">
+            <span class="tl-badge">Jun 2025</span>
+            <div class="tl-card-title">Dimos el primer paso 👫</div>
+            <p class="tl-text">Lo hicimos oficial. Elegirte fue y sigue siendo la mejor decisión de mi vida.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 — Primer cumple -->
+      <div class="tl-item tl-right">
+        <div class="tl-dot">🎂</div>
+        <div class="tl-card">
+          <img src="princesa2.jpg" class="tl-photo" alt="Tu primer cumple juntos"
+            onclick="openLight('princesa2.jpg','Ago 2025 — Tu primer cumple juntos 🎂')">
+          <div class="tl-body">
+            <span class="tl-badge">Ago 2025</span>
+            <div class="tl-card-title">Tu primer cumple juntos 🎂</div>
+            <p class="tl-text">Festejé tu cumple con todo el amor que tengo. Este año lo supero.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7 — La distancia -->
+      <div class="tl-item tl-left">
+        <div class="tl-dot">✈️</div>
+        <div class="tl-card">
+          <img src="mi_modelo.jpg" class="tl-photo" alt="La distancia"
+            onclick="openLight('mi_modelo.jpg','La distancia — Sep-Dic 2025 ✈️')">
+          <div class="tl-body">
+            <span class="tl-badge">Sep-Dic 2025</span>
+            <div class="tl-card-title">La distancia ✈️</div>
+            <p class="tl-text">Cada videollamada fue un abrazo. La distancia duele, pero nos hizo más fuertes.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8 — Chambea -->
+      <div class="tl-item tl-right">
+        <div class="tl-dot">👩🏻‍🔬</div>
+        <div class="tl-card">
+          <img src="chambea.jpg" class="tl-photo" alt="Tu modo Alemania"
+            onclick="openLight('chambea.jpg','Tu modo Alemania — La científica más hermosa 👩🏻‍🔬')">
+          <div class="tl-body">
+            <span class="tl-badge">2025–2026</span>
+            <div class="tl-card-title">Tu modo Alemania 👩🏻‍🔬</div>
+            <p class="tl-text">Admiro tanto la pasión que le ponés a tus sueños. Sos una inspiración para mí.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9 — Futuro -->
+      <div class="tl-item tl-left">
+        <div class="tl-dot">🔮</div>
+        <div class="tl-card">
+          <img src="bella4.jpeg" class="tl-photo" alt="Planeando el futuro"
+            onclick="openLight('bella4.jpeg','Ago 2026 — Planeando el futuro 🔮')">
+          <div class="tl-body">
+            <span class="tl-badge">Ago 2026</span>
+            <div class="tl-card-title">Planeando el futuro 🔮</div>
+            <p class="tl-text">En agosto de 2026, juntos, empezamos a construir el futuro que queremos. Y yo te elijo para ese futuro.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10 — Ecuador (futuro) -->
+      <div class="tl-item tl-right tl-future">
+        <div class="tl-dot">🇪🇨</div>
+        <div class="tl-card tl-card-future">
+          <div class="tl-future-icon">✈️🇪🇨</div>
+          <div class="tl-body">
+            <span class="tl-badge tl-badge-future">Ene 2027 · Tentativo</span>
+            <div class="tl-card-title">Volvemos juntos de Ecuador 🛬</div>
+            <p class="tl-text">El capítulo que más espero escribir contigo. Ese vuelo va a ser el más feliz de mi vida.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tl-wrap -->
+
+    <!-- Video link al final -->
+    <div class="panel" style="margin-top:20px; text-align:center;">
+      <div class="title" style="margin-bottom:10px;">💃 Tu modo Ecuador</div>
+      <p class="muted" style="margin-bottom:12px;">Cuando simplemente sos vos...</p>
+      <a href="https://drive.google.com/file/d/17TI3-rPgLoaCV7-4Lxl8jkVFK_c6JZmA/view"
+         target="_blank" rel="noopener"
+         class="action-button" style="display:inline-block; text-decoration:none; padding:12px 24px;">
+        ▶️ Ver video en Drive
+      </a>
+    </div>
 
     <div id="spaceRocket" class="rocket-wrapper" aria-hidden="true">
       <div class="rocket-body">
@@ -781,6 +912,7 @@
     </div>
   </div>
   </div>
+
 
   <div id="presence-indicator" style="
         position: fixed;
