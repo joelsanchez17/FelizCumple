@@ -2411,6 +2411,9 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   gap: 14px;
   margin-bottom: 20px;
 }
+.mom-grid > .tl-card {
+  width: 100%;
+}
 
 /* Each item */
 .tl-item {
@@ -2463,6 +2466,14 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   display: block;
   cursor: pointer;
 }
+.photo-bella1 { object-position: 50% 25%; }
+.photo-princesa2 { object-position: 62% 28%; }
+.photo-bella2 { object-position: 72% 58%; }
+.photo-modelo { object-position: 50% 43%; }
+.photo-cientifica { object-position: 50% 38%; }
+.photo-besos { object-position: 68% 50%; }
+.photo-halloween { aspect-ratio: 4/5; object-position: 50% 44%; }
+.photo-italia { aspect-ratio: 3/2; object-position: 50% 48%; }
 .tl-future-icon {
   font-size: 2.4em;
   text-align: center;
@@ -2542,6 +2553,6 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   }
   /* Italy card full-width photo */
   .mom-grid .tl-card[style*="grid-column"] .tl-photo {
-    aspect-ratio: 16/7;
+    aspect-ratio: 16/9;
   }
 }
