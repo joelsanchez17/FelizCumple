@@ -2379,7 +2379,7 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   backdrop-filter: blur(14px);
   animation: birthdayFade .45s ease both;
 }
-.birthday-morning[hidden], .birthday-replay[hidden], .birthday-cover[hidden], .birthday-reveal[hidden] { display: none; }
+.birthday-morning[hidden], .birthday-replay[hidden], .birthday-cover[hidden], .birthday-reveal[hidden], .birthday-journey[hidden] { display: none; }
 .birthday-morning-card {
   width: min(410px, 100%);
   min-height: 410px;
@@ -2418,6 +2418,7 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
 .birthday-morning button, .birthday-replay { border:0; border-radius:999px; color:#fff; background:#7d4164; cursor:pointer; font:700 .82rem 'Quicksand',sans-serif; }
 .birthday-morning button { padding:12px 24px; }
 .birthday-replay { position:fixed; right:16px; bottom:86px; z-index:10055; padding:9px 14px; box-shadow:0 8px 24px rgba(83,35,58,.22); }
+body:has(.push-prompt:not([hidden])) .birthday-replay { bottom:164px; }
 .birthday-closing { animation:birthdayFade .28s ease reverse both; }
 @keyframes birthdayFade { from { opacity:0; } }
 @keyframes birthdayCardIn { from { opacity:0; transform:translateY(15px) scale(.97); } }

@@ -81,7 +81,7 @@
           </article>
           <article class="birthday-step" data-birthday-step hidden>
             <div class="birthday-step-icon">🌿</div>
-            <span>26 DIC</span>
+            <span>27 DIC</span>
             <h3>El Oriente</h3>
             <p>Nuestra primera aventura en Ecuador.</p>
           </article>
@@ -4050,7 +4050,7 @@
   </script>
 
   <script>
-    /* Sorpresa del 21 de agosto — usa la fecha local del celular. */
+    /* Regalo disponible desde el 21 de agosto — usa la fecha local del celular. */
     (() => {
       const now = new Date();
       const localDate = [
@@ -4059,8 +4059,10 @@
         String(now.getDate()).padStart(2, '0')
       ].join('-');
       const preview = new URLSearchParams(location.search).get('birthdayPreview') === '1';
-      const isBirthday = localDate === '2026-08-21' || preview;
-      if (!isBirthday) return;
+      const birthdayDate = '2026-08-21';
+      const isBirthday = localDate === birthdayDate;
+      const giftIsAvailable = localDate >= birthdayDate || preview;
+      if (!giftIsAvailable) return;
 
       const KEY = 'birthday_surprise_2026_seen';
       const overlay = document.getElementById('birthdayMorning');
@@ -4133,7 +4135,8 @@
       });
       finish.addEventListener('click', close);
       replay.addEventListener('click', resetAndOpen);
-      if (preview || localStorage.getItem(KEY) !== '1') setTimeout(resetAndOpen, 700);
+      // Se abre sola únicamente el día del cumpleaños. Después queda en "Tu regalo ✦".
+      if (preview || (isBirthday && localStorage.getItem(KEY) !== '1')) setTimeout(resetAndOpen, 700);
     })();
   </script>
 
