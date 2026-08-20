@@ -1,0 +1,269 @@
+/* ===== UNIFICACIÓN VISUAL DE INICIO, JUEGOS, RECUERDOS Y FECHAS ===== */
+:root {
+  --app-ink: #503744;
+  --app-muted: #806d76;
+  --app-wine: #914766;
+  --app-rose: #c96784;
+  --app-paper: rgba(255, 250, 247, .88);
+  --app-line: rgba(119, 75, 94, .12);
+  --app-shadow: 0 18px 48px rgba(78, 42, 58, .12);
+}
+
+.app-section-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 178px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin: 4px 0 16px;
+  padding: 28px 26px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 29px;
+  text-align: left;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255,255,255,.5) 0 3px, transparent 4px),
+    linear-gradient(145deg, rgba(250,229,233,.92), rgba(231,209,219,.82));
+  box-shadow: var(--app-shadow);
+}
+
+.app-section-hero::after {
+  content: "♡";
+  position: absolute;
+  right: 25px;
+  top: 19px;
+  color: rgba(126,66,91,.22);
+  font: 700 3.2rem/1 'Cormorant Garamond', serif;
+}
+
+.app-section-hero > span,
+.app-section-hero .tl-hero-label {
+  color: var(--app-wine) !important;
+  font: 700 .67rem/1.2 'Quicksand', sans-serif !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.app-section-hero h1,
+.app-section-hero .tl-hero-title {
+  max-width: 520px;
+  margin: 7px 0 6px !important;
+  color: var(--app-ink) !important;
+  font: 700 clamp(2rem, 8vw, 3.05rem)/.96 'Cormorant Garamond', serif !important;
+  letter-spacing: -.025em;
+}
+
+.app-section-hero p,
+.app-section-hero .tl-hero-sub {
+  max-width: 530px;
+  margin: 0 !important;
+  color: var(--app-muted) !important;
+  font: 500 .85rem/1.5 'Quicksand', sans-serif !important;
+}
+
+.app-section-hero-games {
+  background:
+    radial-gradient(circle at 89% 20%, rgba(255,255,255,.65) 0 3px, transparent 4px),
+    linear-gradient(145deg, rgba(238,229,243,.94), rgba(219,207,231,.84));
+}
+.app-section-hero-games::after { content: "✦"; }
+.app-section-hero-memories {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255,255,255,.55) 0 3px, transparent 4px),
+    linear-gradient(145deg, rgba(248,228,220,.94), rgba(235,211,211,.84));
+}
+.app-section-hero-memories::after { content: "⌁"; }
+.app-section-hero-dates::after { content: "◷"; }
+
+/* Superficies comunes: menos dashboard, más álbum. */
+#home > .panel,
+#games > .panel,
+#memories > .panel,
+#anniversary > .panel,
+#home > .unlock,
+#memories > .inv-panel {
+  border: 1px solid rgba(255,255,255,.76) !important;
+  border-radius: 27px !important;
+  background: var(--app-paper) !important;
+  box-shadow: var(--app-shadow) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+#home > .panel,
+#games > .panel,
+#memories > .panel,
+#anniversary > .panel {
+  margin: 14px 0 !important;
+  padding: 24px 21px !important;
+}
+
+#home > .panel::before,
+#games > .panel::before,
+#memories > .panel::before,
+#anniversary > .panel::before { display: none !important; }
+
+.panel-header {
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  padding-bottom: 15px;
+  margin-bottom: 17px !important;
+  border-bottom: 1px solid var(--app-line);
+  text-align: left;
+}
+
+.panel-icon,
+.header-avatar {
+  width: 45px !important;
+  height: 45px !important;
+  flex: 0 0 45px;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(255,255,255,.8) !important;
+  border-radius: 15px !important;
+  object-fit: cover;
+  background: #f3e4e8;
+  box-shadow: 0 8px 22px rgba(93,54,72,.12) !important;
+}
+
+.panel-title,
+.panel .title,
+#memories > .title {
+  color: var(--app-ink) !important;
+  font-family: 'Cormorant Garamond', serif !important;
+  font-weight: 700 !important;
+  line-height: 1.08 !important;
+}
+.panel-title { font-size: 1.45rem !important; }
+.panel .title { margin-bottom: 12px; font-size: 1.32rem !important; }
+.panel .muted { color: var(--app-muted) !important; }
+
+.action-button,
+.btn,
+.mini-btn,
+.quiz-btn,
+.fire-btn {
+  min-height: 43px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  background: var(--app-wine) !important;
+  box-shadow: 0 9px 22px rgba(113,56,81,.15) !important;
+  font-family: 'Quicksand', sans-serif !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+.action-button:active,
+.btn:active,
+.mini-btn:active { transform: scale(.97) !important; }
+
+.chip {
+  padding: 7px 11px !important;
+  border: 1px solid var(--app-line) !important;
+  border-radius: 999px !important;
+  color: #715663 !important;
+  background: rgba(255,255,255,.65) !important;
+  box-shadow: none !important;
+  font: 600 .68rem/1.25 'Quicksand', sans-serif !important;
+}
+
+/* Inicio */
+#home > .panel:first-of-type {
+  padding-top: 28px !important;
+  background:
+    linear-gradient(160deg, rgba(255,252,248,.94), rgba(248,229,235,.86)) !important;
+}
+#home > .panel:first-of-type > h1 {
+  margin: 6px auto 8px !important;
+  color: var(--app-ink) !important;
+  font: 700 clamp(2.1rem,9vw,3.2rem)/.95 'Cormorant Garamond',serif !important;
+  letter-spacing: -.025em;
+}
+#home > .panel:first-of-type > h2 { max-width: 520px; margin: 0 auto 20px; }
+#home .intro-photo { border-radius: 24px !important; box-shadow: 0 16px 38px rgba(71,38,53,.18) !important; }
+#home .sticker-toolbar { padding: 6px; border-radius: 999px; background: rgba(255,255,255,.5); }
+#home .sticker-add { min-height: 38px; background: rgba(255,255,255,.82) !important; box-shadow: none !important; }
+#home .audio-card { text-align: left !important; }
+#home .audio-card h3 { margin-top:0; color:var(--app-ink); font:700 1.5rem 'Cormorant Garamond',serif; }
+#home .audio-card .btn { width:100%; }
+#home .big {
+  margin: 10px 0 14px !important;
+  color: var(--app-ink) !important;
+  font: 700 clamp(1.8rem,9vw,2.7rem)/1 'Cormorant Garamond',serif !important;
+  letter-spacing: .01em !important;
+}
+#home .meetbar { height:10px; padding:0; overflow:hidden; border:0; border-radius:999px; background:#eadce1; }
+#home .meetbar > div { border-radius:inherit; background:linear-gradient(90deg,var(--app-rose),var(--app-wine)) !important; }
+#home > .unlock { margin:14px 0; padding:24px 21px; color:var(--app-ink); text-align:left; }
+#home > .unlock .lock { display:inline-grid; width:40px; height:40px; place-items:center; margin-right:9px; border-radius:14px; background:#f1e3e8; }
+#home .ticket-wrapper { border:0 !important; padding:0 !important; background:transparent !important; box-shadow:none !important; backdrop-filter:none; }
+
+/* Juegos */
+#games .catch-area {
+  min-height: 280px;
+  margin: 14px 0 17px;
+  border: 1px solid rgba(128,80,100,.13) !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.9), transparent 33%),
+    linear-gradient(145deg,#f8ecef,#eee4f2) !important;
+  box-shadow: inset 0 0 30px rgba(110,66,85,.04) !important;
+}
+#games .quiz-grid { gap:9px !important; }
+#games .quiz-btn { min-height:48px; color:#684b59 !important; border:1px solid var(--app-line) !important; background:rgba(255,255,255,.72) !important; box-shadow:none !important; }
+#games .quiz-btn.selected,
+#games .quiz-btn.correct { color:#fff !important; background:var(--app-wine) !important; }
+#memoryPanel .mem-overlay-start,
+#memoryPanel .mem-overlay {
+  border:0 !important;
+  border-radius:22px !important;
+  background:linear-gradient(145deg,rgba(255,250,248,.98),rgba(244,230,236,.97)) !important;
+  box-shadow:none !important;
+}
+#games .wish-box,
+#games .coupon-ticket { border-radius:18px !important; border:1px solid var(--app-line) !important; background:#fffaf7 !important; }
+
+/* Recuerdos */
+#memories .reasons-panel { background:linear-gradient(150deg,rgba(255,251,247,.94),rgba(244,226,233,.88)) !important; }
+#memories .reasons-title { color:var(--app-ink) !important; font:700 1.8rem/1 'Cormorant Garamond',serif !important; }
+#memories .reasons-subtitle,
+#memories .reasons-count { color:var(--app-muted) !important; font-family:'Quicksand',sans-serif !important; }
+#memories .reason-card { border:1px solid var(--app-line) !important; border-radius:17px !important; box-shadow:0 7px 18px rgba(83,46,63,.08) !important; }
+#memories .photo-gallery { gap:10px !important; }
+#memories .photo-gallery img { aspect-ratio:1/1; border:0 !important; border-radius:18px !important; object-fit:cover; box-shadow:0 10px 26px rgba(72,39,54,.12) !important; }
+#spotifyPanel iframe { border-radius:18px !important; }
+#drawingPanel .love-canvas { border-color:rgba(145,71,102,.22) !important; border-radius:18px !important; box-shadow:inset 0 0 24px rgba(89,49,66,.035) !important; }
+#drawingPanel .draw-actions { gap:8px; }
+#drawingPanel .draw-clear { color:#735967 !important; background:#eee6e8 !important; }
+#drawingPanel .draw-save { color:var(--app-wine) !important; border:1px solid rgba(145,71,102,.22) !important; background:#fff !important; }
+#memories .love-letters-panel { background:linear-gradient(155deg,rgba(255,251,247,.94),rgba(239,225,232,.9)) !important; }
+#memories > .inv-panel { padding:16px; }
+#memories .paper-rings-list { padding-left:0; list-style:none; text-align:left; }
+#memories .paper-rings-list li { position:relative; margin:0; padding:11px 10px 11px 27px; border-bottom:1px solid var(--app-line); }
+#memories .paper-rings-list li::before { content:"♡"; position:absolute; left:5px; color:var(--app-rose); }
+
+/* Fechas */
+#anniversary .app-section-hero { min-height:178px; margin-bottom:16px; }
+#anniversary .mom-grid { gap:12px; }
+#anniversary .tl-card {
+  border:1px solid rgba(255,255,255,.76) !important;
+  border-radius:22px !important;
+  background:var(--app-paper) !important;
+  box-shadow:0 12px 30px rgba(78,42,58,.11) !important;
+}
+#anniversary .tl-photo { border-radius:0 !important; }
+#anniversary .tl-body { padding:14px !important; text-align:left; }
+#anniversary .tl-card-title { color:var(--app-ink) !important; font-size:1.22rem !important; }
+#anniversary .tl-text { color:var(--app-muted) !important; font:500 .72rem/1.45 'Quicksand',sans-serif !important; }
+
+@media (max-width: 430px) {
+  .app-section-hero { min-height:160px; padding:24px 20px; border-radius:25px; }
+  .app-section-hero::after { right:18px; top:16px; }
+  #home > .panel,#games > .panel,#memories > .panel,#anniversary > .panel { padding:21px 17px !important; border-radius:24px !important; }
+  #home .sticker-toolbar { flex-wrap:wrap; border-radius:20px; }
+  #games .catch-area { min-height:245px; }
+  #anniversary .mom-grid { gap:10px; }
+  #anniversary .tl-body { padding:11px !important; }
+  #anniversary .tl-text { font-size:.67rem !important; }
+}
