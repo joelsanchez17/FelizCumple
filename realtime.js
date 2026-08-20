@@ -5,6 +5,7 @@ const LABEL = { joel: 'Joel 👨🏻‍💻', princesa: 'Princesa 👩🏻‍�
 
 window._loveClient = client;
 window.partnerOnline = false;
+window.lovePresenceState = { joel: false, princesa: false };
 window.toggleToolbar = () => {};
 window.enviarMimo = () => {};
 window.enviarMensaje = () => {};
@@ -112,8 +113,12 @@ async function startLoveRoom() {
   room
     .on('presence', { event: 'sync' }, () => {
       const state = room.presenceState();
-      const online = Object.keys(state).includes(target) || Object.values(state).flat().some(item => item?.identity === target);
+      const isPresent = person => Object.keys(state).includes(person) || Object.values(state).flat().some(item => item?.identity === person);
+      const presence = { joel: isPresent('joel'), princesa: isPresent('princesa') };
+      window.lovePresenceState = presence;
+      const online = presence[target];
       updateInterface(online);
+      window.dispatchEvent(new CustomEvent('lovepresencechange', { detail: presence }));
     })
     .on('broadcast', { event: 'mimo' }, ({ payload }) => recibirMimo(payload.type))
     .on('broadcast', { event: 'mensaje' }, ({ payload }) => mostrarMensaje(payload.text))
@@ -154,6 +159,17 @@ async function startLoveRoom() {
     await room.send({ type: 'broadcast', event: 'mimo', payload: { type, from: identity } });
     mostrarEfecto(type, true);
     const emoji = type === 'beso' ? '💋' : type === 'ojos' ? '👀' : '👆';
+    const mimoName = type === 'beso' ? 'un beso' : type === 'ojos' ? 'una mirada' : 'un toque';
+    const eventId = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    client.from('love_journal').insert({
+      event_key: `mimo:${eventId}`,
+      from_identity: identity,
+      event_type: 'mimo',
+      title: `${identity === 'joel' ? 'Joel' : 'Princesa'} dejó ${mimoName}`,
+      body: `${emoji} Un mimo enviado desde lejos.`
+    }).then(({ error }) => {
+      if (error && error.code !== '42P01') console.warn('No se pudo guardar el mimo en el diario:', error);
+    });
     try {
       await sendPush(target, 'Un mimo para vos 💌', `${identity === 'joel' ? 'Joel' : 'Princesa'} te mandó un mimo ${emoji}`, { type: 'mimo' });
     } catch { mostrarMensaje('No se pudo enviar el mimo'); }

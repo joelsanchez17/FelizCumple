@@ -12,8 +12,9 @@
     rel="stylesheet">
   <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./styles_cleaned.css?v=3">
-  <link rel="stylesheet" href="./styles_elegant.css?v=5">
+  <link rel="stylesheet" href="./styles_cleaned.css?v=4">
+  <link rel="stylesheet" href="./styles_elegant.css?v=6">
+  <link rel="stylesheet" href="./together.css?v=1">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -146,6 +147,10 @@
     <button onclick="showTab(this, 'home')" class="active" aria-label="Inicio">
       <span class="nav-icon" aria-hidden="true">⌂</span>
       <span class="nav-label">Inicio</span>
+    </button>
+    <button onclick="showTab(this, 'together')" aria-label="Juntos">
+      <span class="nav-icon" aria-hidden="true">∞</span>
+      <span class="nav-label">Juntos</span>
     </button>
     <button onclick="showTab(this, 'games')" aria-label="Juegos">
       <span class="nav-icon" aria-hidden="true">✦</span>
@@ -382,6 +387,112 @@
         Estoy muy orgulloso de vos koalita 💐
       </button>
     </div>
+  </div>
+
+
+  <div id="together" class="tab-content">
+    <header class="together-hero">
+      <span>NUESTRO RINCÓN</span>
+      <h1>Juntos, incluso desde lejos</h1>
+      <p>Una casa pequeña para saber del otro y guardar lo que importa.</p>
+    </header>
+
+    <section id="loveHouse" class="love-house" data-time="day" aria-labelledby="loveHouseTitle">
+      <div class="house-sky" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="house-window" aria-hidden="true"><span></span></div>
+      <div class="house-room">
+        <div class="house-title-row">
+          <div>
+            <span class="together-kicker">NUESTRA CASA A DISTANCIA</span>
+            <h2 id="loveHouseTitle">Hay una luz para cada uno</h2>
+          </div>
+          <span id="houseTimeLabel" class="house-time">Ahora</span>
+        </div>
+
+        <div class="house-people">
+          <article id="houseJoel" class="house-person">
+            <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
+            <strong>Joel</strong>
+            <span id="houseJoelPresence">No está ahora</span>
+            <small id="houseJoelHeart">Sin señal todavía</small>
+          </article>
+          <div class="house-table" aria-hidden="true"><span>♡</span></div>
+          <article id="housePrincesa" class="house-person">
+            <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
+            <strong>Princesa</strong>
+            <span id="housePrincesaPresence">No está ahora</span>
+            <small id="housePrincesaHeart">Sin señal todavía</small>
+          </article>
+        </div>
+        <p id="housePresenceMessage" class="house-presence-message" aria-live="polite">Ahora la casa está descansando.</p>
+      </div>
+    </section>
+
+    <section class="together-card heart-card" aria-labelledby="heartTitle">
+      <div class="together-section-head">
+        <div>
+          <span class="together-kicker">UNA SEÑAL PEQUEÑA</span>
+          <h2 id="heartTitle">¿Cómo está tu corazón?</h2>
+        </div>
+        <button id="heartClear" class="text-button" type="button" hidden>Quitar</button>
+      </div>
+      <p class="together-intro">Elegí una. No hace falta explicar todo.</p>
+      <div id="heartChoices" class="heart-choices">
+        <button type="button" data-mood="happy"><span>☀️</span>Feliz</button>
+        <button type="button" data-mood="tired"><span>🌙</span>Cansado/a</button>
+        <button type="button" data-mood="miss_you"><span>💭</span>Te extraño</button>
+        <button type="button" data-mood="need_hug"><span>🫂</span>Necesito un mimo</button>
+        <button type="button" data-mood="talk"><span>🪟</span>Quiero hablar</button>
+        <button type="button" data-mood="proud"><span>✨</span>Estoy orgulloso/a</button>
+      </div>
+      <div id="heartActions" class="heart-actions" hidden>
+        <p id="heartSavedText">Tu señal quedó encendida.</p>
+        <div>
+          <button id="heartNotify" class="soft-button" type="button">Avisarle</button>
+          <button id="heartRemember" class="soft-button outline" type="button">Guardar en el diario</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="together-card note-card" aria-labelledby="noteTitle">
+      <div class="together-section-head">
+        <div>
+          <span class="together-kicker">SOBRE LA MESA</span>
+          <h2 id="noteTitle">Dejale una nota</h2>
+        </div>
+        <span class="note-paperclip" aria-hidden="true">⌁</span>
+      </div>
+      <p class="together-intro">Va a seguir acá aunque cierre la app.</p>
+      <label class="sr-only" for="houseNoteInput">Nota para tu pareja</label>
+      <textarea id="houseNoteInput" maxlength="180" rows="3" placeholder="Algo breve para cuando vuelva…"></textarea>
+      <div class="note-compose-bottom">
+        <span id="houseNoteCount">0 / 180</span>
+        <button id="houseNoteSend" class="primary-love-button" type="button">Dejar la nota</button>
+      </div>
+      <div id="houseNotes" class="house-notes" aria-live="polite"></div>
+    </section>
+
+    <section class="together-card journal-card" aria-labelledby="journalTitle">
+      <div class="together-section-head">
+        <div>
+          <span class="together-kicker">LO QUE VAMOS DEJANDO</span>
+          <h2 id="journalTitle">Diario de nosotros</h2>
+        </div>
+        <span class="journal-book" aria-hidden="true">♧</span>
+      </div>
+      <p class="together-intro">No guarda actividad. Guarda momentos.</p>
+      <div id="journalFilters" class="journal-filters" role="group" aria-label="Filtrar el diario">
+        <button class="active" type="button" data-filter="all">Todo</button>
+        <button type="button" data-filter="drawing">Dibujos</button>
+        <button type="button" data-filter="mimo">Mimos</button>
+        <button type="button" data-filter="note">Notas</button>
+        <button type="button" data-filter="favorite">Favoritos</button>
+      </div>
+      <div id="loveJournal" class="love-journal" aria-live="polite">
+        <div class="together-empty">Todavía no cargamos el diario.</div>
+      </div>
+      <button id="journalMore" class="text-button journal-more" type="button" hidden>Ver momentos anteriores</button>
+    </section>
   </div>
 
 
@@ -1507,6 +1618,7 @@
       document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
+      document.body.classList.toggle('together-active', tabId === 'together');
       navigator.vibrate?.(10);
       window.scrollTo(0, 0);
     }
@@ -3839,7 +3951,7 @@
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
       const s = document.createElement('script');
-      s.src = 'realtime.js?v=3';
+      s.src = 'realtime.js?v=4';
       document.head.appendChild(s);
     } else {
       // En file:// simulamos las funciones para que no rompa nada
@@ -4507,6 +4619,7 @@
   renderGallery();
 })();
 </script>
+<script src="./together.js?v=1"></script>
 </body>
 
 </html>

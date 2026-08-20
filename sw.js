@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v7-push-registration';
-const ASSETS_TO_CACHE = ['./index.html', './realtime.js', './manifest.json', './styles_cleaned.css', './styles_elegant.css', './icono-app.png'];
+const CACHE_NAME = 'love-app-v8-together';
+const ASSETS_TO_CACHE = ['./index.html', './realtime.js', './together.js', './manifest.json', './styles_cleaned.css', './styles_elegant.css', './together.css', './icono-app.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE)));
@@ -26,6 +26,12 @@ self.addEventListener('notificationclick', event => {
     const windows = await clients.matchAll({ type: 'window', includeUncontrolled: true });
     const existing = windows.find(item => new URL(item.url).origin === self.location.origin);
     if (existing) { await existing.focus(); existing.postMessage({ type: 'notification-click', data: event.notification.data }); }
-    else await clients.openWindow(event.notification.data?.type === 'drawing' ? './index.html#drawing' : './index.html');
+    else {
+      const type = event.notification.data?.type;
+      const destination = type === 'drawing' ? './index.html#drawing'
+        : (type === 'house-note' || type === 'heart') ? './index.html#together'
+        : './index.html';
+      await clients.openWindow(destination);
+    }
   })());
 });
