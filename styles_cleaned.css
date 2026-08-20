@@ -2524,3 +2524,28 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   .mom-grid { grid-template-columns: 1fr; }
   .mom-grid .tl-card[style*="grid-column"] { grid-column: span 1 !important; }
 }
+
+/* Desktop: wider layout */
+@media (min-width: 700px) {
+  body {
+    background: linear-gradient(135deg, #f8e8ff 0%, #fce4ec 50%, #e8f5fe 100%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+  .app-shell, #app, body > *:not(#lightbox):not(#hearts):not(#confetti):not(#presence-indicator):not(#updateBanner):not(#romantic-update-surprise):not(.theme-fab-container):not(#identityModal):not(#pushPrompt):not([class*="modal"]) {
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .mom-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .mom-grid .tl-card[style*="grid-column"] {
+    grid-column: span 3 !important;
+  }
+  .tl-card .tl-photo {
+    aspect-ratio: 3/4;
+  }
+}
