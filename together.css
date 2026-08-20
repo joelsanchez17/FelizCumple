@@ -404,12 +404,12 @@ body.together-active #presence-indicator { display: none !important; }
 .house-plant:active { filter:brightness(.96); }
 
 /* Las dos hojas se deslizan desde la unión central hacia los lados. */
-.house-window { overflow:hidden; }
+.house-window { z-index:5; overflow:hidden; }
 .house-window-pane { transition:transform .5s cubic-bezier(.22,.78,.24,1),opacity .35s ease; }
 .house-window-pane-left { transform-origin:left center; }
 .house-window-pane-right { transform-origin:right center; }
-.house-window.is-open .house-window-pane-left { transform:translateX(-88%); }
-.house-window.is-open .house-window-pane-right { transform:translateX(88%); }
+.house-window.is-open .house-window-pane-left { opacity:.16; transform:translateX(-104%); }
+.house-window.is-open .house-window-pane-right { opacity:.16; transform:translateX(104%); }
 .house-window-pane-left::after,
 .house-window-pane-right::after { content:""; position:absolute; top:46%; width:3px; height:12px; border-radius:3px; background:rgba(91,65,76,.48); }
 .house-window-pane-left::after { right:3px; }
@@ -522,8 +522,8 @@ body.together-active #presence-indicator { display: none !important; }
 
 /* Overrides finales para los objetos; estas reglas deben quedar después del estilo histórico. */
 .house-window .house-window-pane { transition:transform .5s cubic-bezier(.22,.78,.24,1),opacity .35s ease; }
-.house-window.is-open .house-window-pane-left { transform:translateX(-88%); }
-.house-window.is-open .house-window-pane-right { transform:translateX(88%); }
+.house-window.is-open .house-window-pane-left { opacity:.16; transform:translateX(-104%); }
+.house-window.is-open .house-window-pane-right { opacity:.16; transform:translateX(104%); }
 .house-ac-unit#houseAc { display:block; width:66px; height:34px; padding:4px 7px; color:#66515a; text-align:left; cursor:pointer; }
 .house-ac-unit#houseAc strong { position:relative; z-index:2; display:block; font:800 .64rem/1 'Quicksand',sans-serif; letter-spacing:.08em; }
 .house-ac-unit#houseAc small { position:relative; z-index:2; display:block; min-height:0; margin-top:3px; color:#9b858e; font:700 .4rem/1 'Quicksand',sans-serif; }
