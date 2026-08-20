@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=6">
+  <link rel="stylesheet" href="./together.css?v=7">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -431,22 +431,30 @@
             </div>
           </div>
           <div class="house-picture" aria-hidden="true">♡</div>
-          <div class="house-ac-unit" aria-hidden="true"><i></i><span></span></div>
+          <button id="houseAc" class="house-ac-unit" type="button" aria-label="Encender el aire acondicionado" aria-pressed="false">
+            <strong>AC</strong><i aria-hidden="true"></i><span aria-hidden="true"></span>
+            <small>apagado</small>
+          </button>
           <div class="house-people">
               <article id="houseJoel" class="house-person house-person-joel">
                 <div class="house-person-scene">
                   <div class="house-avatar"><img src="perfil_yo.jpg" alt=""></div>
-                <button class="house-lamp" type="button" data-lamp-for="joel" aria-label="Dejar una luz para Joel" title="Dejar una luz para Joel"><b></b><i></i></button>
+                <button class="house-lamp" type="button" data-lamp-for="joel" aria-label="Encender la lámpara de Joel" aria-pressed="false"><b></b><i></i></button>
                 </div>
                 <strong>Joel</strong>
                 <span id="houseJoelPresence">No está ahora</span>
                 <small id="houseJoelHeart">Sin señal todavía</small>
               </article>
-              <div class="house-table" aria-hidden="true"><span>♡</span></div>
+              <div class="house-table">
+                <button id="housePlant" class="house-plant" type="button" aria-label="Regar la plantita compartida">
+                  <span aria-hidden="true">🌱</span><i aria-hidden="true"></i>
+                </button>
+                <small id="housePlantStatus">Nuestra plantita</small>
+              </div>
               <article id="housePrincesa" class="house-person house-person-princesa">
                 <div class="house-person-scene">
                   <div class="house-avatar"><img src="princesa2.jpg" alt=""></div>
-                <button class="house-lamp" type="button" data-lamp-for="princesa" aria-label="Dejar una luz para Princesa" title="Dejar una luz para Princesa"><b></b><i></i></button>
+                <button class="house-lamp" type="button" data-lamp-for="princesa" aria-label="Encender la lámpara de Princesa" aria-pressed="false"><b></b><i></i></button>
                 </div>
                 <strong>Princesa</strong>
                 <span id="housePrincesaPresence">No está ahora</span>
@@ -454,9 +462,9 @@
               </article>
           </div>
         </div>
-        <div class="house-room-actions" aria-label="Acciones de la habitación">
-          <button id="houseWindowAction" type="button">🪟 Abrir ventana</button>
-          <button id="houseAcAction" type="button" aria-pressed="false">❄️ Encender AC</button>
+        <div class="house-light-notify-row">
+          <span>Prender una lámpara no envía una notificación.</span>
+          <button id="houseLightNotify" type="button">Avisarle 🔔</button>
         </div>
         <div id="houseLightConfirm" class="house-light-confirm" hidden>
           <span id="houseLightConfirmText">¿Enviar una luz?</span>
@@ -4052,9 +4060,19 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('App lista para instalar 📱', reg.scope))
+        navigator.serviceWorker.register('./sw.js?v=19', { updateViaCache: 'none' })
+          .then(reg => {
+            console.log('App lista para instalar 📱', reg.scope);
+            reg.update().catch(() => {});
+          })
           .catch(err => console.log('Error SW:', err));
+      });
+
+      let reloadingForNewServiceWorker = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (reloadingForNewServiceWorker) return;
+        reloadingForNewServiceWorker = true;
+        location.reload();
       });
     }
 
@@ -4939,7 +4957,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=1"></script>
+<script src="./together.js?v=2"></script>
 </body>
 
 </html>

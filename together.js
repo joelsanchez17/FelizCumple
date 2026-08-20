@@ -33,6 +33,8 @@
   let pendingLightTarget = null;
   let windowOpen = false;
   let acOn = false;
+  const lampStates = { joel: false, princesa: false };
+  let plantState = { watered_at: null, watered_by: null };
   const refreshTables = new Set();
 
   const $ = selector => document.querySelector(selector);
@@ -177,23 +179,18 @@
   async function sendHouseLight() {
     const person = pendingLightTarget;
     if (!person || person !== target) return closeHouseLightConfirm();
-    const lamp = $(`[data-lamp-for="${person}"]`);
     const send = $('#houseLightSend');
     if (send) { send.disabled = true; send.textContent = 'Enviando…'; }
-    lamp?.classList.add('light-sent');
-    lamp && (lamp.disabled = true);
     try {
       await window.sendLovePush(target, 'Te dejaron una luz encendida 💡', `${PEOPLE[identity]} dejó una luz esperándote en la casita`, { type: 'house-light' });
       await window._loveRoom?.send({ type:'broadcast', event:'mensaje', payload:{ text:'Dejé una luz encendida para vos 💡', from:identity } });
-      toast(`Dejaste una luz para ${PEOPLE[target]}`);
+      toast(`Le avisaste a ${PEOPLE[target]} 🔔`);
       navigator.vibrate?.([12, 35, 12]);
     } catch (error) {
-      lamp?.classList.remove('light-sent');
       toast('No pudimos avisarle, probá otra vez');
     } finally {
       closeHouseLightConfirm();
       if (send) { send.disabled = false; send.textContent = 'Enviar luz 💡'; }
-      if (lamp) setTimeout(() => { lamp.disabled = false; lamp.classList.remove('light-sent'); }, 2500);
     }
   }
 
@@ -202,34 +199,94 @@
     $('#houseWindow')?.classList.toggle('is-open', windowOpen);
     $('#houseWindow')?.setAttribute('aria-pressed', String(windowOpen));
     $('#houseWindow')?.setAttribute('aria-label', windowOpen ? 'Cerrar la ventana' : 'Abrir la ventana');
-    const button = $('#houseWindowAction');
-    if (button) button.textContent = windowOpen ? '🪟 Cerrar ventana' : '🪟 Abrir ventana';
     if (announce) toast(windowOpen ? 'Ventana abierta, entra airecito' : 'Ventana cerrada');
   }
 
   function setAcState(on, announce = false) {
     acOn = Boolean(on);
     $('.house-interior')?.classList.toggle('ac-on', acOn);
-    const button = $('#houseAcAction');
-    if (button) {
-      button.setAttribute('aria-pressed', String(acOn));
-      button.textContent = acOn ? '❄️ Apagar AC' : '❄️ Encender AC';
+    const ac = $('#houseAc');
+    if (ac) {
+      ac.setAttribute('aria-pressed', String(acOn));
+      ac.setAttribute('aria-label', acOn ? 'Apagar el aire acondicionado' : 'Encender el aire acondicionado');
+      const status = ac.querySelector('small');
+      if (status) status.textContent = acOn ? 'encendido' : 'apagado';
     }
     if (announce) toast(acOn ? 'AC encendido ❄️' : 'AC apagado');
   }
 
-  async function shareRoomAction(action, value) {
-    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ action, value, from:identity } });
+  function setLampState(person, on, announce = false) {
+    if (!PEOPLE[person]) return;
+    lampStates[person] = Boolean(on);
+    const lamp = $(`[data-lamp-for="${person}"]`);
+    lamp?.classList.toggle('is-lit', lampStates[person]);
+    lamp?.setAttribute('aria-pressed', String(lampStates[person]));
+    lamp?.setAttribute('aria-label', `${lampStates[person] ? 'Apagar' : 'Encender'} la lámpara de ${PEOPLE[person]}`);
+    if (announce) toast(`${PEOPLE[person]}: luz ${lampStates[person] ? 'encendida' : 'apagada'}`);
   }
 
-  function toggleHouseWindow() {
+  function setPlantState(state = {}, announce = false) {
+    plantState = { watered_at: state.watered_at || null, watered_by: state.watered_by || null };
+    const plant = $('#housePlant');
+    const status = $('#housePlantStatus');
+    if (plantState.watered_at) {
+      plant?.classList.add('is-watered');
+      if (status) status.textContent = `${PEOPLE[plantState.watered_by] || 'Alguien'} la regó · ${relativeTime(plantState.watered_at).toLowerCase()}`;
+    } else {
+      plant?.classList.remove('is-watered');
+      if (status) status.textContent = 'Nuestra plantita';
+    }
+    if (announce) toast('La plantita quedó feliz 💧');
+  }
+
+  function applyHouseDevice(device, state, announce = false) {
+    if (device === 'window') setWindowState(state?.open ?? state, announce);
+    if (device === 'ac') setAcState(state?.on ?? state, announce);
+    if (device === 'lamp_joel') setLampState('joel', state?.on ?? state, announce);
+    if (device === 'lamp_princesa') setLampState('princesa', state?.on ?? state, announce);
+    if (device === 'plant') setPlantState(state, announce);
+  }
+
+  async function saveHouseDevice(device, state) {
+    const updatedAt = new Date().toISOString();
+    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ action:device, value:state, from:identity, updated_at:updatedAt } });
+    const { error } = await client.from('house_devices').upsert({
+      device,
+      state,
+      updated_by: identity,
+      updated_at: updatedAt
+    }, { onConflict:'device' });
+    if (error) reportError(error, 'No se pudo guardar el estado de la casita');
+  }
+
+  async function loadHouseDevices() {
+    const { data, error } = await client.from('house_devices').select('*');
+    if (error) return reportError(error, 'No se pudo cargar el estado de la casita');
+    (data || []).forEach(row => applyHouseDevice(row.device, row.state));
+  }
+
+  async function toggleHouseWindow() {
     setWindowState(!windowOpen, true);
-    shareRoomAction('window', windowOpen);
+    await saveHouseDevice('window', { open:windowOpen });
   }
 
-  function toggleHouseAc() {
+  async function toggleHouseAc() {
     setAcState(!acOn, true);
-    shareRoomAction('ac', acOn);
+    await saveHouseDevice('ac', { on:acOn });
+  }
+
+  async function toggleHouseLamp(person) {
+    if (!PEOPLE[person]) return;
+    setLampState(person, !lampStates[person], true);
+    await saveHouseDevice(`lamp_${person}`, { on:lampStates[person] });
+  }
+
+  async function waterHousePlant() {
+    const state = { watered_at:new Date().toISOString(), watered_by:identity };
+    setPlantState(state, true);
+    $('#housePlant')?.classList.add('is-watering');
+    setTimeout(() => $('#housePlant')?.classList.remove('is-watering'), 900);
+    await saveHouseDevice('plant', state);
   }
 
   function renderHeartStates() {
@@ -582,6 +639,7 @@
       if (pending.has('heart_states')) loadHearts();
       if (pending.has('house_notes')) loadNotes();
       if (pending.has('love_journal') || pending.has('house_notes')) loadJournal();
+      if (pending.has('house_devices')) loadHouseDevices();
     }, 180);
   }
 
@@ -590,6 +648,7 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'heart_states' }, () => scheduleRefresh('heart_states'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_notes' }, () => scheduleRefresh('house_notes'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'love_journal' }, () => scheduleRefresh('love_journal'))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'house_devices' }, () => scheduleRefresh('house_devices'))
       .subscribe();
   }
 
@@ -601,13 +660,14 @@
   function bindEvents() {
     $('.house-interior')?.addEventListener('click', event => {
       const lamp = event.target.closest('[data-lamp-for]');
-      if (lamp) requestHouseLight(lamp.dataset.lampFor);
+      if (lamp) toggleHouseLamp(lamp.dataset.lampFor);
     });
+    $('#houseLightNotify')?.addEventListener('click', () => requestHouseLight(target));
     $('#houseLightSend')?.addEventListener('click', sendHouseLight);
     $('#houseLightCancel')?.addEventListener('click', closeHouseLightConfirm);
     $('#houseWindow')?.addEventListener('click', toggleHouseWindow);
-    $('#houseWindowAction')?.addEventListener('click', toggleHouseWindow);
-    $('#houseAcAction')?.addEventListener('click', toggleHouseAc);
+    $('#houseAc')?.addEventListener('click', toggleHouseAc);
+    $('#housePlant')?.addEventListener('click', waterHousePlant);
     $('#heartChoices')?.addEventListener('click', event => {
       const button = event.target.closest('[data-mood]');
       if (button) chooseMood(button.dataset.mood);
@@ -630,8 +690,7 @@
     window.addEventListener('lovepresencechange', event => renderPresence(event.detail));
     window.addEventListener('lovehouseaction', event => {
       if (event.detail?.from === identity) return;
-      if (event.detail?.action === 'window') setWindowState(event.detail.value, true);
-      if (event.detail?.action === 'ac') setAcState(event.detail.value, true);
+      applyHouseDevice(event.detail?.action, event.detail?.value, true);
     });
     navigator.serviceWorker?.addEventListener('message', event => {
       if (event.data?.type === 'notification-click' && ['house-note', 'heart', 'house-light'].includes(event.data?.data?.type)) openTogether();
@@ -655,7 +714,8 @@
     setInterval(loadHouseWeather, 15 * 60 * 1000);
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
-    await Promise.all([loadHearts(), loadNotes(), loadJournal()]);
+    if ($('#houseLightNotify')) $('#houseLightNotify').textContent = `Avisarle a ${PEOPLE[target]} 🔔`;
+    await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices()]);
     subscribeToChanges();
     if (location.hash === '#together') {
       history.replaceState(null, '', location.pathname + location.search);

@@ -393,6 +393,70 @@ body.together-active #presence-indicator { display: none !important; }
   .house-presence-message { width:auto; margin-top:10px; }
 }
 
+/* Objetos de la habitación: el objeto mismo es el control. */
+.house-window,
+.house-ac-unit,
+.house-lamp,
+.house-plant { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.house-window:active,
+.house-ac-unit:active,
+.house-lamp:active,
+.house-plant:active { filter:brightness(.96); }
+
+/* Las dos hojas se deslizan desde la unión central hacia los lados. */
+.house-window { overflow:hidden; }
+.house-window-pane { transition:transform .5s cubic-bezier(.22,.78,.24,1),opacity .35s ease; }
+.house-window-pane-left { transform-origin:left center; }
+.house-window-pane-right { transform-origin:right center; }
+.house-window.is-open .house-window-pane-left { transform:translateX(-88%); }
+.house-window.is-open .house-window-pane-right { transform:translateX(88%); }
+.house-window-pane-left::after,
+.house-window-pane-right::after { content:""; position:absolute; top:46%; width:3px; height:12px; border-radius:3px; background:rgba(91,65,76,.48); }
+.house-window-pane-left::after { right:3px; }
+.house-window-pane-right::after { left:3px; }
+
+/* El aire se reconoce aun estando apagado. */
+.house-ac-unit { display:block; height:34px; width:66px; padding:4px 7px; color:#66515a; text-align:left; cursor:pointer; }
+.house-ac-unit strong { position:relative; z-index:2; display:block; font:800 .64rem/1 'Quicksand',sans-serif; letter-spacing:.08em; }
+.house-ac-unit small { position:relative; z-index:2; display:block; margin-top:3px; color:#9b858e; font:700 .4rem/1 'Quicksand',sans-serif; }
+.house-ac-unit i { right:8px; top:7px; }
+.house-ac-unit span { left:7px; right:7px; bottom:4px; }
+.house-interior.ac-on .house-ac-unit { color:#286d86; border-color:rgba(62,155,190,.38); background:#effaff; box-shadow:0 5px 15px rgba(67,163,197,.18),0 0 0 2px rgba(118,205,233,.12); }
+.house-interior.ac-on .house-ac-unit small { color:#438ba4; }
+.house-ac-unit:focus-visible,
+.house-window:focus-visible,
+.house-plant:focus-visible { outline:3px solid var(--together-wine); outline-offset:3px; }
+
+/* Las luces ya no dependen de la presencia: ambos comparten su estado. */
+.house-person .house-lamp:not(.is-lit) b { background:#bdaab2; box-shadow:none; }
+.house-lamp.is-lit b,
+.house-person.is-online .house-lamp.is-lit b { background:#ffd178; box-shadow:0 0 17px #ffda96,0 0 48px rgba(255,205,111,.88); }
+.house-lamp.is-lit b::before { content:""; position:absolute; inset:-9px; border-radius:50%; background:radial-gradient(circle,rgba(255,219,148,.34),transparent 68%); }
+.house-light-notify-row { display:flex; align-items:center; justify-content:space-between; gap:9px; margin-top:10px; padding:8px 9px 8px 12px; border:1px solid rgba(127,66,89,.13); border-radius:15px; color:var(--together-muted); background:rgba(255,250,248,.55); font:600 .5rem/1.25 'Quicksand',sans-serif; }
+.house-light-notify-row button { flex:0 0 auto; min-height:29px; padding:6px 10px; border:0; border-radius:999px; color:#fff; background:var(--together-wine); cursor:pointer; font:700 .53rem/1 'Quicksand',sans-serif; }
+.love-house[data-time="night"] .house-light-notify-row { color:#eadde2; border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.07); }
+
+/* Mesita central con una maceta de terracota. */
+.house-table { position:relative; width:60px; height:78px; margin:47px auto 0; border:0; border-radius:0; color:inherit; background:transparent; box-shadow:none; }
+.house-table::before { content:""; position:absolute; z-index:2; left:0; top:31px; width:60px; height:11px; border-radius:50%; background:linear-gradient(180deg,#c18d76,#9d6d5f); box-shadow:0 3px 0 #80594f,0 6px 10px rgba(71,44,51,.16); }
+.house-table::after { content:""; position:absolute; z-index:1; left:15px; top:38px; width:30px; height:37px; background:linear-gradient(90deg,#8b6257,#ad7968 48%,#80594f); clip-path:polygon(40% 0,60% 0,60% 74%,94% 88%,94% 100%,6% 100%,6% 88%,40% 74%); }
+.house-plant { position:absolute; z-index:3; left:50%; bottom:45px; width:44px; height:52px; padding:0; border:0; color:inherit; background:transparent; cursor:pointer; transform:translateX(-50%); }
+.house-plant > span { position:absolute; z-index:2; left:50%; bottom:13px; font-size:1.65rem; filter:drop-shadow(0 2px 1px rgba(39,89,47,.16)); transform:translateX(-50%); transition:transform .3s ease; }
+.house-plant > i { position:absolute; z-index:3; left:9px; right:9px; bottom:0; height:19px; border-radius:2px 2px 7px 7px; background:linear-gradient(90deg,#a95e45,#d88967 48%,#a85f48); box-shadow:inset 4px 0 rgba(255,255,255,.1),0 3px 5px rgba(73,43,45,.18); clip-path:polygon(7% 0,93% 0,79% 100%,21% 100%); }
+.house-plant > i::before { content:""; position:absolute; left:-2px; right:-2px; top:0; height:6px; border-radius:4px; background:#d48767; box-shadow:inset 0 -2px #a95e45; }
+.house-plant > i::after { content:""; position:absolute; left:7px; top:7px; width:3px; height:7px; border-radius:3px; background:rgba(255,224,204,.25); }
+.house-plant.is-watered > span { transform:translateX(-50%) scale(1.08); }
+.house-plant.is-watering::before { content:"💧"; position:absolute; z-index:3; right:-2px; top:2px; animation:waterDrop .85s ease both; }
+.house-table > small { position:absolute; left:50%; top:80px; width:90px; color:#806b73; font:600 .42rem/1.2 'Quicksand',sans-serif; transform:translateX(-50%); }
+@keyframes waterDrop { from { opacity:0; transform:translate(8px,-8px); } 40% { opacity:1; } to { opacity:0; transform:translate(-5px,19px); } }
+
+@media (max-width:430px) {
+  .house-ac-unit { right:8px; top:82px; width:58px; height:32px; }
+  .house-table { width:56px; margin-top:43px; transform:scale(.92); transform-origin:top center; }
+  .house-table > small { width:74px; font-size:.38rem; }
+  .house-light-notify-row { font-size:.46rem; }
+}
+
 /* Relojes analógicos y pequeñas acciones dentro de la habitación. */
 .house-picture { display:none; }
 .house-clocks { position:absolute; z-index:4; inset:0; display:block; pointer-events:none; }
@@ -454,4 +518,16 @@ body.together-active #presence-indicator { display: none !important; }
   .house-weather { font-size:.5rem !important; }
   .house-ac-unit { right:9px; top:85px; width:49px; }
   .house-room-actions button { flex:1; padding:7px 8px; }
+}
+
+/* Overrides finales para los objetos; estas reglas deben quedar después del estilo histórico. */
+.house-window .house-window-pane { transition:transform .5s cubic-bezier(.22,.78,.24,1),opacity .35s ease; }
+.house-window.is-open .house-window-pane-left { transform:translateX(-88%); }
+.house-window.is-open .house-window-pane-right { transform:translateX(88%); }
+.house-ac-unit#houseAc { display:block; width:66px; height:34px; padding:4px 7px; color:#66515a; text-align:left; cursor:pointer; }
+.house-ac-unit#houseAc strong { position:relative; z-index:2; display:block; font:800 .64rem/1 'Quicksand',sans-serif; letter-spacing:.08em; }
+.house-ac-unit#houseAc small { position:relative; z-index:2; display:block; min-height:0; margin-top:3px; color:#9b858e; font:700 .4rem/1 'Quicksand',sans-serif; }
+.house-interior.ac-on .house-ac-unit#houseAc small { color:#438ba4; }
+@media (max-width:430px) {
+  .house-ac-unit#houseAc { right:8px; top:82px; width:58px; height:32px; }
 }
