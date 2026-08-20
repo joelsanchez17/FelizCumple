@@ -26,6 +26,6 @@ self.addEventListener('notificationclick', event => {
     const windows = await clients.matchAll({ type: 'window', includeUncontrolled: true });
     const existing = windows.find(item => new URL(item.url).origin === self.location.origin);
     if (existing) { await existing.focus(); existing.postMessage({ type: 'notification-click', data: event.notification.data }); }
-    else await clients.openWindow('./index.html');
+    else await clients.openWindow(event.notification.data?.type === 'drawing' ? './index.html#drawing' : './index.html');
   })());
 });

@@ -53,6 +53,20 @@ Deno.serve(async request => {
       return json({ subscribed: true, identity });
     }
 
+    if (payload.action === 'get-drawings') {
+      const identity = payload.identity;
+      if (identity !== 'joel' && identity !== 'princesa') return json({ error: 'Identidad inválida' }, 400);
+      const sender = identity === 'joel' ? 'princesa' : 'joel';
+      const { data: drawings, error } = await supabase
+        .from('drawings')
+        .select('id,data,date,created_at')
+        .eq('from_identity', sender)
+        .order('created_at', { ascending: false })
+        .limit(30);
+      if (error) throw error;
+      return json({ drawings: drawings || [] });
+    }
+
     const { to, title, body, data, drawing } = payload;
     if (to !== 'joel' && to !== 'princesa') return json({ error: 'Destino inválido' }, 400);
     if (drawing) {

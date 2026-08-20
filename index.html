@@ -4193,15 +4193,12 @@
     if (title) title.textContent = `Un dibujo para ${targetName}`;
 
     // Recuperar lo que la otra persona mandó mientras esta app estaba cerrada.
-    window._loveClient?.from('drawings')
-      .select('data,date')
-      .eq('from_identity', event.detail.target)
-      .order('created_at', { ascending:false })
-      .limit(30)
-      .then(({ data, error }) => {
-        if (error || !data) return;
+    window._loveClient?.functions.invoke('send-push', {
+      body: { action:'get-drawings', identity:event.detail.identity }
+    }).then(({ data, error }) => {
+        if (error || !data?.drawings) return;
         const saved = getSaved();
-        data.reverse().forEach(item => {
+        data.drawings.reverse().forEach(item => {
           if (!saved.some(drawing => drawing.data === item.data)) saved.push(item);
         });
         if (saved.length > 30) saved.splice(0, saved.length - 30);
@@ -4218,8 +4215,23 @@
       if (saved.length > 30) saved.splice(0, saved.length - 30);
       setSaved(saved);
       renderGallery();
+      window.mostrarMensaje?.('Te llegó un dibujo');
+      mostrarDibujosRecibidos(false);
     }
   });
+
+  function mostrarDibujosRecibidos(scroll = true) {
+    const homeButton = document.querySelector('.bottom-nav button[onclick*="home"]');
+    if (homeButton && !document.getElementById('home')?.classList.contains('active')) window.showTab?.(homeButton, 'home');
+    if (scroll) setTimeout(() => document.getElementById('drawingPanel')?.scrollIntoView({ behavior:'smooth', block:'center' }), 150);
+  }
+  navigator.serviceWorker?.addEventListener('message', event => {
+    if (event.data?.type === 'notification-click' && event.data?.data?.type === 'drawing') mostrarDibujosRecibidos();
+  });
+  if (location.hash === '#drawing') {
+    history.replaceState(null, '', location.pathname + location.search);
+    setTimeout(() => mostrarDibujosRecibidos(), 600);
+  }
 
   renderGallery();
 })();
