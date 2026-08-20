@@ -4160,10 +4160,14 @@
     try {
       const from = window.loveIdentity || localStorage.getItem('love_identity');
       if (!from || !window._loveClient) throw new Error('La identidad todavía no está lista');
-      const { error } = await window._loveClient.from('drawings').insert({ from_identity: from, data: dataURL, date });
-      if (error) throw error;
       await window._loveRoom?.send({ type:'broadcast', event:'drawing', payload:{ data:dataURL, date, from } });
-      await window.sendLovePush?.(from === 'joel' ? 'princesa' : 'joel', 'Un dibujo para vos 🎨', `${from === 'joel' ? 'Joel' : 'Princesa'} te mandó un dibujo 💌`, { type:'drawing' });
+      await window.sendLovePush?.(
+        from === 'joel' ? 'princesa' : 'joel',
+        'Un dibujo para vos 🎨',
+        `${from === 'joel' ? 'Joel' : 'Princesa'} te mandó un dibujo 💌`,
+        { type:'drawing' },
+        { from_identity:from, data:dataURL, date }
+      );
       buttonFeedback(document.getElementById('drawSend'), 'Enviado');
     } catch (error) {
       buttonFeedback(document.getElementById('drawSend'), 'No se pudo enviar');

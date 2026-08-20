@@ -16,10 +16,16 @@ function decodeVapidKey(value) {
 }
 
 async function subscribeToPush(identity) {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+    mostrarMensaje('Este dispositivo no admite notificaciones push');
+    return;
+  }
   try {
     const permission = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
-    if (permission !== 'granted') return;
+    if (permission !== 'granted') {
+      mostrarMensaje('Las notificaciones no están permitidas');
+      return;
+    }
     const registration = await navigator.serviceWorker.ready;
     let subscription = await registration.pushManager.getSubscription();
     if (!subscription) {
@@ -34,21 +40,35 @@ async function subscribeToPush(identity) {
       });
     }
     const push = subscription.toJSON();
-    // Si este mismo dispositivo cambió de identidad, quitamos la asociación anterior.
-    await client.from('push_subscriptions').delete().eq('endpoint', push.endpoint).neq('identity', identity);
-    const { error } = await client.from('push_subscriptions').upsert({
-      identity, endpoint: push.endpoint, p256dh: push.keys?.p256dh, auth: push.keys?.auth,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'identity' });
+    const { error } = await client.functions.invoke('send-push', {
+      body: {
+        action: 'subscribe',
+        identity,
+        subscription: {
+          endpoint: push.endpoint,
+          p256dh: push.keys?.p256dh,
+          auth: push.keys?.auth
+        }
+      }
+    });
     if (error) throw error;
-  } catch (error) { console.warn('No se pudieron activar las notificaciones:', error); }
+    localStorage.setItem('love_push_registered', identity);
+    console.info('Notificaciones activadas para', identity);
+  } catch (error) {
+    localStorage.removeItem('love_push_registered');
+    mostrarMensaje('No se pudieron activar las notificaciones');
+    console.warn('No se pudieron activar las notificaciones:', error);
+  }
 }
 
-async function sendPush(to, title, body, data = {}) {
+async function sendPush(to, title, body, data = {}, drawing = null) {
   try {
-    const { error } = await client.functions.invoke('send-push', { body: { to, title, body, data } });
+    const { error } = await client.functions.invoke('send-push', { body: { action: 'send', to, title, body, data, drawing } });
     if (error) throw error;
-  } catch (error) { console.warn('No se pudo enviar la notificación:', error); }
+  } catch (error) {
+    console.warn('No se pudo enviar la notificación:', error);
+    throw error;
+  }
 }
 window.sendLovePush = sendPush;
 
@@ -108,13 +128,17 @@ async function startLoveRoom() {
     await room.send({ type: 'broadcast', event: 'mimo', payload: { type, from: identity } });
     mostrarEfecto(type, true);
     const emoji = type === 'beso' ? '💋' : type === 'ojos' ? '👀' : '👆';
-    await sendPush(target, 'Un mimo para vos 💌', `${identity === 'joel' ? 'Joel' : 'Princesa'} te mandó un mimo ${emoji}`, { type: 'mimo' });
+    try {
+      await sendPush(target, 'Un mimo para vos 💌', `${identity === 'joel' ? 'Joel' : 'Princesa'} te mandó un mimo ${emoji}`, { type: 'mimo' });
+    } catch { mostrarMensaje('No se pudo enviar el mimo'); }
   };
 
   window.enviarMensaje = async text => {
     await room.send({ type:'broadcast', event:'mensaje', payload:{ text, from:identity } });
     mostrarMensaje(text, true);
-    await sendPush(target, `${identity === 'joel' ? 'Joel' : 'Princesa'} pensó en vos`, text, { type:'mensaje', text });
+    try {
+      await sendPush(target, `${identity === 'joel' ? 'Joel' : 'Princesa'} pensó en vos`, text, { type:'mensaje', text });
+    } catch { mostrarMensaje('No se pudo enviar el mensaje'); }
   };
   window.enviarMensajePersonalizado = () => {
     const input = document.getElementById('quickMessageInput');
