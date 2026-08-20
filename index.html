@@ -53,11 +53,76 @@
         <button id="birthdayOpen" type="button">Abrir</button>
       </div>
       <div id="birthdayReveal" class="birthday-reveal" hidden>
-        <div class="birthday-number">21</div>
+        <div class="birthday-number">28</div>
         <div class="birthday-morning-kicker">Feliz cumpleaños, mi princesa</div>
         <!-- EDITÁ SOLO ESTE TEXTO CON TUS PALABRAS: mantenelo breve -->
         <p id="birthdayPersonalText">Hoy celebro que existís.<br>Feliz cumpleaños, mi limona.</p>
-        <button id="birthdayClose" type="button">Empezar este día juntos</button>
+        <button id="birthdayJourneyStart" type="button">Hay algo más</button>
+      </div>
+      <div id="birthdayJourney" class="birthday-journey" hidden>
+        <div class="birthday-journey-top">
+          <div class="birthday-morning-kicker">El camino de tus 28</div>
+          <span id="birthdayStepCount" aria-live="polite">1 de 8</span>
+        </div>
+        <div class="birthday-progress" aria-hidden="true"><i id="birthdayProgressBar"></i></div>
+
+        <div class="birthday-steps">
+          <article class="birthday-step is-active" data-birthday-step>
+            <div class="birthday-step-icon">💌</div>
+            <span>18 AGO — 23 DIC</span>
+            <h3>Un poquito lejos</h3>
+            <p>Unos meses a distancia. Igual, siempre juntos.</p>
+          </article>
+          <article class="birthday-step" data-birthday-step hidden>
+            <div class="birthday-step-icon">🇪🇨</div>
+            <span>23 DIC</span>
+            <h3>Tu mundo</h3>
+            <p>Me vas a mostrar el país que tanto amás. Quiero verlo a través de vos.</p>
+          </article>
+          <article class="birthday-step" data-birthday-step hidden>
+            <div class="birthday-step-icon">🌿</div>
+            <span>26 DIC</span>
+            <h3>El Oriente</h3>
+            <p>Nuestra primera aventura en Ecuador.</p>
+          </article>
+          <article class="birthday-step" data-birthday-step hidden>
+            <div class="birthday-step-icon">🎭</div>
+            <span>31 DIC</span>
+            <h3>Las viudas</h3>
+            <p>Despedimos el año juntos, a tu manera.</p>
+          </article>
+          <article class="birthday-step" data-birthday-step hidden>
+            <div class="birthday-step-icon">🏠</div>
+            <span>ENERO</span>
+            <h3>Volvemos juntos</h3>
+            <p>A Alemania. Esta vez, del mismo lado de la pantalla.</p>
+          </article>
+          <article class="birthday-step" data-birthday-step hidden>
+            <div class="birthday-step-icon">🔑</div>
+            <span>DESPUÉS</span>
+            <h3>Algo más nuestro</h3>
+            <p>Más sorpresas. Más días compartidos. Quizá, hasta una casa.</p>
+          </article>
+          <article class="birthday-step" data-birthday-step hidden>
+            <div class="birthday-step-icon">✈️</div>
+            <span>LO QUE SIGUE</span>
+            <h3>Italia, España y Grecia</h3>
+            <p>Tres lugares. La misma compañera de viaje.</p>
+          </article>
+          <article class="birthday-step birthday-step-secret" data-birthday-step hidden>
+            <div class="birthday-step-icon">✦</div>
+            <span>Y UN PLAN MÁS</span>
+            <h3>Todavía es secreto</h3>
+            <p>No entra en una valija.<br>Y probablemente me haga temblar las manos.</p>
+            <small>Hasta ahí puedo contar… por ahora.</small>
+          </article>
+        </div>
+
+        <div class="birthday-journey-controls">
+          <button id="birthdayBack" class="birthday-secondary" type="button" aria-label="Plan anterior">Atrás</button>
+          <button id="birthdayNext" type="button">Seguir</button>
+          <button id="birthdayClose" type="button" hidden>Guardar este secreto</button>
+        </div>
       </div>
     </div>
   </div>
@@ -4002,6 +4067,14 @@
       const replay = document.getElementById('birthdayReplay');
       const cover = document.getElementById('birthdayCover');
       const reveal = document.getElementById('birthdayReveal');
+      const journey = document.getElementById('birthdayJourney');
+      const steps = [...document.querySelectorAll('[data-birthday-step]')];
+      const back = document.getElementById('birthdayBack');
+      const next = document.getElementById('birthdayNext');
+      const finish = document.getElementById('birthdayClose');
+      const stepCount = document.getElementById('birthdayStepCount');
+      const progress = document.getElementById('birthdayProgressBar');
+      let currentStep = 0;
       document.body.classList.add('birthday-mode');
       document.getElementById('updateBanner')?.remove();
       replay.hidden = false;
@@ -4009,8 +4082,23 @@
       function resetAndOpen() {
         cover.hidden = false;
         reveal.hidden = true;
+        journey.hidden = true;
+        currentStep = 0;
+        showStep();
         overlay.hidden = false;
         document.body.style.overflow = 'hidden';
+      }
+      function showStep() {
+        steps.forEach((step, index) => {
+          step.hidden = index !== currentStep;
+          step.classList.toggle('is-active', index === currentStep);
+        });
+        stepCount.textContent = `${currentStep + 1} de ${steps.length}`;
+        progress.style.width = `${((currentStep + 1) / steps.length) * 100}%`;
+        back.disabled = currentStep === 0;
+        const isLast = currentStep === steps.length - 1;
+        next.hidden = isLast;
+        finish.hidden = !isLast;
       }
       function close() {
         overlay.classList.add('birthday-closing');
@@ -4026,7 +4114,24 @@
         window.confettiBurst?.(90);
         setTimeout(() => window.confettiBurst?.(45), 650);
       });
-      document.getElementById('birthdayClose')?.addEventListener('click', close);
+      document.getElementById('birthdayJourneyStart')?.addEventListener('click', () => {
+        reveal.hidden = true;
+        journey.hidden = false;
+        showStep();
+      });
+      back.addEventListener('click', () => {
+        if (currentStep > 0) currentStep--;
+        showStep();
+      });
+      next.addEventListener('click', () => {
+        if (currentStep < steps.length - 1) currentStep++;
+        showStep();
+        if (currentStep === steps.length - 1) {
+          navigator.vibrate?.([35, 60, 35]);
+          window.confettiBurst?.(35);
+        }
+      });
+      finish.addEventListener('click', close);
       replay.addEventListener('click', resetAndOpen);
       if (preview || localStorage.getItem(KEY) !== '1') setTimeout(resetAndOpen, 700);
     })();
