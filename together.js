@@ -30,6 +30,9 @@
   let initialized = false;
   let setupErrorShown = false;
   let refreshTimer;
+  let pendingLightTarget = null;
+  let windowOpen = false;
+  let acOn = false;
   const refreshTables = new Set();
 
   const $ = selector => document.querySelector(selector);
@@ -77,14 +80,65 @@
 
   function updateHouseClocks() {
     const now = new Date();
-    const format = timeZone => new Intl.DateTimeFormat('es', {
-      timeZone,
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).format(now);
-    if ($('#houseClockGermany')) $('#houseClockGermany').textContent = format('Europe/Berlin');
-    if ($('#houseClockEcuador')) $('#houseClockEcuador').textContent = format('America/Guayaquil');
+    const updateClock = (selector, timeZone, city) => {
+      const clock = $(selector);
+      if (!clock) return;
+      const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+      }).formatToParts(now).filter(part => part.type !== 'literal').map(part => [part.type, Number(part.value)]));
+      const hourAngle = ((parts.hour % 12) + parts.minute / 60) * 30;
+      const minuteAngle = (parts.minute + parts.second / 60) * 6;
+      clock.style.setProperty('--hour-angle', `${hourAngle}deg`);
+      clock.style.setProperty('--minute-angle', `${minuteAngle}deg`);
+      clock.setAttribute('aria-label', `${city}: ${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`);
+    };
+    updateClock('#houseClockGermany', 'Europe/Berlin', 'Kaiserslautern');
+    updateClock('#houseClockEcuador', 'America/Guayaquil', 'Quito');
+  }
+
+  function weatherSymbol(code, isDay) {
+    if (code === 0) return isDay ? '☀️' : '🌙';
+    if ([1, 2].includes(code)) return isDay ? '🌤️' : '☁️';
+    if (code === 3) return '☁️';
+    if ([45, 48].includes(code)) return '🌫️';
+    if ([51, 53, 55, 56, 57].includes(code)) return '🌦️';
+    if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return '🌧️';
+    if ([71, 73, 75, 77, 85, 86].includes(code)) return '❄️';
+    if ([95, 96, 99].includes(code)) return '⛈️';
+    return '🌡️';
+  }
+
+  async function loadHouseWeather() {
+    const locations = [
+      { element:'#houseWeatherGermany', latitude:49.44, longitude:7.77 },
+      { element:'#houseWeatherEcuador', latitude:-0.18, longitude:-78.47 }
+    ];
+    await Promise.all(locations.map(async location => {
+      const output = $(location.element);
+      if (!output) return;
+      try {
+        const url = new URL('https://api.open-meteo.com/v1/forecast');
+        url.search = new URLSearchParams({
+          latitude:String(location.latitude),
+          longitude:String(location.longitude),
+          current:'temperature_2m,weather_code,is_day',
+          timezone:'auto',
+          forecast_days:'1'
+        });
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Open-Meteo ${response.status}`);
+        const weather = (await response.json()).current;
+        output.textContent = `${weatherSymbol(weather.weather_code, weather.is_day === 1)} ${Math.round(weather.temperature_2m)}°`;
+        output.title = `${Math.round(weather.temperature_2m)} °C`;
+      } catch (error) {
+        console.warn('No se pudo cargar el clima de la casita', error);
+        output.textContent = 'Clima —';
+      }
+    }));
   }
 
   function renderPresence(detail = window.lovePresenceState || {}) {
@@ -103,12 +157,29 @@
     if ($('#housePresenceMessage')) $('#housePresenceMessage').textContent = message;
   }
 
-  async function leaveHouseLight(person) {
+  function requestHouseLight(person) {
     if (person !== target) {
       toast('Esa es tu propia lámpara ♡');
       return;
     }
+    pendingLightTarget = person;
+    const confirm = $('#houseLightConfirm');
+    if ($('#houseLightConfirmText')) $('#houseLightConfirmText').textContent = `¿Mandarle una luz a ${PEOPLE[person]}?`;
+    if (confirm) confirm.hidden = false;
+    $('#houseLightSend')?.focus();
+  }
+
+  function closeHouseLightConfirm() {
+    pendingLightTarget = null;
+    if ($('#houseLightConfirm')) $('#houseLightConfirm').hidden = true;
+  }
+
+  async function sendHouseLight() {
+    const person = pendingLightTarget;
+    if (!person || person !== target) return closeHouseLightConfirm();
     const lamp = $(`[data-lamp-for="${person}"]`);
+    const send = $('#houseLightSend');
+    if (send) { send.disabled = true; send.textContent = 'Enviando…'; }
     lamp?.classList.add('light-sent');
     lamp && (lamp.disabled = true);
     try {
@@ -120,8 +191,45 @@
       lamp?.classList.remove('light-sent');
       toast('No pudimos avisarle, probá otra vez');
     } finally {
+      closeHouseLightConfirm();
+      if (send) { send.disabled = false; send.textContent = 'Enviar luz 💡'; }
       if (lamp) setTimeout(() => { lamp.disabled = false; lamp.classList.remove('light-sent'); }, 2500);
     }
+  }
+
+  function setWindowState(open, announce = false) {
+    windowOpen = Boolean(open);
+    $('#houseWindow')?.classList.toggle('is-open', windowOpen);
+    $('#houseWindow')?.setAttribute('aria-pressed', String(windowOpen));
+    $('#houseWindow')?.setAttribute('aria-label', windowOpen ? 'Cerrar la ventana' : 'Abrir la ventana');
+    const button = $('#houseWindowAction');
+    if (button) button.textContent = windowOpen ? '🪟 Cerrar ventana' : '🪟 Abrir ventana';
+    if (announce) toast(windowOpen ? 'Ventana abierta, entra airecito' : 'Ventana cerrada');
+  }
+
+  function setAcState(on, announce = false) {
+    acOn = Boolean(on);
+    $('.house-interior')?.classList.toggle('ac-on', acOn);
+    const button = $('#houseAcAction');
+    if (button) {
+      button.setAttribute('aria-pressed', String(acOn));
+      button.textContent = acOn ? '❄️ Apagar AC' : '❄️ Encender AC';
+    }
+    if (announce) toast(acOn ? 'AC encendido ❄️' : 'AC apagado');
+  }
+
+  async function shareRoomAction(action, value) {
+    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ action, value, from:identity } });
+  }
+
+  function toggleHouseWindow() {
+    setWindowState(!windowOpen, true);
+    shareRoomAction('window', windowOpen);
+  }
+
+  function toggleHouseAc() {
+    setAcState(!acOn, true);
+    shareRoomAction('ac', acOn);
   }
 
   function renderHeartStates() {
@@ -493,8 +601,13 @@
   function bindEvents() {
     $('.house-interior')?.addEventListener('click', event => {
       const lamp = event.target.closest('[data-lamp-for]');
-      if (lamp) leaveHouseLight(lamp.dataset.lampFor);
+      if (lamp) requestHouseLight(lamp.dataset.lampFor);
     });
+    $('#houseLightSend')?.addEventListener('click', sendHouseLight);
+    $('#houseLightCancel')?.addEventListener('click', closeHouseLightConfirm);
+    $('#houseWindow')?.addEventListener('click', toggleHouseWindow);
+    $('#houseWindowAction')?.addEventListener('click', toggleHouseWindow);
+    $('#houseAcAction')?.addEventListener('click', toggleHouseAc);
     $('#heartChoices')?.addEventListener('click', event => {
       const button = event.target.closest('[data-mood]');
       if (button) chooseMood(button.dataset.mood);
@@ -515,6 +628,11 @@
     });
     $('#journalMore')?.addEventListener('click', () => { journalLimit += 20; loadJournal(); });
     window.addEventListener('lovepresencechange', event => renderPresence(event.detail));
+    window.addEventListener('lovehouseaction', event => {
+      if (event.detail?.from === identity) return;
+      if (event.detail?.action === 'window') setWindowState(event.detail.value, true);
+      if (event.detail?.action === 'ac') setAcState(event.detail.value, true);
+    });
     navigator.serviceWorker?.addEventListener('message', event => {
       if (event.data?.type === 'notification-click' && ['house-note', 'heart', 'house-light'].includes(event.data?.data?.type)) openTogether();
     });
@@ -531,8 +649,10 @@
     bindEvents();
     applyLocalTime();
     updateHouseClocks();
+    loadHouseWeather();
     setInterval(applyLocalTime, 10 * 60 * 1000);
     setInterval(updateHouseClocks, 30 * 1000);
+    setInterval(loadHouseWeather, 15 * 60 * 1000);
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
     await Promise.all([loadHearts(), loadNotes(), loadJournal()]);

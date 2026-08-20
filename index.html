@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=5">
+  <link rel="stylesheet" href="./together.css?v=6">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -413,14 +413,25 @@
         </div>
 
         <div class="house-interior" aria-label="La habitación compartida de Joel y Princesa">
-          <div class="house-window" aria-hidden="true">
+          <button id="houseWindow" class="house-window" type="button" aria-label="Abrir la ventana" aria-pressed="false">
             <div class="house-sky"><i></i><i></i><i></i><i></i><i></i><b></b></div>
-          </div>
+            <span class="house-window-pane house-window-pane-left" aria-hidden="true"></span>
+            <span class="house-window-pane house-window-pane-right" aria-hidden="true"></span>
+          </button>
           <div class="house-clocks" aria-label="Hora en Kaiserslautern y Quito">
-            <div><span id="houseClockGermany">--:--</span><small>Kaiserslautern</small></div>
-            <div><span id="houseClockEcuador">--:--</span><small>Quito</small></div>
+            <div id="houseClockGermany" class="house-clock house-clock-germany" aria-label="Hora en Kaiserslautern">
+              <div class="analog-clock" aria-hidden="true"><i class="clock-hand clock-hour"></i><i class="clock-hand clock-minute"></i><b></b></div>
+              <small>Kaiserslautern</small>
+              <span id="houseWeatherGermany" class="house-weather">Cargando…</span>
+            </div>
+            <div id="houseClockEcuador" class="house-clock house-clock-ecuador" aria-label="Hora en Quito">
+              <div class="analog-clock" aria-hidden="true"><i class="clock-hand clock-hour"></i><i class="clock-hand clock-minute"></i><b></b></div>
+              <small>Quito</small>
+              <span id="houseWeatherEcuador" class="house-weather">Cargando…</span>
+            </div>
           </div>
           <div class="house-picture" aria-hidden="true">♡</div>
+          <div class="house-ac-unit" aria-hidden="true"><i></i><span></span></div>
           <div class="house-people">
               <article id="houseJoel" class="house-person house-person-joel">
                 <div class="house-person-scene">
@@ -441,6 +452,17 @@
                 <span id="housePrincesaPresence">No está ahora</span>
                 <small id="housePrincesaHeart">Sin señal todavía</small>
               </article>
+          </div>
+        </div>
+        <div class="house-room-actions" aria-label="Acciones de la habitación">
+          <button id="houseWindowAction" type="button">🪟 Abrir ventana</button>
+          <button id="houseAcAction" type="button" aria-pressed="false">❄️ Encender AC</button>
+        </div>
+        <div id="houseLightConfirm" class="house-light-confirm" hidden>
+          <span id="houseLightConfirmText">¿Enviar una luz?</span>
+          <div>
+            <button id="houseLightCancel" type="button">Cancelar</button>
+            <button id="houseLightSend" type="button">Enviar luz 💡</button>
           </div>
         </div>
         <p id="housePresenceMessage" class="house-presence-message" aria-live="polite">Ahora la casa está descansando.</p>

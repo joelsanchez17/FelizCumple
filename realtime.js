@@ -12,14 +12,14 @@ window.enviarMensaje = () => {};
 window.enviarMensajePersonalizado = () => {};
 window.activarNotificaciones = () => {};
 
-function updatePushPrompt(state, message = '') {
+function updatePushPrompt(state, message = '', announce = false) {
   const prompt = document.getElementById('pushPrompt');
   const text = document.getElementById('pushPromptText');
   const button = document.getElementById('pushEnableButton');
   if (!prompt) return;
   if (state === 'ready') {
     prompt.hidden = true;
-    mostrarMensaje('Notificaciones activadas');
+    if (announce) mostrarMensaje('Notificaciones activadas');
     return;
   }
   prompt.hidden = false;
@@ -43,7 +43,7 @@ async function subscribeToPush(identity, fromUserGesture = false) {
       updatePushPrompt('waiting', 'Activá las notificaciones para recibir dibujos y mensajes.');
       return false;
     }
-    updatePushPrompt('working');
+    if (fromUserGesture || Notification.permission !== 'granted') updatePushPrompt('working');
     const permission = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
     if (permission !== 'granted') {
       updatePushPrompt('error', 'Están bloqueadas. Activalas en Ajustes → Notificaciones → KoalaApp.');
@@ -77,7 +77,7 @@ async function subscribeToPush(identity, fromUserGesture = false) {
     if (error) throw error;
     localStorage.setItem('love_push_registered', identity);
     console.info('Notificaciones activadas para', identity);
-    updatePushPrompt('ready');
+    updatePushPrompt('ready', '', fromUserGesture);
     return true;
   } catch (error) {
     localStorage.removeItem('love_push_registered');
@@ -122,6 +122,9 @@ async function startLoveRoom() {
     })
     .on('broadcast', { event: 'mimo' }, ({ payload }) => recibirMimo(payload.type))
     .on('broadcast', { event: 'mensaje' }, ({ payload }) => mostrarMensaje(payload.text))
+    .on('broadcast', { event: 'house-action' }, ({ payload }) => {
+      window.dispatchEvent(new CustomEvent('lovehouseaction', { detail: payload }));
+    })
     .on('broadcast', { event: 'drawing' }, ({ payload }) => {
       window.dispatchEvent(new CustomEvent('lovedrawingreceived', { detail: payload }));
     })

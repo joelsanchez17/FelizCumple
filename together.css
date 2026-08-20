@@ -339,7 +339,7 @@ body.together-active #presence-indicator { display: none !important; }
 .love-house[data-time="night"] .house-clocks span { color:#fff7fa; }
 .love-house[data-time="night"] .house-clocks small { color:#ddcbd3; }
 
-.house-people { position:relative; z-index:3; display:grid; grid-template-columns:1fr 48px 1fr; align-items:start; gap:5px; padding:105px 14px 0; }
+.house-people { position:relative; z-index:3; display:grid; grid-template-columns:1fr 48px 1fr; align-items:start; gap:5px; padding:115px 14px 0; }
 .house-person-scene { position:relative; width:min(105px,100%); height:102px; margin:0 auto; }
 .house-person strong { margin-top:5px; font-size:1.08rem; }
 .house-person > span { font-size:.62rem; }
@@ -382,7 +382,7 @@ body.together-active #presence-indicator { display: none !important; }
   .house-clocks > div { min-width:51px; padding:5px 4px; }
   .house-clocks span { font-size:.65rem; }
   .house-clocks small { max-width:51px; font-size:.38rem; }
-  .house-people { grid-template-columns:1fr 44px 1fr; padding:96px 8px 0; }
+  .house-people { grid-template-columns:1fr 44px 1fr; padding:108px 8px 0; }
   .house-person-scene { height:95px; }
   .house-avatar { width:49px; height:49px; border-width:3px; }
   .house-lamp { width:52px; height:90px; }
@@ -391,4 +391,67 @@ body.together-active #presence-indicator { display: none !important; }
   .house-lamp i { left:5px; width:42px; }
   .house-table { width:42px; height:29px; margin-top:57px; }
   .house-presence-message { width:auto; margin-top:10px; }
+}
+
+/* Relojes analógicos y pequeñas acciones dentro de la habitación. */
+.house-picture { display:none; }
+.house-clocks { position:absolute; z-index:4; inset:0; display:block; pointer-events:none; }
+.house-clocks > .house-clock { position:absolute; top:12px; width:82px; min-width:0; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.house-clock-germany { left:10px; }
+.house-clock-ecuador { right:10px; }
+.analog-clock { position:relative; width:47px; height:47px; margin:0 auto; border:3px solid color-mix(in srgb,var(--together-wine) 45%,#fff); border-radius:50%; background:repeating-conic-gradient(from -1deg,rgba(80,55,68,.38) 0 2deg,transparent 2deg 30deg),#fffaf8; box-shadow:0 5px 13px rgba(78,42,58,.11); }
+.analog-clock::after { content:""; position:absolute; inset:4px; border-radius:50%; background:#fffaf8; }
+.clock-hand { position:absolute; z-index:2; left:50%; bottom:50%; display:block; width:2px; border-radius:999px; background:var(--together-ink); transform-origin:50% 100%; }
+.clock-hour { height:12px; transform:translateX(-50%) rotate(var(--hour-angle,0deg)); }
+.clock-minute { height:17px; width:1.5px; transform:translateX(-50%) rotate(var(--minute-angle,0deg)); }
+.analog-clock > b { position:absolute; z-index:3; left:50%; top:50%; width:5px; height:5px; border-radius:50%; background:var(--together-wine); transform:translate(-50%,-50%); }
+.house-clocks .house-clock > small { display:block; max-width:none; margin-top:5px; overflow:visible; color:var(--together-ink); font:700 .48rem/1 'Quicksand',sans-serif; text-overflow:clip; white-space:nowrap; }
+.house-weather { display:block !important; margin-top:4px; color:var(--together-muted) !important; font:700 .55rem/1 'Quicksand',sans-serif !important; }
+.love-house[data-time="night"] .analog-clock { border-color:rgba(255,255,255,.3); background:#665563; }
+.love-house[data-time="night"] .analog-clock::after { background:#665563; }
+.love-house[data-time="night"] .clock-hand { background:#fff5f7; }
+.love-house[data-time="night"] .house-clocks .house-clock > small,
+.love-house[data-time="night"] .house-weather { color:#f3e6eb !important; }
+.love-house[data-time="night"] .house-clocks > .house-clock { border:0; background:transparent; }
+
+.house-window { appearance:none; -webkit-appearance:none; padding:0; cursor:pointer; perspective:120px; -webkit-tap-highlight-color:transparent; }
+.house-window::before,.house-window::after { display:none; }
+.house-window-pane { position:absolute; z-index:4; inset:auto; top:0; bottom:0; width:50%; border:1px solid rgba(255,255,255,.82); background:rgba(255,255,255,.08); transition:transform .48s cubic-bezier(.2,.8,.2,1); }
+.house-window-pane-left { left:0; border-left:0; transform-origin:left center; }
+.house-window-pane-right { right:0; border-right:0; transform-origin:right center; }
+.house-window.is-open .house-window-pane-left { transform:perspective(80px) rotateY(65deg); }
+.house-window.is-open .house-window-pane-right { transform:perspective(80px) rotateY(-65deg); }
+.house-window.is-open { box-shadow:inset 0 0 0 1px rgba(80,52,67,.08),0 9px 23px rgba(59,43,61,.14),0 0 18px rgba(177,211,226,.35); }
+
+.house-ac-unit { position:absolute; z-index:4; right:14px; top:91px; width:55px; height:20px; border:1px solid rgba(102,70,83,.15); border-radius:6px 6px 9px 9px; background:#fffaf8; box-shadow:0 5px 12px rgba(75,44,57,.1); }
+.house-ac-unit i { position:absolute; right:6px; top:5px; width:4px; height:4px; border-radius:50%; background:#b9aab0; }
+.house-ac-unit span { position:absolute; left:8px; right:8px; bottom:4px; height:2px; border-radius:2px; background:#d8cbd0; }
+.house-ac-unit::before,.house-ac-unit::after { content:""; position:absolute; top:22px; width:15px; height:22px; opacity:0; border-radius:50%; border-right:2px solid rgba(101,177,205,.55); transform:rotate(12deg); }
+.house-ac-unit::before { left:8px; }
+.house-ac-unit::after { right:8px; }
+.house-interior.ac-on .house-ac-unit i { background:#64b5d2; box-shadow:0 0 6px #64b5d2; }
+.house-interior.ac-on .house-ac-unit::before,.house-interior.ac-on .house-ac-unit::after { opacity:1; animation:acBreeze 1.35s ease-in-out infinite; }
+@keyframes acBreeze { 50% { transform:translateY(5px) rotate(12deg); opacity:.35; } }
+
+.house-room-actions { display:flex; justify-content:center; gap:7px; margin:10px 0 0; }
+.house-room-actions button { min-height:36px; padding:7px 11px; border:1px solid color-mix(in srgb,var(--together-wine) 18%,transparent); border-radius:999px; color:var(--together-wine); background:rgba(255,255,255,.58); cursor:pointer; font:700 .61rem 'Quicksand',sans-serif; }
+.house-room-actions button[aria-pressed="true"] { color:#fff; background:var(--together-wine); }
+.house-light-confirm { margin:10px 0 0; padding:11px 12px; border:1px solid color-mix(in srgb,var(--together-wine) 16%,transparent); border-radius:16px; text-align:left; background:rgba(255,251,248,.88); box-shadow:0 8px 20px rgba(78,42,58,.09); }
+.house-light-confirm[hidden] { display:none; }
+.house-light-confirm > span { display:block; margin-bottom:9px; color:var(--together-ink); font:700 .72rem 'Quicksand',sans-serif; }
+.house-light-confirm > div { display:flex; justify-content:flex-end; gap:7px; }
+.house-light-confirm button { min-height:34px; padding:7px 11px; border:0; border-radius:999px; color:var(--together-wine); background:#eee3e7; font:700 .61rem 'Quicksand',sans-serif; }
+#houseLightSend { color:#fff; background:var(--together-wine); }
+
+@media (max-width:430px) {
+  .house-clocks > .house-clock { top:10px; width:72px; }
+  .house-clock-germany { left:5px; }
+  .house-clock-ecuador { right:5px; }
+  .analog-clock { width:43px; height:43px; }
+  .clock-hour { height:11px; }
+  .clock-minute { height:15px; }
+  .house-clocks .house-clock > small { font-size:.43rem; }
+  .house-weather { font-size:.5rem !important; }
+  .house-ac-unit { right:9px; top:85px; width:49px; }
+  .house-room-actions button { flex:1; padding:7px 8px; }
 }
