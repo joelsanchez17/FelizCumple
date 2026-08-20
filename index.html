@@ -43,6 +43,24 @@
 </head>
 
 <body>
+  <button id="birthdayReplay" class="birthday-replay" type="button" hidden>Tu regalo ✦</button>
+  <div id="birthdayMorning" class="birthday-morning" role="dialog" aria-modal="true" aria-labelledby="birthdayMorningTitle" hidden>
+    <div class="birthday-morning-card">
+      <div id="birthdayCover" class="birthday-cover">
+        <div class="birthday-envelope" aria-hidden="true">💌</div>
+        <div class="birthday-morning-kicker">21 de agosto</div>
+        <h2 id="birthdayMorningTitle">Esto es para vos</h2>
+        <button id="birthdayOpen" type="button">Abrir</button>
+      </div>
+      <div id="birthdayReveal" class="birthday-reveal" hidden>
+        <div class="birthday-number">21</div>
+        <div class="birthday-morning-kicker">Feliz cumpleaños, mi princesa</div>
+        <!-- EDITÁ SOLO ESTE TEXTO CON TUS PALABRAS: mantenelo breve -->
+        <p id="birthdayPersonalText">Hoy celebro que existís.<br>Feliz cumpleaños, mi amor.</p>
+        <button id="birthdayClose" type="button">Empezar este día juntos</button>
+      </div>
+    </div>
+  </div>
   <div id="pushPrompt" class="push-prompt" hidden>
     <span id="pushPromptText">Activá las notificaciones para recibir dibujos y mensajes.</span>
     <button id="pushEnableButton" type="button" onclick="activarNotificaciones()">Activar notificaciones</button>
@@ -3967,6 +3985,54 @@
   </script>
 
   <script>
+    /* Sorpresa del 21 de agosto — usa la fecha local del celular. */
+    (() => {
+      const now = new Date();
+      const localDate = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0')
+      ].join('-');
+      const preview = new URLSearchParams(location.search).get('birthdayPreview') === '1';
+      const isBirthday = localDate === '2026-08-21' || preview;
+      if (!isBirthday) return;
+
+      const KEY = 'birthday_surprise_2026_seen';
+      const overlay = document.getElementById('birthdayMorning');
+      const replay = document.getElementById('birthdayReplay');
+      const cover = document.getElementById('birthdayCover');
+      const reveal = document.getElementById('birthdayReveal');
+      document.body.classList.add('birthday-mode');
+      document.getElementById('updateBanner')?.remove();
+      replay.hidden = false;
+
+      function resetAndOpen() {
+        cover.hidden = false;
+        reveal.hidden = true;
+        overlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+      function close() {
+        overlay.classList.add('birthday-closing');
+        if (!preview) localStorage.setItem(KEY, '1');
+        document.body.style.overflow = '';
+        setTimeout(() => { overlay.hidden = true; overlay.classList.remove('birthday-closing'); }, 280);
+      }
+
+      document.getElementById('birthdayOpen')?.addEventListener('click', () => {
+        cover.hidden = true;
+        reveal.hidden = false;
+        navigator.vibrate?.([30, 45, 80]);
+        window.confettiBurst?.(90);
+        setTimeout(() => window.confettiBurst?.(45), 650);
+      });
+      document.getElementById('birthdayClose')?.addEventListener('click', close);
+      replay.addEventListener('click', resetAndOpen);
+      if (preview || localStorage.getItem(KEY) !== '1') setTimeout(resetAndOpen, 700);
+    })();
+  </script>
+
+  <script>
     /* Fase 2.1 — fixes visuales seguros: paleta visible, fallback de imágenes locales y sorpresa de actualización. */
     (function () {
       const ASSET_BASE = 'https://joelsanchez17.github.io/FelizCumple/';
@@ -3995,6 +4061,10 @@
       // Sorpresa: aparece una sola vez por versión. No toca juegos, tabs, realtime ni música.
       const SURPRISE_KEY = 'koala_phase_2_1_surprise_seen';
       const card = document.getElementById('romantic-update-surprise');
+      if (document.body.classList.contains('birthday-mode')) {
+        if (card) card.style.display = 'none';
+        return;
+      }
       if (!card || localStorage.getItem(SURPRISE_KEY) === '1') return;
 
       const close = () => {

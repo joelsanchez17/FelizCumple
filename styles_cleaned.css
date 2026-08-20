@@ -2367,6 +2367,45 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
 
 /* ===== VISUAL TIMELINE — Fechas tab ===== */
 
+/* ===== SORPRESA DE CUMPLEAÑOS — 21 DE AGOSTO ===== */
+.birthday-morning {
+  position: fixed;
+  inset: 0;
+  z-index: 30000;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: radial-gradient(circle at 50% 18%, rgba(255,248,239,.98), rgba(83,38,61,.72));
+  backdrop-filter: blur(14px);
+  animation: birthdayFade .45s ease both;
+}
+.birthday-morning[hidden], .birthday-replay[hidden], .birthday-cover[hidden], .birthday-reveal[hidden] { display: none; }
+.birthday-morning-card {
+  width: min(410px, 100%);
+  min-height: 410px;
+  display: grid;
+  place-items: center;
+  padding: 34px 28px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 30px;
+  text-align: center;
+  background: linear-gradient(155deg, #fffdf9, #fff0f4);
+  box-shadow: 0 28px 80px rgba(67,28,48,.34);
+}
+.birthday-cover, .birthday-reveal { width: 100%; animation: birthdayCardIn .45s cubic-bezier(.2,.8,.2,1) both; }
+.birthday-envelope { font-size: 4.4rem; filter: drop-shadow(0 10px 16px rgba(128,51,83,.18)); margin-bottom: 15px; }
+.birthday-morning-kicker { color: #a64c70; font: 700 .74rem 'Quicksand',sans-serif; letter-spacing: .13em; text-transform: uppercase; }
+.birthday-morning h2 { margin: 10px 0 25px; color: #54233a; font: 700 2.2rem 'Cormorant Garamond',serif; }
+.birthday-number { width: 94px; height: 94px; display:grid; place-items:center; margin:0 auto 22px; border-radius:50%; color:#fff; background:linear-gradient(145deg,#d95d87,#8e3f78); box-shadow:0 12px 30px rgba(142,63,120,.25); font:700 2.8rem 'Cormorant Garamond',serif; }
+#birthdayPersonalText { margin:18px 0 27px; color:#513d47; font:600 1.28rem/1.55 'Cormorant Garamond',serif; }
+.birthday-morning button, .birthday-replay { border:0; border-radius:999px; color:#fff; background:#7d4164; cursor:pointer; font:700 .82rem 'Quicksand',sans-serif; }
+.birthday-morning button { padding:12px 24px; }
+.birthday-replay { position:fixed; right:16px; bottom:86px; z-index:10055; padding:9px 14px; box-shadow:0 8px 24px rgba(83,35,58,.22); }
+.birthday-closing { animation:birthdayFade .28s ease reverse both; }
+@keyframes birthdayFade { from { opacity:0; } }
+@keyframes birthdayCardIn { from { opacity:0; transform:translateY(15px) scale(.97); } }
+@media (max-width:420px) { .birthday-morning-card { min-height:390px; padding:28px 20px; } .birthday-morning h2 { font-size:2rem; } }
+
 .tl-hero {
   text-align: center;
   padding: 28px 16px 20px;
