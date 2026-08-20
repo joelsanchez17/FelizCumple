@@ -2398,22 +2398,18 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   margin: 0;
 }
 
-/* Track container */
+/* Track container - now used as grid wrapper too */
 .tl-wrap {
   position: relative;
   padding: 0 0 20px;
 }
-/* Vertical connecting line */
-.tl-wrap::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0; bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, #f48fb1, #ce93d8, #f48fb1);
-  transform: translateX(-50%);
-  border-radius: 2px;
-  opacity: .45;
+
+/* 2-column grid for Momentos */
+.mom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 /* Each item */
@@ -2501,6 +2497,10 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   margin-bottom: 5px;
   line-height: 1.25;
 }
+.tl-card-emoji {
+  font-size: 1.3em;
+  margin-bottom: 4px;
+}
 .tl-text {
   font-family: 'Quicksand', sans-serif;
   font-size: .82em;
@@ -2515,13 +2515,12 @@ from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: t
   box-shadow: 0 4px 18px rgba(156,39,176,.1);
 }
 
-/* Mobile: stack single column */
+/* Mobile: single column */
 @media (max-width: 480px) {
-  .tl-wrap::before { left: 18px; }
-  .tl-item { flex-direction: column !important; padding-left: 46px; }
-  .tl-dot {
-    left: 0; top: 0; transform: none;
-    width: 32px; height: 32px; font-size: .9em;
-  }
+  .tl-wrap::before { display: none; }
+  .tl-item { flex-direction: column !important; padding-left: 0; }
+  .tl-dot { display: none; }
   .tl-card { width: 100%; }
+  .mom-grid { grid-template-columns: 1fr; }
+  .mom-grid .tl-card[style*="grid-column"] { grid-column: span 1 !important; }
 }
