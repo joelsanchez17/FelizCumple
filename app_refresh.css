@@ -12,12 +12,12 @@
 .app-section-hero {
   position: relative;
   overflow: hidden;
-  min-height: 178px;
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   margin: 4px 0 16px;
-  padding: 28px 26px;
+  padding: 24px 23px;
   border: 1px solid rgba(255,255,255,.72);
   border-radius: 29px;
   text-align: left;
@@ -49,7 +49,7 @@
   max-width: 520px;
   margin: 7px 0 6px !important;
   color: var(--app-ink) !important;
-  font: 700 clamp(2rem, 8vw, 3.05rem)/.96 'Cormorant Garamond', serif !important;
+  font: 700 clamp(1.65rem, 6vw, 2.45rem)/1.02 'Cormorant Garamond', serif !important;
   letter-spacing: -.025em;
 }
 
@@ -234,7 +234,7 @@
 #memories .photo-gallery img { aspect-ratio:1/1; border:0 !important; border-radius:18px !important; object-fit:cover; box-shadow:0 10px 26px rgba(72,39,54,.12) !important; }
 #spotifyPanel iframe { border-radius:18px !important; }
 #drawingPanel .love-canvas { border-color:rgba(145,71,102,.22) !important; border-radius:18px !important; box-shadow:inset 0 0 24px rgba(89,49,66,.035) !important; }
-#drawingPanel .draw-mode-tools { display:flex; align-items:center; gap:7px; margin:0 0 12px; padding:7px; border:1px solid var(--app-line); border-radius:17px; background:rgba(255,255,255,.62); }
+#drawingPanel .draw-mode-tools { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin:0 0 12px; padding:7px; border:1px solid var(--app-line); border-radius:17px; background:rgba(255,255,255,.62); }
 #drawingPanel .draw-mode-tools button { min-height:38px; display:flex; align-items:center; justify-content:center; gap:6px; padding:7px 11px; border:0; border-radius:12px; color:#745966; background:transparent; cursor:pointer; font:700 .68rem 'Quicksand',sans-serif; }
 #drawingPanel .draw-mode-tools button > span { font:700 1.05rem 'Cormorant Garamond',serif; }
 #drawingPanel .draw-mode-tools button.active { color:#fff; background:var(--app-wine); box-shadow:0 6px 14px rgba(113,56,81,.14); }
@@ -251,6 +251,13 @@
 #drawingPanel .draw-text-options select { min-width:0; padding:9px; border:1px solid rgba(145,71,102,.16); border-radius:11px; color:#694d5b; background:#fff; font:600 .68rem 'Quicksand',sans-serif; }
 #drawingPanel .draw-text-options button { padding:10px 13px; border:0; border-radius:999px; color:#fff; background:var(--app-wine); cursor:pointer; font:700 .66rem 'Quicksand',sans-serif; }
 #drawingPanel .draw-text-panel small { display:block; margin-top:8px; color:#947d88; font:600 .61rem/1.4 'Quicksand',sans-serif; }
+#drawingPanel .draw-shape-panel { margin:-3px 0 12px; padding:13px 15px; border:1px solid rgba(145,71,102,.16); border-radius:17px; background:#faf0f3; }
+#drawingPanel .draw-shape-panel[hidden] { display:none; }
+#drawingPanel .draw-shape-panel > span { display:block; margin-bottom:9px; color:var(--app-ink); font:700 .7rem 'Quicksand',sans-serif; }
+#drawingPanel .draw-shape-options { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
+#drawingPanel .draw-shape { min-height:42px; padding:4px; border:1px solid rgba(145,71,102,.16); border-radius:12px; color:var(--app-wine); background:#fff; cursor:pointer; font:700 1.55rem/1 'Cormorant Garamond',serif; }
+#drawingPanel .draw-shape.active { color:#fff; border-color:var(--app-wine); background:var(--app-wine); }
+#drawingPanel .draw-shape-panel small { display:block; margin-top:8px; color:#947d88; font:600 .61rem/1.4 'Quicksand',sans-serif; }
 #drawingPanel .draw-actions { gap:8px; }
 #drawingPanel .draw-clear { color:#735967 !important; background:#eee6e8 !important; }
 #drawingPanel .draw-save { color:var(--app-wine) !important; border:1px solid rgba(145,71,102,.22) !important; background:#fff !important; }
@@ -261,7 +268,7 @@
 #memories .paper-rings-list li::before { content:"♡"; position:absolute; left:5px; color:var(--app-rose); }
 
 /* Fechas */
-#anniversary .app-section-hero { min-height:178px; margin-bottom:16px; }
+#anniversary .app-section-hero { min-height:150px; margin-bottom:16px; }
 #anniversary .mom-grid { gap:12px; }
 #anniversary .tl-card {
   border:1px solid rgba(255,255,255,.76) !important;
@@ -275,15 +282,21 @@
 #anniversary .tl-text { color:var(--app-muted) !important; font:500 .72rem/1.45 'Quicksand',sans-serif !important; }
 
 @media (max-width: 430px) {
-  .app-section-hero { min-height:160px; padding:24px 20px; border-radius:25px; }
+  .app-section-hero { min-height:136px; padding:20px 17px; border-radius:25px; }
   .app-section-hero::after { right:18px; top:16px; }
+  .app-section-hero h1,
+  .app-section-hero .tl-hero-title { max-width:calc(100% - 20px); font-size:clamp(1.45rem,7vw,1.78rem) !important; line-height:1.04 !important; }
+  .app-section-hero p,
+  .app-section-hero .tl-hero-sub { font-size:.74rem !important; line-height:1.42 !important; }
   #home > .panel,#games > .panel,#memories > .panel,#anniversary > .panel { padding:21px 17px !important; border-radius:24px !important; }
   #home .sticker-toolbar { flex-wrap:wrap; border-radius:20px; }
   #games .catch-area { min-height:245px; }
   #anniversary .mom-grid { gap:10px; }
   #anniversary .tl-body { padding:11px !important; }
   #anniversary .tl-text { font-size:.67rem !important; }
-  #drawingPanel .draw-mode-tools button { padding:7px 9px; }
+  #drawingPanel .draw-mode-tools button { flex:1 1 58px; padding:7px 8px; }
+  #drawingPanel .draw-mode-tools .draw-history-button { flex:0 0 38px; }
+  #drawingPanel .draw-tool-divider { display:none; }
   #drawingPanel .draw-text-options { grid-template-columns:auto 1fr; }
   #drawingPanel .draw-text-options button { grid-column:1 / -1; }
 }

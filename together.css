@@ -40,7 +40,7 @@ body.together-active #presence-indicator { display: none !important; }
   max-width: 510px;
   margin: 8px 0 6px;
   color: var(--together-ink);
-  font: 700 clamp(2rem, 8vw, 3.15rem)/.98 'Cormorant Garamond', serif;
+  font: 700 clamp(1.65rem, 6vw, 2.45rem)/1.02 'Cormorant Garamond', serif;
   letter-spacing: -.025em;
 }
 
@@ -224,13 +224,18 @@ body.together-active #presence-indicator { display: none !important; }
 .together-error { margin:12px 0 0; padding:11px 13px; border-radius:13px; color:#83485c; background:#fae8ed; font:600 .7rem/1.4 'Quicksand',sans-serif; }
 
 @media (max-width: 430px) {
-  .together-hero { padding:24px 15px 17px; }
+  .together-hero { padding:20px 15px 16px; }
+  .together-hero h1 { max-width:calc(100% - 16px); font-size:clamp(1.45rem,7vw,1.78rem); line-height:1.04; }
+  .together-hero p { font-size:.74rem; line-height:1.42; }
   .love-house { min-height:420px; border-radius:24px; }
   .house-room { padding:25px 17px 20px; }
-  .house-title-row { min-height:137px; }
-  .house-title-row > div { max-width:230px; }
-  .house-window { left:auto; right:20px; top:87px; width:68px; height:72px; transform:none; border-width:5px; }
-  .house-title-row h2,.together-section-head h2 { font-size:1.5rem; }
+  .house-title-row { min-height:145px; }
+  .house-title-row > div { max-width:145px; }
+  .house-window { left:auto; right:17px; top:103px; width:62px; height:66px; transform:none; border-width:5px; }
+  .house-title-row h2 { font-size:1.25rem; line-height:1.02; }
+  .together-section-head h2 { font-size:1.4rem; }
+  .house-time { padding:5px 8px; font-size:.58rem; }
+  .together-kicker { font-size:.59rem; letter-spacing:.1em; }
   .together-card { padding:22px 17px; border-radius:24px; }
   .heart-choices button { padding:9px; font-size:.68rem; }
 }

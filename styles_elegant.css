@@ -684,24 +684,11 @@ body.theme-picker-original-preserved::before {
 }
 
 .theme-toggle-btn::after {
-  content: "Paleta";
-  position: absolute;
-  left: 56px;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 6px 9px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.9);
-  color: var(--accent-strong);
-  border: 1px solid rgba(255,255,255,.86);
-  font-size: .72rem;
-  font-weight: 700;
-  box-shadow: 0 8px 18px rgba(76,34,48,.12);
-  pointer-events: none;
+  display: none;
 }
 
 .theme-fab-container.open .theme-toggle-btn::after {
-  content: "Elegí";
+  display: none;
 }
 
 .theme-options {
