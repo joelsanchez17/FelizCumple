@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Feliz Cumple ❤️</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -14,8 +14,8 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=2">
-  <link rel="stylesheet" href="./app_refresh.css?v=3">
+  <link rel="stylesheet" href="./together.css?v=4">
+  <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -168,9 +168,8 @@
   </nav>
 
   <div id="home" class="tab-content active">
-    <header class="app-section-hero app-section-hero-home">
+    <header class="app-section-hero app-section-hero-home app-section-hero-compact">
       <span>HECHA PARA VOS</span>
-      <h1>Esta app es tuya</h1>
       <p>La hice para acompañarte, hacerte sonreír y recordarte cuánto te amo.</p>
     </header>
     <div class="panel">
@@ -404,8 +403,6 @@
     </header>
 
     <section id="loveHouse" class="love-house" data-time="day" aria-labelledby="loveHouseTitle">
-      <div class="house-sky" aria-hidden="true"><i></i><i></i><i></i></div>
-      <div class="house-window" aria-hidden="true"><span></span></div>
       <div class="house-room">
         <div class="house-title-row">
           <div>
@@ -415,20 +412,32 @@
           <span id="houseTimeLabel" class="house-time">Ahora</span>
         </div>
 
-        <div class="house-people">
-          <article id="houseJoel" class="house-person">
-            <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
-            <strong>Joel</strong>
-            <span id="houseJoelPresence">No está ahora</span>
-            <small id="houseJoelHeart">Sin señal todavía</small>
-          </article>
-          <div class="house-table" aria-hidden="true"><span>♡</span></div>
-          <article id="housePrincesa" class="house-person">
-            <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
-            <strong>Princesa</strong>
-            <span id="housePrincesaPresence">No está ahora</span>
-            <small id="housePrincesaHeart">Sin señal todavía</small>
-          </article>
+        <div class="house-interior" aria-label="La habitación compartida de Joel y Princesa">
+          <div class="house-window" aria-hidden="true">
+            <div class="house-sky"><i></i><i></i><i></i><i></i><i></i><b></b></div>
+          </div>
+          <div class="house-picture" aria-hidden="true">♡</div>
+          <div class="house-people">
+              <article id="houseJoel" class="house-person house-person-joel">
+                <div class="house-person-scene">
+                  <div class="house-avatar"><img src="perfil_yo.jpg" alt=""></div>
+                <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
+                </div>
+                <strong>Joel</strong>
+                <span id="houseJoelPresence">No está ahora</span>
+                <small id="houseJoelHeart">Sin señal todavía</small>
+              </article>
+              <div class="house-table" aria-hidden="true"><span>♡</span></div>
+              <article id="housePrincesa" class="house-person house-person-princesa">
+                <div class="house-person-scene">
+                  <div class="house-avatar"><img src="princesa2.jpg" alt=""></div>
+                <div class="house-lamp" aria-hidden="true"><b></b><i></i></div>
+                </div>
+                <strong>Princesa</strong>
+                <span id="housePrincesaPresence">No está ahora</span>
+                <small id="housePrincesaHeart">Sin señal todavía</small>
+              </article>
+          </div>
         </div>
         <p id="housePresenceMessage" class="house-presence-message" aria-live="polite">Ahora la casa está descansando.</p>
       </div>
@@ -676,9 +685,8 @@
 
   </div>
   <div id="memories" class="tab-content">
-    <header class="app-section-hero app-section-hero-memories">
+    <header class="app-section-hero app-section-hero-memories app-section-hero-compact">
       <span>VOS, EN MIS OJOS</span>
-      <h1>Todo lo que amo guardar de vos</h1>
       <p>Tus fotos, nuestras historias y esos detalles tuyos que nunca quiero olvidar.</p>
     </header>
 
@@ -2563,7 +2571,7 @@
       if (!box || !img || !cap || typeof window.openLight !== 'function') return;
 
       // 👉 Cambia estas URLs por las reales en tu GitHub
-      const URL_FOTO_ELLA = 'https://joelsanchez17.github.io/FelizCumple/perfil_ella.jpg';
+      const URL_FOTO_ELLA = 'https://joelsanchez17.github.io/FelizCumple/princesa2.jpg';
       const URL_FOTO_YO = 'https://joelsanchez17.github.io/FelizCumple/perfil_yo.jpg';
 
       const qCore = document.querySelector('#endQuito .end-core');
@@ -3044,7 +3052,7 @@
       if (!container || !toggleBtn || !optionsContainer) return;
 
       const THEME_KEY = 'page_theme_v1';
-      const POSITION_KEY = 'fab_position_v2';
+      const POSITION_KEY = 'fab_position_v3';
 
       const themes = [
         { id: 'original', name: 'Original', color: 'linear-gradient(to right, #ff9a9e, #fad0c4)' },

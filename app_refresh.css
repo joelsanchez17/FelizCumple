@@ -61,6 +61,11 @@
   font: 500 .85rem/1.5 'Quicksand', sans-serif !important;
 }
 
+.app-section-hero-compact {
+  min-height: 118px;
+  gap: 9px;
+}
+
 .app-section-hero-games {
   background:
     radial-gradient(circle at 89% 20%, rgba(255,255,255,.65) 0 3px, transparent 4px),
@@ -299,4 +304,35 @@
   #drawingPanel .draw-tool-divider { display:none; }
   #drawingPanel .draw-text-options { grid-template-columns:auto 1fr; }
   #drawingPanel .draw-text-options button { grid-column:1 / -1; }
+  .app-section-hero-compact { min-height:104px; }
+}
+
+/* iPhone 14 Pro en vertical: 393 × 852 puntos CSS. */
+@media (min-width: 390px) and (max-width: 396px) and (max-height: 860px) {
+  body {
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+    padding-left: max(10px, env(safe-area-inset-left));
+  }
+  .tab-content { width:100%; padding-bottom:calc(112px + env(safe-area-inset-bottom)); }
+  .app-section-hero { margin-top:2px; padding:18px 17px; }
+  .app-section-hero-compact { min-height:100px; }
+  #home > .panel,
+  #games > .panel,
+  #memories > .panel,
+  #anniversary > .panel { padding:20px 16px !important; }
+  .bottom-nav {
+    left:max(8px, env(safe-area-inset-left));
+    right:max(8px, env(safe-area-inset-right));
+    bottom:calc(7px + env(safe-area-inset-bottom));
+    height:62px;
+  }
+  #presence-indicator { bottom:calc(84px + env(safe-area-inset-bottom)) !important; left:12px !important; }
+  .theme-fab-container { right:12px; left:auto; bottom:calc(84px + env(safe-area-inset-bottom)); }
+  #drawingPanel .draw-mode-tools { gap:6px; }
+  #drawingPanel .draw-mode-tools button { min-height:40px; }
+  #drawingPanel .draw-shape-options { gap:6px; }
+  #drawingPanel .draw-actions { flex-wrap:wrap; }
+  #drawingPanel .draw-actions button { min-width:96px; }
 }
