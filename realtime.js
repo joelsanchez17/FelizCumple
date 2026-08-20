@@ -9,22 +9,44 @@ window.toggleToolbar = () => {};
 window.enviarMimo = () => {};
 window.enviarMensaje = () => {};
 window.enviarMensajePersonalizado = () => {};
+window.activarNotificaciones = () => {};
+
+function updatePushPrompt(state, message = '') {
+  const prompt = document.getElementById('pushPrompt');
+  const text = document.getElementById('pushPromptText');
+  const button = document.getElementById('pushEnableButton');
+  if (!prompt) return;
+  if (state === 'ready') {
+    prompt.hidden = true;
+    mostrarMensaje('Notificaciones activadas');
+    return;
+  }
+  prompt.hidden = false;
+  if (text && message) text.textContent = message;
+  if (button) button.disabled = state === 'working';
+  if (button) button.textContent = state === 'working' ? 'Activando…' : 'Activar notificaciones';
+}
 
 function decodeVapidKey(value) {
   const base64 = (value + '='.repeat((4 - value.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/');
   return Uint8Array.from(atob(base64), char => char.charCodeAt(0));
 }
 
-async function subscribeToPush(identity) {
+async function subscribeToPush(identity, fromUserGesture = false) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
-    mostrarMensaje('Este dispositivo no admite notificaciones push');
-    return;
+    updatePushPrompt('error', 'Las notificaciones requieren instalar la app desde Safari.');
+    return false;
   }
   try {
+    if (Notification.permission === 'default' && !fromUserGesture) {
+      updatePushPrompt('waiting', 'Activá las notificaciones para recibir dibujos y mensajes.');
+      return false;
+    }
+    updatePushPrompt('working');
     const permission = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
     if (permission !== 'granted') {
-      mostrarMensaje('Las notificaciones no están permitidas');
-      return;
+      updatePushPrompt('error', 'Están bloqueadas. Activalas en Ajustes → Notificaciones → KoalaApp.');
+      return false;
     }
     const registration = await navigator.serviceWorker.ready;
     let subscription = await registration.pushManager.getSubscription();
@@ -54,10 +76,13 @@ async function subscribeToPush(identity) {
     if (error) throw error;
     localStorage.setItem('love_push_registered', identity);
     console.info('Notificaciones activadas para', identity);
+    updatePushPrompt('ready');
+    return true;
   } catch (error) {
     localStorage.removeItem('love_push_registered');
-    mostrarMensaje('No se pudieron activar las notificaciones');
+    updatePushPrompt('error', 'No se pudieron activar. Cerrá la app, abrila e intentá otra vez.');
     console.warn('No se pudieron activar las notificaciones:', error);
+    return false;
   }
 }
 
@@ -79,6 +104,7 @@ async function startLoveRoom() {
   window.loveIdentity = identity;
   window.loveTargetIdentity = target;
   window.dispatchEvent(new CustomEvent('loveidentityready', { detail: { identity, target } }));
+  window.activarNotificaciones = () => subscribeToPush(identity, true);
   subscribeToPush(identity);
 
   const room = client.channel('room_amor', { config: { presence: { key: identity } } });

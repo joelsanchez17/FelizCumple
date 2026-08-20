@@ -43,6 +43,10 @@
 </head>
 
 <body>
+  <div id="pushPrompt" class="push-prompt" hidden>
+    <span id="pushPromptText">Activá las notificaciones para recibir dibujos y mensajes.</span>
+    <button id="pushEnableButton" type="button" onclick="activarNotificaciones()">Activar notificaciones</button>
+  </div>
   <div id="identityModal" class="identity-modal" role="dialog" aria-modal="true" aria-labelledby="identityTitle" hidden>
     <div class="identity-card">
       <div class="identity-heart">💞</div>
@@ -1282,6 +1286,11 @@
     .custom-message button { border:0; border-radius:999px; padding:7px 11px; background:#6f4cc3; color:#fff; font:600 .72rem 'Quicksand',sans-serif; cursor:pointer; }
     .love-message-toast { position:fixed; left:50%; bottom:150px; z-index:20100; max-width:calc(100vw - 40px); padding:12px 18px; border-radius:999px; background:#fff; color:#5e3f72; box-shadow:0 12px 35px rgba(66,39,79,.2); font:600 .9rem 'Quicksand',sans-serif; opacity:0; transform:translate(-50%,10px); transition:.22s ease; }
     .love-message-toast.show { opacity:1; transform:translate(-50%,0); }
+    .push-prompt { position:fixed; z-index:19900; left:50%; bottom:86px; width:min(420px,calc(100vw - 28px)); transform:translateX(-50%); display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid rgba(98,72,141,.18); border-radius:14px; background:rgba(255,255,255,.97); box-shadow:0 12px 35px rgba(66,39,79,.18); color:#55475d; font:500 .8rem 'Quicksand',sans-serif; }
+    .push-prompt[hidden] { display:none; }
+    .push-prompt span { flex:1; line-height:1.35; }
+    .push-prompt button { border:0; border-radius:999px; padding:9px 12px; background:#6f4cc3; color:#fff; white-space:nowrap; font:600 .72rem 'Quicksand',sans-serif; }
+    .push-prompt button:disabled { opacity:.65; }
     @media (max-width:600px) { #mimos-toolbar { position:fixed; left:20px; bottom:130px; width:calc(100vw - 40px); max-width:350px; } }
     @media (max-width:480px) { .draw-actions { flex-wrap:wrap; } .draw-actions .draw-clear { flex:.7 !important; } .draw-actions .draw-save { flex:1 !important; } .draw-actions .draw-send { flex-basis:100% !important; } }
     .draw-gallery {
@@ -3665,7 +3674,7 @@
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
       const s = document.createElement('script');
-      s.src = 'realtime.js';
+      s.src = 'realtime.js?v=3';
       document.head.appendChild(s);
     } else {
       // En file:// simulamos las funciones para que no rompa nada
@@ -3673,6 +3682,7 @@
       window.enviarMimo = () => { };
       window.enviarMensaje = () => { };
       window.enviarMensajePersonalizado = () => { };
+      window.activarNotificaciones = () => { };
       window.partnerOnline = false;
     }
   </script>

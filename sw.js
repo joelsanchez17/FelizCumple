@@ -1,4 +1,4 @@
-const CACHE_NAME = 'love-app-v6-push';
+const CACHE_NAME = 'love-app-v7-push-registration';
 const ASSETS_TO_CACHE = ['./index.html', './realtime.js', './manifest.json', './styles_cleaned.css', './styles_elegant.css', './icono-app.png'];
 
 self.addEventListener('install', event => {
