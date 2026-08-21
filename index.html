@@ -13,7 +13,7 @@
   <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
-  <link rel="stylesheet" href="./styles_elegant.css?v=7">
+  <link rel="stylesheet" href="./styles_elegant.css?v=8">
   <link rel="stylesheet" href="./together.css?v=15">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
@@ -150,7 +150,7 @@
       <span class="nav-label">Inicio</span>
     </button>
     <button onclick="showTab(this, 'together')" aria-label="Tu casita">
-      <span class="nav-icon" aria-hidden="true">🏠</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.8 12 3.8l8.5 7M5.7 9.7v10.1h12.6V9.7M9.4 19.8v-6.1h5.2v6.1"/></svg></span>
       <span class="nav-label">Casita</span>
     </button>
     <button onclick="showTab(this, 'games')" aria-label="Juegos">
@@ -162,7 +162,7 @@
       <span class="nav-label">Tu álbum</span>
     </button>
     <button onclick="showTab(this, 'anniversary')" aria-label="Historia">
-      <span class="nav-icon" aria-hidden="true">📖</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 5.2c3.2-.8 5.9-.2 8.5 1.8v12c-2.6-2-5.3-2.6-8.5-1.8zM20.5 5.2c-3.2-.8-5.9-.2-8.5 1.8v12c2.6-2 5.3-2.6 8.5-1.8z"/></svg></span>
       <span class="nav-label">Historia</span>
     </button>
   </nav>
@@ -4132,7 +4132,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=28', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=29', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});

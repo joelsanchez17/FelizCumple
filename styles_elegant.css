@@ -345,6 +345,17 @@ h2.muted {
   line-height: 1;
 }
 
+.nav-icon svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .nav-label {
   font-size: .68rem;
   font-weight: 700;
