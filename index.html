@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=13">
+  <link rel="stylesheet" href="./together.css?v=14">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -403,16 +403,42 @@
     </header>
 
     <section id="loveHouse" class="love-house" data-time="day" aria-labelledby="loveHouseTitle">
-      <div class="house-room">
+      <div id="houseEntrance" class="house-entry">
+        <div class="house-entry-heading">
+          <span class="together-kicker">BIENVENIDA A CASA</span>
+          <h2 id="loveHouseTitle">¿Dónde empezamos?</h2>
+          <p>Entrá despacito. Si el otro está en casa, vas a tener que encontrarlo.</p>
+        </div>
+        <div id="houseHomeStatus" class="house-home-status" aria-live="polite">
+          <span aria-hidden="true"></span><strong>La casa está tranquila.</strong>
+        </div>
+        <nav class="house-map" aria-label="Habitaciones de nuestra casa">
+          <button type="button" class="house-map-room house-map-bedroom" data-enter-room="bedroom">
+            <span aria-hidden="true">🛏️</span><strong>Dormitorio</strong><small>Nuestra habitación</small>
+          </button>
+          <button type="button" class="house-map-room house-map-bathroom" data-enter-room="bathroom">
+            <span aria-hidden="true">🚿</span><strong>Baño</strong><small>Todavía por llenar</small>
+          </button>
+          <button type="button" class="house-map-room house-map-kitchen" data-enter-room="kitchen">
+            <span aria-hidden="true">🍳</span><strong>Cocina</strong><small>Todavía por llenar</small>
+          </button>
+          <div class="house-map-future" aria-label="Lugar para una habitación futura">
+            <span aria-hidden="true">＋</span><strong>Próximamente</strong>
+          </div>
+        </nav>
+        <p class="house-search-hint">El mapa no cuenta dónde está el otro. Hay que ir habitación por habitación ♡</p>
+      </div>
+
+      <div id="houseBedroom" class="house-room house-room-view" data-room-view="bedroom" hidden>
         <div class="house-title-row">
           <div>
-            <span class="together-kicker">TU CASA A DISTANCIA</span>
-            <h2 id="loveHouseTitle">Una luz para vos y otra para mí</h2>
+            <span class="together-kicker">DORMITORIO</span>
+            <h2>Una luz para vos y otra para mí</h2>
           </div>
-          <span id="houseTimeLabel" class="house-time">Ahora</span>
+          <div class="house-room-tools"><span id="houseTimeLabel" class="house-time">Ahora</span><button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa">⌂</button></div>
         </div>
 
-        <div class="house-interior" aria-label="La habitación compartida de Joel y Princesa">
+        <div class="house-interior house-room-surface" data-room-surface="bedroom" aria-label="El dormitorio compartido de Joel y Princesa">
           <button id="houseWindow" class="house-window" type="button" aria-label="Abrir la ventana" aria-pressed="false">
             <div class="house-sky"><i></i><i></i><i></i><i></i><i></i><b></b></div>
             <span class="house-window-cover" aria-hidden="true"><i></i></span>
@@ -463,7 +489,7 @@
                 <small id="housePrincesaHeart">Sin señal todavía</small>
               </article>
           </div>
-          <div class="house-avatar-layer" aria-label="Personas dentro de la habitación">
+          <div id="houseAvatarLayer" class="house-avatar-layer" aria-label="Personas dentro de la habitación">
             <div class="house-avatar house-avatar-joel" data-avatar-for="joel" role="button" aria-label="Mover a Joel por la habitación"><img src="perfil_yo.jpg" alt="" draggable="false"></div>
             <div class="house-avatar house-avatar-princesa" data-avatar-for="princesa" role="button" aria-label="Mover a Princesa por la habitación"><img src="princesa2.jpg" alt="" draggable="false"></div>
           </div>
@@ -484,6 +510,34 @@
           </div>
         </div>
         <p id="housePresenceMessage" class="house-presence-message" aria-live="polite">Ahora la casa está descansando.</p>
+      </div>
+
+      <div id="houseKitchen" class="house-room house-room-view house-empty-room" data-room-view="kitchen" hidden>
+        <div class="house-title-row">
+          <div><span class="together-kicker">COCINA</span><h2>Acá vamos a cocinar juntos</h2></div>
+          <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa">⌂</button>
+        </div>
+        <div class="house-placeholder-interior house-room-surface kitchen-room" data-room-surface="kitchen" aria-label="La cocina compartida">
+          <div class="empty-kitchen-window" aria-hidden="true"></div>
+          <div class="empty-kitchen-counter" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="empty-kitchen-table" aria-hidden="true"></div>
+          <p>La cocina todavía está casi vacía.<br>Ya podemos encontrarnos acá.</p>
+        </div>
+        <p class="house-presence-message room-presence-message" data-room-presence="kitchen" aria-live="polite">Entraste a la cocina.</p>
+      </div>
+
+      <div id="houseBathroom" class="house-room house-room-view house-empty-room" data-room-view="bathroom" hidden>
+        <div class="house-title-row">
+          <div><span class="together-kicker">BAÑO</span><h2>Un espacio que vamos a llenar</h2></div>
+          <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa">⌂</button>
+        </div>
+        <div class="house-placeholder-interior house-room-surface bathroom-room" data-room-surface="bathroom" aria-label="El baño compartido">
+          <div class="empty-bathroom-mirror" aria-hidden="true"></div>
+          <div class="empty-bathroom-sink" aria-hidden="true"><i></i></div>
+          <div class="empty-bathroom-shower" aria-hidden="true"></div>
+          <p>Por ahora solo se escucha el eco.<br>Ya podemos encontrarnos acá.</p>
+        </div>
+        <p class="house-presence-message room-presence-message" data-room-presence="bathroom" aria-live="polite">Entraste al baño.</p>
       </div>
     </section>
 
@@ -1723,6 +1777,7 @@
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
       document.body.classList.toggle('together-active', tabId === 'together');
+      window.dispatchEvent(new CustomEvent('lovetabchange', { detail:{ tabId } }));
       navigator.vibrate?.(10);
       window.scrollTo(0, 0);
     }
@@ -4055,7 +4110,7 @@
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
       const s = document.createElement('script');
-      s.src = 'realtime.js?v=4';
+      s.src = 'realtime.js?v=5';
       document.head.appendChild(s);
     } else {
       // En file:// simulamos las funciones para que no rompa nada
@@ -4070,7 +4125,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=25', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=26', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -4967,7 +5022,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=6"></script>
+<script src="./together.js?v=7"></script>
 </body>
 
 </html>

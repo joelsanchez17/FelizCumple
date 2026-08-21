@@ -5,7 +5,7 @@ const LABEL = { joel: 'Joel 👨🏻‍💻', princesa: 'Princesa 👩🏻‍�
 
 window._loveClient = client;
 window.partnerOnline = false;
-window.lovePresenceState = { joel: false, princesa: false };
+window.lovePresenceState = { joel: false, princesa: false, locations: {} };
 window.toggleToolbar = () => {};
 window.enviarMimo = () => {};
 window.enviarMensaje = () => {};
@@ -104,17 +104,43 @@ async function startLoveRoom() {
   const targetName = target === 'joel' ? 'Joel' : 'Princesa';
   window.loveIdentity = identity;
   window.loveTargetIdentity = target;
+  const sessionId = sessionStorage.getItem('love_session_id') || crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  sessionStorage.setItem('love_session_id', sessionId);
+  const onlineAt = new Date().toISOString();
+  let roomSubscribed = false;
+  let presenceLocation = { area:'app', room:null, room_changed_at:onlineAt };
+  const room = client.channel('room_amor', { config: { presence: { key: identity } } });
+  window._loveRoom = room;
+  window.updateLoveLocation = async (area = 'app', roomId = null) => {
+    const nextArea = area === 'house' ? 'house' : 'app';
+    const nextRoom = nextArea === 'house' && typeof roomId === 'string' ? roomId : null;
+    if (presenceLocation.area !== nextArea || presenceLocation.room !== nextRoom) {
+      presenceLocation = { area:nextArea, room:nextRoom, room_changed_at:new Date().toISOString() };
+    }
+    if (!roomSubscribed) return false;
+    await room.track({
+      identity,
+      label:LABEL[identity],
+      session_id:sessionId,
+      online_at:onlineAt,
+      ...presenceLocation
+    });
+    return true;
+  };
+  window.getLoveLocation = () => ({ ...presenceLocation });
   window.dispatchEvent(new CustomEvent('loveidentityready', { detail: { identity, target } }));
   window.activarNotificaciones = () => subscribeToPush(identity, true);
   subscribeToPush(identity);
 
-  const room = client.channel('room_amor', { config: { presence: { key: identity } } });
-  window._loveRoom = room;
   room
     .on('presence', { event: 'sync' }, () => {
       const state = room.presenceState();
-      const isPresent = person => Object.keys(state).includes(person) || Object.values(state).flat().some(item => item?.identity === person);
-      const presence = { joel: isPresent('joel'), princesa: isPresent('princesa') };
+      const metas = Object.values(state).flat().filter(Boolean);
+      const latestFor = person => metas
+        .filter(item => item?.identity === person)
+        .sort((a, b) => new Date(b.room_changed_at || b.online_at || 0) - new Date(a.room_changed_at || a.online_at || 0))[0] || null;
+      const locations = { joel:latestFor('joel'), princesa:latestFor('princesa') };
+      const presence = { joel:Boolean(locations.joel), princesa:Boolean(locations.princesa), locations };
       window.lovePresenceState = presence;
       const online = presence[target];
       updateInterface(online);
@@ -129,7 +155,8 @@ async function startLoveRoom() {
       window.dispatchEvent(new CustomEvent('lovedrawingreceived', { detail: payload }));
     })
     .subscribe(async status => {
-      if (status === 'SUBSCRIBED') await room.track({ identity, label: LABEL[identity], online_at: new Date().toISOString() });
+      roomSubscribed = status === 'SUBSCRIBED';
+      if (roomSubscribed) await window.updateLoveLocation(presenceLocation.area, presenceLocation.room);
     });
 
   function updateInterface(online) {

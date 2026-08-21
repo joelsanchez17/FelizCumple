@@ -3,6 +3,11 @@
   'use strict';
 
   const PEOPLE = { joel: 'Joel', princesa: 'Princesa' };
+  const ROOMS = {
+    bedroom: { label:'dormitorio', title:'Dormitorio' },
+    kitchen: { label:'cocina', title:'Cocina' },
+    bathroom: { label:'baño', title:'Baño' }
+  };
   const gendered = (person, masculine, feminine) => person === 'princesa' ? feminine : masculine;
   const MOODS = {
     happy: { emoji: '☀️', label: 'Feliz', house: () => 'Hoy está feliz', push: name => `${name} está feliz hoy ☀️` },
@@ -36,7 +41,15 @@
   let heaterOn = false;
   const lampStates = { joel: false, princesa: false };
   let plantState = { watered_at: null, watered_by: null, reference_at: null, growth: 0 };
-  const avatarStates = { joel: { rx: 0.31, ry: 0.58 }, princesa: { rx: 0.69, ry: 0.58 } };
+  const avatarStates = {
+    bedroom: { joel:{ rx:0.31, ry:0.58 }, princesa:{ rx:0.69, ry:0.58 } },
+    kitchen: { joel:{ rx:0.31, ry:0.64 }, princesa:{ rx:0.69, ry:0.64 } },
+    bathroom: { joel:{ rx:0.31, ry:0.65 }, princesa:{ rx:0.69, ry:0.65 } }
+  };
+  let currentRoom = null;
+  let latestPresence = window.lovePresenceState || { joel:false, princesa:false, locations:{} };
+  let partnerPresenceGrace = null;
+  let partnerDepartureTimer;
   let tableNote = null;
   const houseWeatherTemps = { joel: null, princesa: null };
   let conditionTimer;
@@ -192,27 +205,118 @@
     queueHouseConditionCheck(true);
   }
 
-  function renderPresence(detail = window.lovePresenceState || {}) {
-    const joelOnline = detail.joel === true || (identity === 'joel' && initialized);
-    const princesaOnline = detail.princesa === true || (identity === 'princesa' && initialized);
-    $('#houseJoel')?.classList.toggle('is-online', joelOnline);
-    $('#housePrincesa')?.classList.toggle('is-online', princesaOnline);
-    if ($('#houseJoelPresence')) $('#houseJoelPresence').textContent = joelOnline ? 'Está por acá' : 'No está ahora';
-    if ($('#housePrincesaPresence')) $('#housePrincesaPresence').textContent = princesaOnline ? 'Está por acá' : 'No está ahora';
-    $('#loveHouse')?.classList.toggle('both-online', joelOnline && princesaOnline);
+  function renderPresence(detail = window.lovePresenceState || {}, forceDeparture = false) {
+    latestPresence = detail;
+    const rawTargetLocation = detail.locations?.[target] || null;
+    if (rawTargetLocation) {
+      clearTimeout(partnerDepartureTimer);
+      partnerDepartureTimer = null;
+      partnerPresenceGrace = rawTargetLocation;
+    } else if (partnerPresenceGrace && !partnerDepartureTimer && !forceDeparture) {
+      partnerDepartureTimer = setTimeout(() => {
+        partnerDepartureTimer = null;
+        partnerPresenceGrace = null;
+        renderPresence(latestPresence, true);
+      }, 45 * 1000);
+    } else if (forceDeparture) {
+      partnerPresenceGrace = null;
+    }
+
+    const targetLocation = rawTargetLocation || partnerPresenceGrace;
+    const graceActive = !rawTargetLocation && Boolean(partnerPresenceGrace);
+    const locations = { ...(detail.locations || {}) };
+    locations[target] = targetLocation;
+    locations[identity] = currentRoom
+      ? { identity, area:'house', room:currentRoom }
+      : { identity, area:document.body.classList.contains('together-active') ? 'house' : 'app', room:null };
+
+    const visibleInRoom = person => Boolean(currentRoom && locations[person]?.area === 'house' && locations[person]?.room === currentRoom);
+    const joelVisible = visibleInRoom('joel');
+    const princesaVisible = visibleInRoom('princesa');
+    const found = visibleInRoom(target);
+    const targetOnline = Boolean(targetLocation);
+    const targetAtHome = targetLocation?.area === 'house';
+
+    $('#houseJoel')?.classList.toggle('is-online', joelVisible);
+    $('#housePrincesa')?.classList.toggle('is-online', princesaVisible);
+    const personStatus = person => {
+      if (visibleInRoom(person)) return 'Está acá';
+      if (locations[person]?.area === 'house') return 'Está en casa';
+      if (person === identity || detail[person]) return 'Está en la app';
+      return 'No está ahora';
+    };
+    if ($('#houseJoelPresence')) $('#houseJoelPresence').textContent = personStatus('joel');
+    if ($('#housePrincesaPresence')) $('#housePrincesaPresence').textContent = personStatus('princesa');
+    $('#loveHouse')?.classList.toggle('both-online', joelVisible && princesaVisible);
+    $$('.house-room-view').forEach(view => view.classList.toggle('is-found', view.dataset.roomView === currentRoom && found));
+
     $$('[data-avatar-for]').forEach(avatar => {
       const mine = avatar.dataset.avatarFor === identity;
-      const online = avatar.dataset.avatarFor === 'joel' ? joelOnline : princesaOnline;
-      avatar.classList.toggle('is-online', online);
-      avatar.classList.toggle('is-mine', mine && online);
-      avatar.tabIndex = mine && online ? 0 : -1;
+      const visible = visibleInRoom(avatar.dataset.avatarFor);
+      avatar.classList.toggle('is-online', visible);
+      avatar.classList.toggle('is-mine', mine && visible);
+      avatar.tabIndex = mine && visible ? 0 : -1;
     });
-    const message = joelOnline && princesaOnline
-      ? 'Están juntos acá.'
-      : joelOnline ? 'Joel está por acá.'
-      : princesaOnline ? 'Princesa está por acá.'
-      : 'Ahora la casa está descansando.';
+
+    let message = 'Entraste a la casa.';
+    if (currentRoom && found) message = graceActive ? 'Sigue acá; parece que su conexión va y viene.' : 'Se encontraron ♡';
+    else if (currentRoom && targetAtHome) message = `${PEOPLE[target]} está en casa. Seguí buscando…`;
+    else if (currentRoom && targetOnline) message = `${PEOPLE[target]} está usando la app, pero todavía no entró a casa.`;
+    else if (currentRoom) message = `Estás en ${ROOMS[currentRoom].label}. ${PEOPLE[target]} no está en casa ahora.`;
+
     if ($('#housePresenceMessage')) $('#housePresenceMessage').textContent = message;
+    $$('[data-room-presence]').forEach(item => {
+      if (item.dataset.roomPresence === currentRoom) item.textContent = message;
+    });
+
+    const homeStatus = $('#houseHomeStatus');
+    const homeStatusText = homeStatus?.querySelector('strong');
+    homeStatus?.classList.toggle('is-home', targetAtHome && !found);
+    homeStatus?.classList.toggle('is-found', found);
+    if (homeStatusText) {
+      homeStatusText.textContent = found
+        ? 'Están juntos en la misma habitación ♡'
+        : targetAtHome ? `${PEOPLE[target]} está en casa.`
+        : targetOnline ? `${PEOPLE[target]} está por acá, pero todavía no entró a casa.`
+        : 'La casa está tranquila.';
+    }
+  }
+
+  function renderAvatarPositions(roomId = currentRoom) {
+    if (!ROOMS[roomId]) return;
+    ['joel', 'princesa'].forEach(person => setAvatarState(person, avatarStates[roomId][person], roomId));
+  }
+
+  async function enterHouseRoom(roomId) {
+    if (!ROOMS[roomId]) return;
+    currentRoom = roomId;
+    $('#houseEntrance').hidden = true;
+    $$('.house-room-view').forEach(view => { view.hidden = view.dataset.roomView !== roomId; });
+    const layer = $('#houseAvatarLayer');
+    const surface = $(`[data-room-surface="${roomId}"]`);
+    if (layer && surface) surface.appendChild(layer);
+    renderAvatarPositions(roomId);
+    localStorage.setItem('love_last_house_room', roomId);
+    await window.updateLoveLocation?.('house', roomId);
+    renderPresence(latestPresence);
+    $('#loveHouse')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  async function openHouseMap() {
+    currentRoom = null;
+    $$('.house-room-view').forEach(view => { view.hidden = true; });
+    if ($('#houseEntrance')) $('#houseEntrance').hidden = false;
+    await window.updateLoveLocation?.('house', null);
+    renderPresence(latestPresence);
+    $('#loveHouse')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  async function leaveHouse() {
+    currentRoom = null;
+    $$('.house-room-view').forEach(view => { view.hidden = true; });
+    if ($('#houseEntrance')) $('#houseEntrance').hidden = false;
+    await window.updateLoveLocation?.('app', null);
+    renderPresence(latestPresence);
   }
 
   function requestHouseLight(person) {
@@ -316,14 +420,15 @@
     }
   }
 
-  function setAvatarState(person, state = {}) {
-    if (!PEOPLE[person]) return;
-    const fallback = person === 'joel' ? { rx:0.31, ry:0.58 } : { rx:0.69, ry:0.58 };
+  function setAvatarState(person, state = {}, roomId = currentRoom || 'bedroom') {
+    if (!PEOPLE[person] || !ROOMS[roomId]) return;
+    const fallback = avatarStates[roomId][person];
     const next = {
       rx: Math.max(0.075, Math.min(0.925, Number.isFinite(Number(state.rx)) ? Number(state.rx) : fallback.rx)),
       ry: Math.max(0.10, Math.min(0.86, Number.isFinite(Number(state.ry)) ? Number(state.ry) : fallback.ry))
     };
-    avatarStates[person] = next;
+    avatarStates[roomId][person] = next;
+    if (roomId !== currentRoom) return;
     const avatar = $(`[data-avatar-for="${person}"]`);
     avatar?.style.setProperty('--avatar-left', `${next.rx * 100}%`);
     avatar?.style.setProperty('--avatar-top', `${next.ry * 100}%`);
@@ -336,29 +441,50 @@
     if (device === 'lamp_joel') setLampState('joel', state?.on ?? state, announce);
     if (device === 'lamp_princesa') setLampState('princesa', state?.on ?? state, announce);
     if (device === 'plant') setPlantState(state, announce);
-    if (device === 'avatar_joel') setAvatarState('joel', state);
-    if (device === 'avatar_princesa') setAvatarState('princesa', state);
     if (announce) queueHouseConditionCheck(true);
   }
 
   async function saveHouseDevice(device, state) {
     const updatedAt = new Date().toISOString();
-    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ action:device, value:state, from:identity, updated_at:updatedAt } });
-    const { error } = await client.from('house_devices').upsert({
-      device,
+    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ room:'bedroom', action:device, value:state, from:identity, updated_at:updatedAt } });
+    const { error } = await client.from('house_device_states').upsert({
+      room_id:'bedroom',
+      device_id:device,
       state,
       updated_by: identity,
       updated_at: updatedAt
-    }, { onConflict:'device' });
+    }, { onConflict:'room_id,device_id' });
     if (error) reportError(error, 'No se pudo guardar el estado de la casita');
   }
 
   async function loadHouseDevices() {
-    const { data, error } = await client.from('house_devices').select('*');
+    const { data, error } = await client.from('house_device_states').select('*').eq('room_id', 'bedroom');
     if (error) return reportError(error, 'No se pudo cargar el estado de la casita');
-    (data || []).forEach(row => applyHouseDevice(row.device, row.device === 'plant'
+    (data || []).forEach(row => applyHouseDevice(row.device_id, row.device_id === 'plant'
       ? { ...row.state, reference_at:row.state?.watered_at || row.updated_at }
       : row.state));
+  }
+
+  async function loadAvatarPositions() {
+    const { data, error } = await client.from('house_avatar_positions').select('*');
+    if (error) return reportError(error, 'No se pudieron cargar las posiciones de la casa');
+    (data || []).forEach(row => setAvatarState(row.identity, { rx:row.x, ry:row.y }, row.room_id));
+    renderAvatarPositions();
+  }
+
+  async function saveAvatarPosition(person, roomId) {
+    if (!ROOMS[roomId] || !PEOPLE[person]) return;
+    const position = avatarStates[roomId][person];
+    const updatedAt = new Date().toISOString();
+    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ room:roomId, action:`avatar_${person}`, value:position, from:identity, updated_at:updatedAt } });
+    const { error } = await client.from('house_avatar_positions').upsert({
+      identity:person,
+      room_id:roomId,
+      x:position.rx,
+      y:position.ry,
+      updated_at:updatedAt
+    }, { onConflict:'identity,room_id' });
+    if (error) reportError(error, 'No se pudo guardar tu lugar en la habitación');
   }
 
   async function toggleHouseWindow() {
@@ -413,15 +539,15 @@
     });
     avatar.addEventListener('pointermove', event => {
       if (!drag || event.pointerId !== drag.pointer) return;
-      const room = $('.house-interior')?.getBoundingClientRect();
+      const room = $(`[data-room-surface="${currentRoom}"]`)?.getBoundingClientRect();
       if (!room?.width || !room?.height) return;
-      setAvatarState(identity, { rx:(event.clientX - room.left) / room.width, ry:(event.clientY - room.top) / room.height });
+      setAvatarState(identity, { rx:(event.clientX - room.left) / room.width, ry:(event.clientY - room.top) / room.height }, currentRoom);
     });
     const finish = async event => {
       if (!drag || event.pointerId !== drag.pointer) return;
       drag = null;
       avatar.classList.remove('is-dragging');
-      await saveHouseDevice(`avatar_${identity}`, avatarStates[identity]);
+      await saveAvatarPosition(identity, currentRoom);
     };
     avatar.addEventListener('pointerup', finish);
     avatar.addEventListener('pointercancel', finish);
@@ -429,8 +555,8 @@
       if (avatar.dataset.avatarFor !== identity || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
       event.preventDefault();
       const delta = { ArrowLeft:[-.025,0], ArrowRight:[.025,0], ArrowUp:[0,-.025], ArrowDown:[0,.025] }[event.key];
-      setAvatarState(identity, { rx:avatarStates[identity].rx + delta[0], ry:avatarStates[identity].ry + delta[1] });
-      await saveHouseDevice(`avatar_${identity}`, avatarStates[identity]);
+      setAvatarState(identity, { rx:avatarStates[currentRoom][identity].rx + delta[0], ry:avatarStates[currentRoom][identity].ry + delta[1] }, currentRoom);
+      await saveAvatarPosition(identity, currentRoom);
     });
   }
 
@@ -614,7 +740,7 @@
   function renderTableNote(notes = []) {
     const noteButton = $('#houseTableNote');
     if (!noteButton) return;
-    tableNote = notes.find(note => !note.is_read && (note.to_identity === identity || note.from_identity === identity)) || null;
+    tableNote = notes.find(note => (note.room_id || 'bedroom') === 'bedroom' && !note.is_read && (note.to_identity === identity || note.from_identity === identity)) || null;
     noteButton.hidden = !tableNote;
     noteButton.classList.toggle('is-mine', tableNote?.from_identity === identity);
     if (tableNote) noteButton.setAttribute('aria-label', tableNote.from_identity === identity
@@ -645,7 +771,8 @@
     const body = input?.value.trim();
     if (!body) return;
     button.disabled = true;
-    const { error } = await client.from('house_notes').insert({ from_identity: identity, to_identity: target, body });
+    const noteRoom = currentRoom || 'bedroom';
+    const { error } = await client.from('house_notes').insert({ from_identity: identity, to_identity: target, body, room_id:noteRoom });
     if (error) {
       button.disabled = false;
       reportError(error, 'No se pudo dejar la nota');
@@ -655,7 +782,7 @@
     $('#houseNoteCount').textContent = '0 / 180';
     await loadNotes();
     try {
-      await window.sendLovePush(target, 'Hay una nota sobre la mesa 💌', `${PEOPLE[identity]} te dejó algo en nuestra casa`, { type: 'house-note' });
+      await window.sendLovePush(target, 'Hay una nota esperando 💌', `${PEOPLE[identity]} te dejó algo en ${ROOMS[noteRoom]?.label || 'nuestra casa'}`, { type: 'house-note', room:noteRoom });
       toast(`La nota quedó esperando a ${PEOPLE[target]}`);
     } catch {
       toast('La nota quedó guardada, pero no pudimos avisarle');
@@ -795,7 +922,8 @@
       if (pending.has('heart_states')) loadHearts();
       if (pending.has('house_notes')) loadNotes();
       if (pending.has('love_journal') || pending.has('house_notes')) loadJournal();
-      if (pending.has('house_devices')) loadHouseDevices();
+      if (pending.has('house_device_states')) loadHouseDevices();
+      if (pending.has('house_avatar_positions')) loadAvatarPositions();
     }, 180);
   }
 
@@ -804,7 +932,8 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'heart_states' }, () => scheduleRefresh('heart_states'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_notes' }, () => scheduleRefresh('house_notes'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'love_journal' }, () => scheduleRefresh('love_journal'))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'house_devices' }, () => scheduleRefresh('house_devices'))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'house_device_states' }, () => scheduleRefresh('house_device_states'))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'house_avatar_positions' }, () => scheduleRefresh('house_avatar_positions'))
       .subscribe();
   }
 
@@ -815,6 +944,8 @@
 
   function bindEvents() {
     $$('[data-avatar-for]').forEach(bindAvatarDrag);
+    $$('[data-enter-room]').forEach(button => button.addEventListener('click', () => enterHouseRoom(button.dataset.enterRoom)));
+    $$('[data-open-house-map]').forEach(button => button.addEventListener('click', openHouseMap));
     $('.house-interior')?.addEventListener('click', event => {
       const lamp = event.target.closest('[data-lamp-for]');
       if (lamp) toggleHouseLamp(lamp.dataset.lampFor);
@@ -849,9 +980,20 @@
     });
     $('#journalMore')?.addEventListener('click', () => { journalLimit += 20; loadJournal(); });
     window.addEventListener('lovepresencechange', event => renderPresence(event.detail));
+    window.addEventListener('lovetabchange', event => {
+      if (event.detail?.tabId === 'together') openHouseMap();
+      else leaveHouse();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) window.updateLoveLocation?.('app', null);
+      else if (document.body.classList.contains('together-active')) window.updateLoveLocation?.('house', currentRoom);
+    });
     window.addEventListener('lovehouseaction', event => {
       if (event.detail?.from === identity) return;
-      applyHouseDevice(event.detail?.action, event.detail?.value, true);
+      const roomId = event.detail?.room || 'bedroom';
+      const avatarPerson = event.detail?.action?.startsWith('avatar_') ? event.detail.action.replace('avatar_', '') : null;
+      if (avatarPerson) setAvatarState(avatarPerson, event.detail?.value, roomId);
+      else if (roomId === 'bedroom') applyHouseDevice(event.detail?.action, event.detail?.value, true);
     });
     navigator.serviceWorker?.addEventListener('message', event => {
       if (event.data?.type === 'notification-click' && ['house-note', 'heart', 'house-light'].includes(event.data?.data?.type)) openTogether();
@@ -880,7 +1022,7 @@
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
     if ($('#houseLightNotify')) $('#houseLightNotify').textContent = `Avisarle a ${PEOPLE[target]} 🔔`;
-    await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices()]);
+    await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices(), loadAvatarPositions()]);
     queueHouseConditionCheck(true);
     subscribeToChanges();
     if (location.hash === '#together') {

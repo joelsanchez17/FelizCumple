@@ -603,3 +603,74 @@ body.together-active #presence-indicator { display: none !important; }
   .house-condition-messages { padding:10px; }
   #houseConditionList p { padding:7px 8px; font-size:.56rem; }
 }
+
+/* ===== CASA CON HABITACIONES ===== */
+.house-room-view[hidden],
+.house-entry[hidden] { display:none; }
+
+.house-entry { position:relative; z-index:2; min-height:520px; padding:30px 25px 24px; text-align:left; }
+.house-entry-heading { max-width:410px; }
+.house-entry-heading h2 { margin:7px 0 7px; color:var(--together-ink); font:700 2rem/1 'Cormorant Garamond',serif; }
+.house-entry-heading p { margin:0; color:var(--together-muted); font:600 .76rem/1.5 'Quicksand',sans-serif; }
+.house-home-status { display:flex; align-items:center; gap:9px; margin:21px 0 15px; padding:11px 13px; border:1px solid rgba(143,69,101,.13); border-radius:16px; color:var(--together-ink); background:rgba(255,251,248,.68); font:700 .68rem/1.3 'Quicksand',sans-serif; }
+.house-home-status > span { width:9px; height:9px; flex:0 0 auto; border-radius:50%; background:#b9adb2; box-shadow:0 0 0 4px rgba(185,173,178,.14); }
+.house-home-status.is-home > span { background:#65a47a; box-shadow:0 0 0 4px rgba(101,164,122,.14),0 0 10px rgba(101,164,122,.32); }
+.house-home-status.is-found > span { background:#d87991; box-shadow:0 0 0 4px rgba(216,121,145,.15),0 0 12px rgba(216,121,145,.36); }
+
+.house-map { position:relative; display:grid; grid-template-columns:1.15fr .85fr; grid-template-rows:125px 125px; gap:8px; padding:8px; border:1px solid rgba(143,69,101,.15); border-radius:23px; background:rgba(255,250,247,.55); box-shadow:inset 0 0 25px rgba(116,65,86,.04),0 12px 30px rgba(78,42,58,.08); }
+.house-map::before { content:""; position:absolute; z-index:0; left:55%; top:8px; bottom:8px; width:2px; background:rgba(143,69,101,.11); pointer-events:none; }
+.house-map-room,.house-map-future { position:relative; z-index:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; padding:13px; border:1px solid rgba(143,69,101,.12); border-radius:16px; color:var(--together-ink); background:rgba(255,255,255,.72); text-align:left; }
+.house-map-room { cursor:pointer; transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+.house-map-room:active { transform:scale(.98); }
+.house-map-room:hover,.house-map-room:focus-visible { border-color:rgba(143,69,101,.38); outline:0; box-shadow:0 8px 19px rgba(97,55,73,.11); }
+.house-map-room > span,.house-map-future > span { position:absolute; left:13px; top:12px; font-size:1.45rem; }
+.house-map-room strong,.house-map-future strong { font:700 1.08rem/1 'Cormorant Garamond',serif; }
+.house-map-room small { margin-top:4px; color:var(--together-muted); font:600 .5rem/1.2 'Quicksand',sans-serif; }
+.house-map-bedroom { grid-row:1 / span 2; }
+.house-map-bedroom::after { content:""; position:absolute; right:14px; top:17px; width:45px; height:28px; border:4px solid #d9bdc6; border-radius:6px 6px 2px 2px; box-shadow:inset 0 9px #f0dfe5; opacity:.7; }
+.house-map-kitchen { grid-column:2; }
+.house-map-future { grid-column:2; opacity:.52; border-style:dashed; }
+.house-search-hint { margin:14px 4px 0; text-align:center; color:var(--together-muted); font:600 .58rem/1.45 'Quicksand',sans-serif; }
+
+.house-room-tools { max-width:none !important; display:flex; align-items:center; gap:6px; }
+.house-map-button { width:35px; height:35px; flex:0 0 auto; display:grid; place-items:center; padding:0; border:1px solid rgba(143,69,101,.14); border-radius:50%; color:var(--together-wine); background:rgba(255,255,255,.74); box-shadow:0 4px 14px rgba(69,48,59,.08); cursor:pointer; font:700 1.1rem/1 sans-serif; }
+.house-map-button:focus-visible { outline:3px solid var(--together-wine); outline-offset:2px; }
+.love-house[data-time="night"] .house-map-button { color:#f7dce6; border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.1); }
+
+.house-placeholder-interior { position:relative; width:100%; height:292px; overflow:hidden; border:1px solid rgba(143,69,101,.12); border-radius:24px; background:linear-gradient(180deg,#fff9f5 0 69%,#d7c4bd 69% 100%); box-shadow:inset 0 0 35px rgba(108,59,79,.045),0 13px 30px rgba(78,42,58,.1); }
+.house-placeholder-interior::after { content:""; position:absolute; z-index:1; left:0; right:0; top:68%; height:5px; background:rgba(125,74,83,.14); }
+.house-placeholder-interior > p { position:absolute; z-index:3; left:50%; bottom:17px; width:80%; margin:0; text-align:center; color:#826d76; font:600 .58rem/1.45 'Quicksand',sans-serif; transform:translateX(-50%); }
+.love-house[data-time="evening"] .house-placeholder-interior { background:linear-gradient(180deg,#e7dadd 0 69%,#bda9aa 69% 100%); }
+.love-house[data-time="night"] .house-placeholder-interior { border-color:rgba(255,255,255,.1); background:linear-gradient(180deg,#625861 0 69%,#403943 69% 100%); }
+.love-house[data-time="night"] .house-placeholder-interior > p { color:#e8dce1; }
+
+.empty-kitchen-window { position:absolute; left:18px; top:20px; width:58px; height:66px; border:6px solid #f7ebe6; border-radius:28px 28px 4px 4px; background:linear-gradient(180deg,#cde1ec,#f2d5c7); box-shadow:0 6px 14px rgba(80,46,60,.08); }
+.empty-kitchen-counter { position:absolute; z-index:2; right:17px; top:58px; width:132px; height:88px; border-radius:5px 5px 10px 10px; background:#d4b5a9; box-shadow:inset 0 8px #9e7070,0 8px 15px rgba(80,46,60,.09); }
+.empty-kitchen-counter i { position:absolute; top:23px; bottom:8px; width:1px; background:rgba(102,68,75,.16); }
+.empty-kitchen-counter i:nth-child(1) { left:33%; }.empty-kitchen-counter i:nth-child(2) { left:66%; }.empty-kitchen-counter i:nth-child(3) { display:none; }
+.empty-kitchen-table { position:absolute; z-index:2; left:35%; top:136px; width:83px; height:12px; border-radius:50%; background:#b67e6c; box-shadow:0 5px #8e6258; }
+.empty-kitchen-table::after { content:""; position:absolute; left:36px; top:10px; width:11px; height:61px; background:#96675c; }
+
+.empty-bathroom-mirror { position:absolute; left:24px; top:22px; width:75px; height:85px; border:7px solid #ead9dc; border-radius:40px 40px 8px 8px; background:linear-gradient(145deg,#d9edf2,#f7e9ed); box-shadow:0 7px 16px rgba(80,46,60,.08); }
+.empty-bathroom-sink { position:absolute; z-index:2; left:17px; top:118px; width:91px; height:31px; border-radius:5px 5px 40px 40px; background:#f4e9e5; box-shadow:0 5px #c7aeb2; }
+.empty-bathroom-sink::after { content:""; position:absolute; left:39px; top:28px; width:14px; height:55px; background:#bfa5aa; }
+.empty-bathroom-sink i { position:absolute; left:39px; top:-15px; width:16px; height:17px; border:4px solid #a98c94; border-bottom:0; border-radius:9px 9px 0 0; }
+.empty-bathroom-shower { position:absolute; right:20px; top:20px; width:115px; height:160px; border:5px solid rgba(235,219,223,.9); border-radius:56px 56px 8px 8px; background:linear-gradient(90deg,rgba(195,222,231,.5),rgba(239,229,232,.36)); }
+.empty-bathroom-shower::after { content:"🚿"; position:absolute; right:15px; top:20px; font-size:1.35rem; opacity:.65; }
+
+.house-room-view.is-found .house-room-surface { box-shadow:inset 0 0 35px rgba(108,59,79,.045),0 13px 30px rgba(78,42,58,.1),0 0 0 3px rgba(216,121,145,.13); }
+
+@media (max-width:430px) {
+  .house-entry { min-height:500px; padding:24px 14px 20px; }
+  .house-entry-heading h2 { font-size:1.65rem; }
+  .house-map { grid-template-rows:117px 117px; }
+  .house-map-room,.house-map-future { padding:11px; }
+  .house-map-room > span,.house-map-future > span { left:11px; top:10px; font-size:1.25rem; }
+  .house-map-bedroom::after { right:10px; width:34px; height:23px; }
+  .house-map-room strong,.house-map-future strong { font-size:.98rem; }
+  .house-placeholder-interior { height:278px; border-radius:21px; }
+  .house-room-tools { gap:4px; }
+  .house-map-button { width:32px; height:32px; }
+  .empty-kitchen-counter { right:12px; width:112px; }
+  .empty-bathroom-shower { right:12px; width:102px; }
+}
