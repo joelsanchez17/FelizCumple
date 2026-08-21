@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=12">
+  <link rel="stylesheet" href="./together.css?v=13">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -441,7 +441,6 @@
           <div class="house-people">
               <article id="houseJoel" class="house-person house-person-joel">
                 <div class="house-person-scene">
-                  <div class="house-avatar" data-avatar-for="joel" role="button" aria-label="Mover a Joel por la habitación"><img src="perfil_yo.jpg" alt="" draggable="false"></div>
                 <button class="house-lamp" type="button" data-lamp-for="joel" aria-label="Encender la lámpara de Joel" aria-pressed="false"><b></b><i></i></button>
                 </div>
                 <strong>Joel</strong>
@@ -457,13 +456,16 @@
               </div>
               <article id="housePrincesa" class="house-person house-person-princesa">
                 <div class="house-person-scene">
-                  <div class="house-avatar" data-avatar-for="princesa" role="button" aria-label="Mover a Princesa por la habitación"><img src="princesa2.jpg" alt="" draggable="false"></div>
                 <button class="house-lamp" type="button" data-lamp-for="princesa" aria-label="Encender la lámpara de Princesa" aria-pressed="false"><b></b><i></i></button>
                 </div>
                 <strong>Princesa</strong>
                 <span id="housePrincesaPresence">No está ahora</span>
                 <small id="housePrincesaHeart">Sin señal todavía</small>
               </article>
+          </div>
+          <div class="house-avatar-layer" aria-label="Personas dentro de la habitación">
+            <div class="house-avatar house-avatar-joel" data-avatar-for="joel" role="button" aria-label="Mover a Joel por la habitación"><img src="perfil_yo.jpg" alt="" draggable="false"></div>
+            <div class="house-avatar house-avatar-princesa" data-avatar-for="princesa" role="button" aria-label="Mover a Princesa por la habitación"><img src="princesa2.jpg" alt="" draggable="false"></div>
           </div>
         </div>
         <aside id="houseConditionMessages" class="house-condition-messages" hidden aria-live="polite">
@@ -4068,7 +4070,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=24', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=25', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -4965,7 +4967,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=5"></script>
+<script src="./together.js?v=6"></script>
 </body>
 
 </html>

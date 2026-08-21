@@ -36,7 +36,7 @@
   let heaterOn = false;
   const lampStates = { joel: false, princesa: false };
   let plantState = { watered_at: null, watered_by: null, reference_at: null, growth: 0 };
-  const avatarStates = { joel: { x: 0, y: 0 }, princesa: { x: 0, y: 0 } };
+  const avatarStates = { joel: { rx: 0.31, ry: 0.58 }, princesa: { rx: 0.69, ry: 0.58 } };
   let tableNote = null;
   const houseWeatherTemps = { joel: null, princesa: null };
   let conditionTimer;
@@ -203,6 +203,7 @@
     $$('[data-avatar-for]').forEach(avatar => {
       const mine = avatar.dataset.avatarFor === identity;
       const online = avatar.dataset.avatarFor === 'joel' ? joelOnline : princesaOnline;
+      avatar.classList.toggle('is-online', online);
       avatar.classList.toggle('is-mine', mine && online);
       avatar.tabIndex = mine && online ? 0 : -1;
     });
@@ -317,14 +318,15 @@
 
   function setAvatarState(person, state = {}) {
     if (!PEOPLE[person]) return;
+    const fallback = person === 'joel' ? { rx:0.31, ry:0.58 } : { rx:0.69, ry:0.58 };
     const next = {
-      x: Math.max(-34, Math.min(34, Math.round(Number(state.x) || 0))),
-      y: Math.max(-34, Math.min(8, Math.round(Number(state.y) || 0)))
+      rx: Math.max(0.075, Math.min(0.925, Number.isFinite(Number(state.rx)) ? Number(state.rx) : fallback.rx)),
+      ry: Math.max(0.10, Math.min(0.86, Number.isFinite(Number(state.ry)) ? Number(state.ry) : fallback.ry))
     };
     avatarStates[person] = next;
     const avatar = $(`[data-avatar-for="${person}"]`);
-    avatar?.style.setProperty('--avatar-x', `${next.x}px`);
-    avatar?.style.setProperty('--avatar-y', `${next.y}px`);
+    avatar?.style.setProperty('--avatar-left', `${next.rx * 100}%`);
+    avatar?.style.setProperty('--avatar-top', `${next.ry * 100}%`);
   }
 
   function applyHouseDevice(device, state, announce = false) {
@@ -405,13 +407,15 @@
       const person = avatar.dataset.avatarFor;
       if (person !== identity || !avatar.classList.contains('is-mine')) return;
       event.preventDefault();
-      drag = { pointer:event.pointerId, startX:event.clientX, startY:event.clientY, x:avatarStates[person].x, y:avatarStates[person].y };
+      drag = { pointer:event.pointerId };
       avatar.setPointerCapture?.(event.pointerId);
       avatar.classList.add('is-dragging');
     });
     avatar.addEventListener('pointermove', event => {
       if (!drag || event.pointerId !== drag.pointer) return;
-      setAvatarState(identity, { x:drag.x + event.clientX - drag.startX, y:drag.y + event.clientY - drag.startY });
+      const room = $('.house-interior')?.getBoundingClientRect();
+      if (!room?.width || !room?.height) return;
+      setAvatarState(identity, { rx:(event.clientX - room.left) / room.width, ry:(event.clientY - room.top) / room.height });
     });
     const finish = async event => {
       if (!drag || event.pointerId !== drag.pointer) return;
@@ -424,8 +428,8 @@
     avatar.addEventListener('keydown', async event => {
       if (avatar.dataset.avatarFor !== identity || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
       event.preventDefault();
-      const delta = { ArrowLeft:[-5,0], ArrowRight:[5,0], ArrowUp:[0,-5], ArrowDown:[0,5] }[event.key];
-      setAvatarState(identity, { x:avatarStates[identity].x + delta[0], y:avatarStates[identity].y + delta[1] });
+      const delta = { ArrowLeft:[-.025,0], ArrowRight:[.025,0], ArrowUp:[0,-.025], ArrowDown:[0,.025] }[event.key];
+      setAvatarState(identity, { rx:avatarStates[identity].rx + delta[0], ry:avatarStates[identity].ry + delta[1] });
       await saveHouseDevice(`avatar_${identity}`, avatarStates[identity]);
     });
   }
