@@ -981,7 +981,10 @@
     $('#journalMore')?.addEventListener('click', () => { journalLimit += 20; loadJournal(); });
     window.addEventListener('lovepresencechange', event => renderPresence(event.detail));
     window.addEventListener('lovetabchange', event => {
-      if (event.detail?.tabId === 'together') openHouseMap();
+      if (event.detail?.tabId === 'together') {
+        const lastRoom = localStorage.getItem('love_last_house_room');
+        enterHouseRoom(ROOMS[lastRoom] ? lastRoom : 'bedroom');
+      }
       else leaveHouse();
     });
     document.addEventListener('visibilitychange', () => {

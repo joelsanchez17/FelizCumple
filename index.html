@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=14">
+  <link rel="stylesheet" href="./together.css?v=15">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -150,7 +150,7 @@
       <span class="nav-label">Inicio</span>
     </button>
     <button onclick="showTab(this, 'together')" aria-label="Tu casita">
-      <span class="nav-icon" aria-hidden="true">∞</span>
+      <span class="nav-icon" aria-hidden="true">🏠</span>
       <span class="nav-label">Casita</span>
     </button>
     <button onclick="showTab(this, 'games')" aria-label="Juegos">
@@ -422,10 +422,8 @@
           <button type="button" class="house-map-room house-map-kitchen" data-enter-room="kitchen">
             <span aria-hidden="true">🍳</span><strong>Cocina</strong><small>Todavía por llenar</small>
           </button>
-          <div class="house-map-future" aria-label="Lugar para una habitación futura">
-            <span aria-hidden="true">＋</span><strong>Próximamente</strong>
-          </div>
         </nav>
+        <div class="house-map-future" aria-label="Lugar para una habitación futura"><span aria-hidden="true">＋</span><strong>La casa puede seguir creciendo</strong></div>
         <p class="house-search-hint">El mapa no cuenta dónde está el otro. Hay que ir habitación por habitación ♡</p>
       </div>
 
@@ -435,7 +433,7 @@
             <span class="together-kicker">DORMITORIO</span>
             <h2>Una luz para vos y otra para mí</h2>
           </div>
-          <div class="house-room-tools"><span id="houseTimeLabel" class="house-time">Ahora</span><button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa">⌂</button></div>
+          <div class="house-room-tools"><span id="houseTimeLabel" class="house-time">Ahora</span><button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa"><span aria-hidden="true">🏠</span><small>Mapa</small></button></div>
         </div>
 
         <div class="house-interior house-room-surface" data-room-surface="bedroom" aria-label="El dormitorio compartido de Joel y Princesa">
@@ -515,7 +513,7 @@
       <div id="houseKitchen" class="house-room house-room-view house-empty-room" data-room-view="kitchen" hidden>
         <div class="house-title-row">
           <div><span class="together-kicker">COCINA</span><h2>Acá vamos a cocinar juntos</h2></div>
-          <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa">⌂</button>
+          <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa"><span aria-hidden="true">🏠</span><small>Mapa</small></button>
         </div>
         <div class="house-placeholder-interior house-room-surface kitchen-room" data-room-surface="kitchen" aria-label="La cocina compartida">
           <div class="empty-kitchen-window" aria-hidden="true"></div>
@@ -529,7 +527,7 @@
       <div id="houseBathroom" class="house-room house-room-view house-empty-room" data-room-view="bathroom" hidden>
         <div class="house-title-row">
           <div><span class="together-kicker">BAÑO</span><h2>Un espacio que vamos a llenar</h2></div>
-          <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa">⌂</button>
+          <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa"><span aria-hidden="true">🏠</span><small>Mapa</small></button>
         </div>
         <div class="house-placeholder-interior house-room-surface bathroom-room" data-room-surface="bathroom" aria-label="El baño compartido">
           <div class="empty-bathroom-mirror" aria-hidden="true"></div>
@@ -4125,7 +4123,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=26', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=27', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -5022,7 +5020,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=7"></script>
+<script src="./together.js?v=8"></script>
 </body>
 
 </html>

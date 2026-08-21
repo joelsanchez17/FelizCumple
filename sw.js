@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v26-house-rooms';
-const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=5', './together.js?v=7', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=7', './together.css?v=14', './app_refresh.css?v=4', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg'];
+const CACHE_NAME = 'love-app-v27-house-map';
+const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=5', './together.js?v=8', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=7', './together.css?v=15', './app_refresh.css?v=4', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE)));

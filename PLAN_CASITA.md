@@ -38,14 +38,16 @@ La casita tendrá tres estados diferentes para cada persona:
 2. **En casa:** entró en la sección de la casita, pero la habitación exacta permanece oculta para el otro.
 3. **En la misma habitación:** ambos pueden verse, moverse y utilizar juntos los objetos del cuarto.
 
-Al abrir la casita se mostrará primero la entrada o el mapa. Desde allí se elige una habitación. Esto simula llegar a casa y decidir adónde ir, en vez de aparecer automáticamente en el último cuarto.
+Al abrir la casita, cada persona aparecerá directamente en la última habitación que visitó desde ese dispositivo. Si todavía no existe una ubicación guardada, comenzará en el dormitorio. El mapa se abre únicamente al tocar el botón visible dentro de cada habitación.
+
+Esto hace que la pestaña se sienta como una casa habitada y no como una pantalla de selección. La última habitación propia nunca se muestra al otro en el mapa.
 
 Ejemplo:
 
-1. Joel entra a la casa.
+1. Joel entra a la casa y reaparece en la cocina, donde estuvo la última vez.
 2. Ve el mensaje `Princesa está en casa`.
-3. Entra a la cocina, pero está vacía.
-4. Va al dormitorio.
+3. Abre el mapa y prueba ir al baño, pero está vacío.
+4. Vuelve al mapa y va al dormitorio.
 5. La encuentra mirando televisión.
 6. Joel mueve su foto y se sienta junto a ella.
 
@@ -60,7 +62,7 @@ Reglas propuestas:
 - Si la conexión se corta brevemente, esperar entre 30 y 60 segundos antes de hacerlo desaparecer para evitar parpadeos por mala conexión.
 - Una vez desconectado, el mapa no muestra dónde estuvo por última vez.
 - Opcionalmente, al visitar una habitación puede aparecer una pista suave como `Alguien estuvo acá hace un rato`, pero nunca en el mapa general.
-- La última habitación puede guardarse localmente para recuperarse después de una recarga accidental, pero no será pública ni visible para el otro.
+- La última habitación se guarda localmente para volver allí al abrir `Casita`, pero no será pública ni visible para el otro.
 
 ### Excepción: actividades intencionales
 
