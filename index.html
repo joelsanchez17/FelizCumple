@@ -14,7 +14,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=7">
-  <link rel="stylesheet" href="./together.css?v=10">
+  <link rel="stylesheet" href="./together.css?v=11">
   <link rel="stylesheet" href="./app_refresh.css?v=4">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -415,8 +415,7 @@
         <div class="house-interior" aria-label="La habitación compartida de Joel y Princesa">
           <button id="houseWindow" class="house-window" type="button" aria-label="Abrir la ventana" aria-pressed="false">
             <div class="house-sky"><i></i><i></i><i></i><i></i><i></i><b></b></div>
-            <span class="house-window-pane house-window-pane-left" aria-hidden="true"></span>
-            <span class="house-window-pane house-window-pane-right" aria-hidden="true"></span>
+            <span class="house-window-cover" aria-hidden="true"><i></i></span>
           </button>
           <div class="house-clocks" aria-label="Hora en Kaiserslautern y Quito">
             <div id="houseClockGermany" class="house-clock house-clock-germany" aria-label="Hora en Kaiserslautern">
@@ -466,6 +465,10 @@
               </article>
           </div>
         </div>
+        <aside id="houseConditionMessages" class="house-condition-messages" hidden aria-live="polite">
+          <strong>La casita tiene algo que decir</strong>
+          <div id="houseConditionList"></div>
+        </aside>
         <div class="house-light-notify-row">
           <span>Prender una lámpara no envía una notificación.</span>
           <button id="houseLightNotify" type="button">Avisarle 🔔</button>
@@ -4064,7 +4067,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=22', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=23', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -4961,7 +4964,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=3"></script>
+<script src="./together.js?v=4"></script>
 </body>
 
 </html>

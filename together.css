@@ -559,3 +559,37 @@ body.together-active #presence-indicator { display: none !important; }
 @media (max-width:430px) {
   .house-ac-unit#houseAc { right:8px; top:82px; width:58px; height:32px; }
 }
+
+/* Ventana definitiva: dos hojas sólidas dentro de una sola cubierta. */
+.house-window > .house-window-cover { position:absolute; z-index:5; inset:0; overflow:hidden; border-radius:inherit; background:transparent; box-shadow:none; pointer-events:none; }
+.house-window-cover::before,
+.house-window-cover::after { content:""; position:absolute; top:0; bottom:0; width:calc(50% + .5px); background:#dce8eb; transition:transform .42s cubic-bezier(.22,.78,.24,1); }
+.house-window-cover::before { left:0; border-right:1px solid rgba(76,66,74,.38); transform:translateX(0); }
+.house-window-cover::after { right:0; border-left:1px solid rgba(255,255,255,.38); transform:translateX(0); }
+.love-house[data-time="morning"] .house-window-cover::before,
+.love-house[data-time="morning"] .house-window-cover::after { background:#edd5cb; }
+.love-house[data-time="evening"] .house-window-cover::before,
+.love-house[data-time="evening"] .house-window-cover::after { background:#9b8697; }
+.love-house[data-time="night"] .house-window-cover::before,
+.love-house[data-time="night"] .house-window-cover::after { background:#69616f; }
+.house-window-cover > i { position:absolute; z-index:2; left:calc(50% - 5px); top:47%; width:3px; height:13px; border-radius:3px; background:#a08991; opacity:1; transition:opacity .18s ease; }
+.love-house[data-time="night"] .house-window-cover > i { background:#c5b4ba; }
+.house-window.is-open .house-window-cover::before { transform:translateX(-103%); }
+.house-window.is-open .house-window-cover::after { transform:translateX(103%); }
+.house-window.is-open .house-window-cover > i { opacity:0; }
+
+/* Los comentarios permanecen mientras se mantenga cada condición. */
+.house-condition-messages { margin-top:10px; padding:12px; border:1px solid rgba(127,66,89,.14); border-radius:17px; text-align:left; background:rgba(255,248,244,.76); box-shadow:0 7px 18px rgba(78,42,58,.07); }
+.house-condition-messages[hidden] { display:none; }
+.house-condition-messages > strong { display:block; margin-bottom:8px; color:var(--together-wine); font:700 .61rem/1.2 'Quicksand',sans-serif; letter-spacing:.03em; }
+#houseConditionList { display:grid; gap:6px; }
+#houseConditionList p { display:flex; align-items:flex-start; gap:7px; margin:0; padding:8px 9px; border-radius:12px; color:var(--together-ink); background:rgba(255,255,255,.68); font:600 .61rem/1.35 'Quicksand',sans-serif; }
+#houseConditionList p > span { flex:0 0 auto; font-size:.88rem; line-height:1; }
+.love-house[data-time="night"] .house-condition-messages { border-color:rgba(255,255,255,.12); background:rgba(255,255,255,.07); }
+.love-house[data-time="night"] .house-condition-messages > strong { color:#f6d8e3; }
+.love-house[data-time="night"] #houseConditionList p { color:#f8edf1; background:rgba(255,255,255,.08); }
+
+@media (max-width:430px) {
+  .house-condition-messages { padding:10px; }
+  #houseConditionList p { padding:7px 8px; font-size:.56rem; }
+}

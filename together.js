@@ -37,7 +37,6 @@
   const lampStates = { joel: false, princesa: false };
   let plantState = { watered_at: null, watered_by: null, reference_at: null };
   const houseWeatherTemps = { joel: null, princesa: null };
-  let activeHouseConditions = new Set();
   let conditionTimer;
   const refreshTables = new Set();
 
@@ -49,42 +48,43 @@
     else console.info(message);
   }
 
-  function showHouseJoke(key, message) {
-    const storageKey = `love_house_joke_${key}`;
-    const lastShown = Number(localStorage.getItem(storageKey) || 0);
-    if (Date.now() - lastShown < 6 * 60 * 60 * 1000) return;
-    localStorage.setItem(storageKey, String(Date.now()));
-    toast(message);
-  }
-
-  function evaluateHouseConditions(showNew = true) {
+  function evaluateHouseConditions() {
     const conditions = [];
     const period = $('#loveHouse')?.dataset.time;
     const daytime = period === 'morning' || period === 'day';
     const localTemperature = houseWeatherTemps[identity];
-    if (acOn && heaterOn) conditions.push(['ac_heater', '¿Aire y calefacción juntos? Elegí un clima, mi amor 😂']);
-    if (windowOpen && acOn) conditions.push(['dubai', '¿Qué estamos, en Dubái? El aire prendido y la ventana abierta 😂']);
+    if (acOn && heaterOn) conditions.push(['ac_heater', '🌡️', '¿Aire y calefacción juntos? Elegí un clima, mi amor.']);
+    if (windowOpen && acOn) conditions.push(['dubai', '🏜️', '¿Qué estamos, en Dubái? El aire prendido y la ventana abierta.']);
+    if (windowOpen && heaterOn) conditions.push(['window_heater', '🔥', 'La calefacción con la ventana abierta está intentando calentar el barrio.']);
     if (acOn && Number.isFinite(localTemperature) && localTemperature < 20) {
-      conditions.push(['cold_ac', `${Math.round(localTemperature)}° y el aire prendido… ¿queremos guardar pingüinos? 🐧`]);
+      conditions.push(['cold_ac', '🐧', `${Math.round(localTemperature)}° y el aire prendido… ¿queremos guardar pingüinos?`]);
     }
-    if (daytime && (lampStates.joel || lampStates.princesa)) conditions.push(['day_lights', 'No sabía que acá regalaban la luz 💡']);
+    if (daytime && (lampStates.joel || lampStates.princesa)) conditions.push(['day_lights', '💡', 'No sabía que acá regalaban la luz.']);
 
     const plantReference = plantState.watered_at || plantState.reference_at;
     if (plantReference) {
       const dryHours = (Date.now() - new Date(plantReference).getTime()) / 3600000;
-      if (dryHours >= 48) conditions.push(['plant_days', 'La plantita ya está preparando una denuncia por abandono 💧']);
-      else if (dryHours >= 12) conditions.push(['plant_hours', 'La plantita preguntó si el agua también está a distancia 🌱']);
+      if (dryHours >= 48) conditions.push(['plant_days', '💧', 'La plantita ya está preparando una denuncia por abandono.']);
+      else if (dryHours >= 12) conditions.push(['plant_hours', '🌱', 'La plantita preguntó si el agua también está a distancia.']);
     }
 
-    const nextKeys = new Set(conditions.map(([key]) => key));
-    const newlyActive = conditions.find(([key]) => !activeHouseConditions.has(key));
-    activeHouseConditions = nextKeys;
-    if (showNew && newlyActive) showHouseJoke(...newlyActive);
+    const panel = $('#houseConditionMessages');
+    const list = $('#houseConditionList');
+    if (!panel || !list) return;
+    list.replaceChildren(...conditions.map(([key, emoji, message]) => {
+      const item = document.createElement('p');
+      item.dataset.condition = key;
+      const icon = document.createElement('span');
+      icon.textContent = emoji;
+      item.append(icon, document.createTextNode(message));
+      return item;
+    }));
+    panel.hidden = conditions.length === 0;
   }
 
-  function queueHouseConditionCheck(showNew = true) {
+  function queueHouseConditionCheck() {
     clearTimeout(conditionTimer);
-    conditionTimer = setTimeout(() => evaluateHouseConditions(showNew), 650);
+    conditionTimer = setTimeout(evaluateHouseConditions, 80);
   }
 
   function reportError(error, fallback) {
@@ -243,7 +243,6 @@
     $('#houseWindow')?.classList.toggle('is-open', windowOpen);
     $('#houseWindow')?.setAttribute('aria-pressed', String(windowOpen));
     $('#houseWindow')?.setAttribute('aria-label', windowOpen ? 'Cerrar la ventana' : 'Abrir la ventana');
-    if (announce) toast(windowOpen ? 'Ventana abierta, entra airecito' : 'Ventana cerrada');
   }
 
   function setAcState(on, announce = false) {
@@ -256,7 +255,6 @@
       const status = ac.querySelector('small');
       if (status) status.textContent = acOn ? 'encendido' : 'apagado';
     }
-    if (announce) toast(acOn ? 'AC encendido ❄️' : 'AC apagado');
   }
 
   function setHeaterState(on, announce = false) {
@@ -269,7 +267,6 @@
       const status = heater.querySelector('small');
       if (status) status.textContent = heaterOn ? 'encendida' : 'apagada';
     }
-    if (announce) toast(heaterOn ? 'Calefacción encendida 🔥' : 'Calefacción apagada');
   }
 
   function setLampState(person, on, announce = false) {
@@ -279,7 +276,6 @@
     lamp?.classList.toggle('is-lit', lampStates[person]);
     lamp?.setAttribute('aria-pressed', String(lampStates[person]));
     lamp?.setAttribute('aria-label', `${lampStates[person] ? 'Apagar' : 'Encender'} la lámpara de ${PEOPLE[person]}`);
-    if (announce) toast(`${PEOPLE[person]}: luz ${lampStates[person] ? 'encendida' : 'apagada'}`);
   }
 
   function setPlantState(state = {}, announce = false) {
@@ -297,7 +293,6 @@
       plant?.classList.remove('is-watered');
       if (status) status.textContent = 'Nuestra plantita';
     }
-    if (announce) toast('La plantita quedó feliz 💧');
   }
 
   function applyHouseDevice(device, state, announce = false) {
