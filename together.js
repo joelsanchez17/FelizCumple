@@ -35,7 +35,9 @@
   let acOn = false;
   let heaterOn = false;
   const lampStates = { joel: false, princesa: false };
-  let plantState = { watered_at: null, watered_by: null, reference_at: null };
+  let plantState = { watered_at: null, watered_by: null, reference_at: null, growth: 0 };
+  const avatarStates = { joel: { x: 0, y: 0 }, princesa: { x: 0, y: 0 } };
+  let tableNote = null;
   const houseWeatherTemps = { joel: null, princesa: null };
   let conditionTimer;
   const refreshTables = new Set();
@@ -59,13 +61,16 @@
     if (acOn && Number.isFinite(localTemperature) && localTemperature < 20) {
       conditions.push(['cold_ac', '🐧', `${Math.round(localTemperature)}° y el aire prendido… ¿queremos guardar pingüinos?`]);
     }
-    if (daytime && (lampStates.joel || lampStates.princesa)) conditions.push(['day_lights', '💡', 'No sabía que acá regalaban la luz.']);
+    if (daytime && (lampStates.joel || lampStates.princesa)) {
+      const plural = lampStates.joel && lampStates.princesa;
+      conditions.push(['day_lights', '💡', `No sabía que acá regalaban la luz. ${plural ? 'Lámparas prendidas' : 'Lámpara prendida'} y de día… la factura está llorando.`]);
+    }
 
     const plantReference = plantState.watered_at || plantState.reference_at;
     if (plantReference) {
       const dryHours = (Date.now() - new Date(plantReference).getTime()) / 3600000;
-      if (dryHours >= 48) conditions.push(['plant_days', '💧', 'La plantita ya está preparando una denuncia por abandono.']);
-      else if (dryHours >= 12) conditions.push(['plant_hours', '🌱', 'La plantita preguntó si el agua también está a distancia.']);
+      if (dryHours >= 72) conditions.push(['plant_days', '🥀', 'La plantita ya está preparando una denuncia por abandono.']);
+      else if (dryHours >= 36) conditions.push(['plant_hours', '💧', 'La plantita mira el vaso de agua como si fuera un espejismo.']);
     }
 
     const panel = $('#houseConditionMessages');
@@ -195,6 +200,12 @@
     if ($('#houseJoelPresence')) $('#houseJoelPresence').textContent = joelOnline ? 'Está por acá' : 'No está ahora';
     if ($('#housePrincesaPresence')) $('#housePrincesaPresence').textContent = princesaOnline ? 'Está por acá' : 'No está ahora';
     $('#loveHouse')?.classList.toggle('both-online', joelOnline && princesaOnline);
+    $$('[data-avatar-for]').forEach(avatar => {
+      const mine = avatar.dataset.avatarFor === identity;
+      const online = avatar.dataset.avatarFor === 'joel' ? joelOnline : princesaOnline;
+      avatar.classList.toggle('is-mine', mine && online);
+      avatar.tabIndex = mine && online ? 0 : -1;
+    });
     const message = joelOnline && princesaOnline
       ? 'Están juntos acá.'
       : joelOnline ? 'Joel está por acá.'
@@ -282,17 +293,38 @@
     plantState = {
       watered_at: state.watered_at || null,
       watered_by: state.watered_by || null,
-      reference_at: state.watered_at || state.reference_at || plantState.reference_at || null
+      reference_at: state.watered_at || state.reference_at || plantState.reference_at || null,
+      growth: Math.max(0, Math.min(4, Number(state.growth ?? plantState.growth) || 0))
     };
     const plant = $('#housePlant');
     const status = $('#housePlantStatus');
+    const sprout = plant?.querySelector('span');
+    const reference = plantState.watered_at || plantState.reference_at;
+    const dryHours = reference ? (Date.now() - new Date(reference).getTime()) / 3600000 : Infinity;
+    const stage = dryHours >= 72 ? 'wilted' : dryHours >= 36 ? 'thirsty' : plantState.growth >= 4 ? 'flower' : plantState.growth >= 2 ? 'grown' : 'sprout';
+    ['sprout', 'grown', 'flower', 'thirsty', 'wilted'].forEach(name => plant?.classList.toggle(`plant-stage-${name}`, name === stage));
+    if (sprout) sprout.textContent = stage === 'wilted' ? '🥀' : stage === 'thirsty' ? '🍂' : stage === 'flower' ? '🌷' : stage === 'grown' ? '🌿' : '🌱';
     if (plantState.watered_at) {
       plant?.classList.add('is-watered');
-      if (status) status.textContent = `${PEOPLE[plantState.watered_by] || 'Alguien'} la regó · ${relativeTime(plantState.watered_at).toLowerCase()}`;
+      if (status) status.textContent = stage === 'flower'
+        ? `¡Le salió una flor! · ${relativeTime(plantState.watered_at).toLowerCase()}`
+        : `${PEOPLE[plantState.watered_by] || 'Alguien'} la regó · ${relativeTime(plantState.watered_at).toLowerCase()}`;
     } else {
       plant?.classList.remove('is-watered');
       if (status) status.textContent = 'Nuestra plantita';
     }
+  }
+
+  function setAvatarState(person, state = {}) {
+    if (!PEOPLE[person]) return;
+    const next = {
+      x: Math.max(-34, Math.min(34, Math.round(Number(state.x) || 0))),
+      y: Math.max(-34, Math.min(8, Math.round(Number(state.y) || 0)))
+    };
+    avatarStates[person] = next;
+    const avatar = $(`[data-avatar-for="${person}"]`);
+    avatar?.style.setProperty('--avatar-x', `${next.x}px`);
+    avatar?.style.setProperty('--avatar-y', `${next.y}px`);
   }
 
   function applyHouseDevice(device, state, announce = false) {
@@ -302,6 +334,8 @@
     if (device === 'lamp_joel') setLampState('joel', state?.on ?? state, announce);
     if (device === 'lamp_princesa') setLampState('princesa', state?.on ?? state, announce);
     if (device === 'plant') setPlantState(state, announce);
+    if (device === 'avatar_joel') setAvatarState('joel', state);
+    if (device === 'avatar_princesa') setAvatarState('princesa', state);
     if (announce) queueHouseConditionCheck(true);
   }
 
@@ -351,12 +385,49 @@
   }
 
   async function waterHousePlant() {
-    const state = { watered_at:new Date().toISOString(), watered_by:identity };
+    const lastWatered = plantState.watered_at ? new Date(plantState.watered_at).getTime() : 0;
+    const mayGrow = !lastWatered || Date.now() - lastWatered >= 6 * 3600000;
+    const state = {
+      watered_at:new Date().toISOString(),
+      watered_by:identity,
+      growth:Math.min(4, plantState.growth + (mayGrow ? 1 : 0))
+    };
     setPlantState(state, true);
     $('#housePlant')?.classList.add('is-watering');
     setTimeout(() => $('#housePlant')?.classList.remove('is-watering'), 900);
     await saveHouseDevice('plant', state);
     queueHouseConditionCheck(false);
+  }
+
+  function bindAvatarDrag(avatar) {
+    let drag = null;
+    avatar.addEventListener('pointerdown', event => {
+      const person = avatar.dataset.avatarFor;
+      if (person !== identity || !avatar.classList.contains('is-mine')) return;
+      event.preventDefault();
+      drag = { pointer:event.pointerId, startX:event.clientX, startY:event.clientY, x:avatarStates[person].x, y:avatarStates[person].y };
+      avatar.setPointerCapture?.(event.pointerId);
+      avatar.classList.add('is-dragging');
+    });
+    avatar.addEventListener('pointermove', event => {
+      if (!drag || event.pointerId !== drag.pointer) return;
+      setAvatarState(identity, { x:drag.x + event.clientX - drag.startX, y:drag.y + event.clientY - drag.startY });
+    });
+    const finish = async event => {
+      if (!drag || event.pointerId !== drag.pointer) return;
+      drag = null;
+      avatar.classList.remove('is-dragging');
+      await saveHouseDevice(`avatar_${identity}`, avatarStates[identity]);
+    };
+    avatar.addEventListener('pointerup', finish);
+    avatar.addEventListener('pointercancel', finish);
+    avatar.addEventListener('keydown', async event => {
+      if (avatar.dataset.avatarFor !== identity || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+      event.preventDefault();
+      const delta = { ArrowLeft:[-5,0], ArrowRight:[5,0], ArrowUp:[0,-5], ArrowDown:[0,5] }[event.key];
+      setAvatarState(identity, { x:avatarStates[identity].x + delta[0], y:avatarStates[identity].y + delta[1] });
+      await saveHouseDevice(`avatar_${identity}`, avatarStates[identity]);
+    });
   }
 
   function renderHeartStates() {
@@ -501,8 +572,7 @@
         const { error } = await client.from('house_notes').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', note.id);
         if (error) return reportError(error, 'No se pudo abrir la nota');
         note.is_read = true;
-        body.classList.remove('sealed');
-        open.remove();
+        await loadNotes();
         navigator.vibrate?.([20, 30, 20]);
       });
       actions.appendChild(open);
@@ -537,11 +607,23 @@
     return article;
   }
 
+  function renderTableNote(notes = []) {
+    const noteButton = $('#houseTableNote');
+    if (!noteButton) return;
+    tableNote = notes.find(note => !note.is_read && (note.to_identity === identity || note.from_identity === identity)) || null;
+    noteButton.hidden = !tableNote;
+    noteButton.classList.toggle('is-mine', tableNote?.from_identity === identity);
+    if (tableNote) noteButton.setAttribute('aria-label', tableNote.from_identity === identity
+      ? `Tu nota está esperando a ${PEOPLE[target]}`
+      : `${PEOPLE[tableNote.from_identity]} dejó una nota sobre la mesa`);
+  }
+
   async function loadNotes() {
     const { data, error } = await client.from('house_notes').select('*').order('created_at', { ascending: false }).limit(8);
     if (error) return reportError(error, 'No se pudieron cargar las notas');
     const container = $('#houseNotes');
     if (!container) return;
+    renderTableNote(data || []);
     container.replaceChildren();
     if (!data?.length) {
       const empty = document.createElement('div');
@@ -728,6 +810,7 @@
   }
 
   function bindEvents() {
+    $$('[data-avatar-for]').forEach(bindAvatarDrag);
     $('.house-interior')?.addEventListener('click', event => {
       const lamp = event.target.closest('[data-lamp-for]');
       if (lamp) toggleHouseLamp(lamp.dataset.lampFor);
@@ -739,6 +822,9 @@
     $('#houseAc')?.addEventListener('click', toggleHouseAc);
     $('#houseHeater')?.addEventListener('click', toggleHouseHeater);
     $('#housePlant')?.addEventListener('click', waterHousePlant);
+    $('#houseTableNote')?.addEventListener('click', () => {
+      document.querySelector('.note-card')?.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
     $('#heartChoices')?.addEventListener('click', event => {
       const button = event.target.closest('[data-mood]');
       if (button) chooseMood(button.dataset.mood);
@@ -783,7 +869,10 @@
     setInterval(applyLocalTime, 10 * 60 * 1000);
     setInterval(updateHouseClocks, 30 * 1000);
     setInterval(loadHouseWeather, 15 * 60 * 1000);
-    setInterval(() => queueHouseConditionCheck(true), 60 * 60 * 1000);
+    setInterval(() => {
+      setPlantState(plantState);
+      queueHouseConditionCheck(true);
+    }, 60 * 60 * 1000);
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
     if ($('#houseLightNotify')) $('#houseLightNotify').textContent = `Avisarle a ${PEOPLE[target]} 🔔`;

@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v23-window-status-panel';
-const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=4', './together.js?v=4', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=7', './together.css?v=11', './app_refresh.css?v=4', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg'];
+const CACHE_NAME = 'love-app-v24-living-house';
+const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=4', './together.js?v=5', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=7', './together.css?v=12', './app_refresh.css?v=4', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE)));

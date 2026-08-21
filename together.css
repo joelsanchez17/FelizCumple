@@ -344,12 +344,15 @@ body.together-active #presence-indicator { display: none !important; }
 .house-person strong { margin-top:5px; font-size:1.08rem; }
 .house-person > span { font-size:.62rem; }
 .house-person > small { min-height:31px; font-size:.62rem; }
-.house-avatar { position:absolute; z-index:3; bottom:1px; width:54px; height:54px; overflow:hidden; border:4px solid rgba(255,250,247,.96); border-radius:50%; opacity:0; transform:translateY(9px) scale(.78); box-shadow:0 8px 18px rgba(72,40,53,.18); transition:opacity .38s ease,transform .45s cubic-bezier(.2,.8,.2,1),left .55s ease,right .55s ease; }
+.house-avatar { position:absolute; z-index:3; bottom:1px; width:54px; height:54px; overflow:hidden; border:4px solid rgba(255,250,247,.96); border-radius:50%; opacity:0; transform:translate(var(--avatar-x,0),calc(var(--avatar-y,0px) + 9px)) scale(.78); box-shadow:0 8px 18px rgba(72,40,53,.18); transition:opacity .38s ease,transform .45s cubic-bezier(.2,.8,.2,1),left .55s ease,right .55s ease; touch-action:none; user-select:none; }
 .house-avatar img { width:100%; height:100%; display:block; object-fit:cover; }
 .house-person-princesa .house-avatar img { object-position:58% 35%; }
 .house-person-joel .house-avatar { right:0; }
 .house-person-princesa .house-avatar { left:0; }
-.house-person.is-online .house-avatar { opacity:1; transform:translateY(0) scale(1); }
+.house-person.is-online .house-avatar { opacity:1; transform:translate(var(--avatar-x,0),var(--avatar-y,0)) scale(1); }
+.house-avatar.is-mine { cursor:grab; }
+.house-avatar.is-dragging { cursor:grabbing; transition:none; }
+.house-avatar.is-mine:focus-visible { outline:3px solid var(--together-wine); outline-offset:3px; }
 .love-house.both-online .house-person-joel .house-avatar { right:-9px; }
 .love-house.both-online .house-person-princesa .house-avatar { left:-9px; }
 
@@ -473,9 +476,19 @@ body.together-active #presence-indicator { display: none !important; }
 .house-plant > i::before { content:""; position:absolute; left:-2px; right:-2px; top:0; height:6px; border-radius:4px; background:#d48767; box-shadow:inset 0 -2px #a95e45; }
 .house-plant > i::after { content:""; position:absolute; left:7px; top:7px; width:3px; height:7px; border-radius:3px; background:rgba(255,224,204,.25); }
 .house-plant.is-watered > span { transform:translateX(-50%) scale(1.08); }
+.house-plant.plant-stage-grown > span { font-size:1.9rem; }
+.house-plant.plant-stage-flower > span { font-size:2rem; filter:drop-shadow(0 3px 3px rgba(159,65,98,.25)); }
+.house-plant.plant-stage-thirsty > span { filter:sepia(.7) saturate(.7); transform:translateX(-50%) rotate(9deg) scale(.94); }
+.house-plant.plant-stage-wilted > span { bottom:9px; filter:grayscale(.25) sepia(.55) saturate(.72); transform:translateX(-50%) rotate(15deg) scale(.88); }
 .house-plant.is-watering::before { content:"💧"; position:absolute; z-index:3; right:-2px; top:2px; animation:waterDrop .85s ease both; }
+.house-table-note { position:absolute; z-index:5; right:-8px; top:21px; width:27px; height:21px; display:grid; place-items:center; padding:0; border:1px solid rgba(124,71,92,.18); border-radius:3px 3px 6px 3px; color:inherit; background:#fff7dc; box-shadow:0 4px 8px rgba(72,40,53,.16); cursor:pointer; transform:rotate(5deg); animation:tableNoteArrives .5s cubic-bezier(.2,.8,.2,1) both; }
+.house-table-note[hidden] { display:none; }
+.house-table-note > span { font-size:.78rem; line-height:1; transform:none; }
+.house-table-note.is-mine { background:#f8e9ef; }
+.house-table-note:focus-visible { outline:2px solid var(--together-wine); outline-offset:2px; }
 .house-table > small { position:absolute; left:50%; top:80px; width:90px; color:#806b73; font:600 .42rem/1.2 'Quicksand',sans-serif; transform:translateX(-50%); }
 @keyframes waterDrop { from { opacity:0; transform:translate(8px,-8px); } 40% { opacity:1; } to { opacity:0; transform:translate(-5px,19px); } }
+@keyframes tableNoteArrives { from { opacity:0; transform:translateY(-9px) rotate(10deg); } to { opacity:1; transform:translateY(0) rotate(5deg); } }
 
 @media (max-width:430px) {
   .house-ac-unit { right:8px; top:82px; width:58px; height:32px; }
