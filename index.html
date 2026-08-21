@@ -161,9 +161,9 @@
       <span class="nav-icon" aria-hidden="true">♡</span>
       <span class="nav-label">Tu álbum</span>
     </button>
-    <button onclick="showTab(this, 'anniversary')" aria-label="Fechas">
-      <span class="nav-icon" aria-hidden="true">◷</span>
-      <span class="nav-label">Fechas</span>
+    <button onclick="showTab(this, 'anniversary')" aria-label="Historia">
+      <span class="nav-icon" aria-hidden="true">📖</span>
+      <span class="nav-label">Historia</span>
     </button>
   </nav>
 
@@ -1769,16 +1769,25 @@
   <script>
 
 
-    function showTab(btn, tabId) {
+    function showTab(btn, tabId, options = {}) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
       document.body.classList.toggle('together-active', tabId === 'together');
+      if (options.persist !== false) localStorage.setItem('love_active_tab', tabId);
       window.dispatchEvent(new CustomEvent('lovetabchange', { detail:{ tabId } }));
-      navigator.vibrate?.(10);
+      if (options.vibrate !== false) navigator.vibrate?.(10);
       window.scrollTo(0, 0);
     }
+    window.addEventListener('load', () => {
+      const savedTab = localStorage.getItem('love_active_tab');
+      const validTabs = ['home', 'together', 'games', 'memories', 'anniversary'];
+      if (!validTabs.includes(savedTab) || savedTab === 'home') return;
+      const button = [...document.querySelectorAll('.bottom-nav button')]
+        .find(item => item.getAttribute('onclick')?.includes(`'${savedTab}'`));
+      if (button) showTab(button, savedTab, { persist:false, vibrate:false });
+    }, { once:true });
     // --- Contadores up/down ---
     const startBerlin = new Date("2026-08-18T18:00:00+02:00");
     const meetingBerlin = new Date("2026-12-23T13:00:00+01:00");
@@ -4123,7 +4132,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=27', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=28', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -5020,7 +5029,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=8"></script>
+<script src="./together.js?v=9"></script>
 </body>
 
 </html>

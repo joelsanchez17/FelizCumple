@@ -1028,6 +1028,10 @@
     await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices(), loadAvatarPositions()]);
     queueHouseConditionCheck(true);
     subscribeToChanges();
+    if ($('#together')?.classList.contains('active')) {
+      const lastRoom = localStorage.getItem('love_last_house_room');
+      enterHouseRoom(ROOMS[lastRoom] ? lastRoom : 'bedroom');
+    }
     if (location.hash === '#together') {
       history.replaceState(null, '', location.pathname + location.search);
       setTimeout(openTogether, 120);
