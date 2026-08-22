@@ -290,7 +290,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 
 - **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama.
 - **2B — Movimiento vivo (completada):** doble toque para saltar, reacciones compartidas al saltar junto al otro y una acción propia para bailar, todo visible en vivo sin persistir animaciones pasajeras. `Sentarse` queda reservado exclusivamente para el sillón del living.
-- **2C — Cercanía (completada):** al tocar al otro cuando está cerca aparecen beso, abrazo, cariñitos y cosquillas con animaciones breves por Realtime, sin llenar el diario ni enviar notificaciones.
+- **2C — Cercanía (completada):** al tocar al otro cuando está cerca aparecen beso, abrazo, cariñitos y cosquillas con animaciones breves por Realtime. Princesa tiene además la acción privada `Tocar el pupito` sobre Joel, que él intenta esquivar. Nada de esto llena el diario ni envía notificaciones.
 - **2D — Actividades compartidas:** invitaciones que el otro acepta para acostarse juntos, dormir abrazados o comenzar un momento íntimo discreto, con puerta cerrada y luces bajas.
 - Adaptar las posiciones y objetos actuales al nuevo diseño.
 - Agregar mensajes y combinaciones del dormitorio usando la voz real de la pareja: cómplice, graciosa y breve.

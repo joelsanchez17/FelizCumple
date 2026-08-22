@@ -124,7 +124,7 @@ try:
     # Tocar al otro estando cerca ofrece las cuatro acciones de 2C.
     result["partner_is_interactive_when_close"] = wait_for(joel, "document.querySelector('[data-avatar-for=princesa]').classList.contains('can-interact')")
     joel.execute_script("document.querySelector('[data-avatar-for=princesa]').click()")
-    result["closeness_menu"] = joel.execute_script("return !houseAvatarActions.hidden&&houseSelfActions.hidden&&!houseTogetherActions.hidden&&document.querySelectorAll('[data-house-together]').length===4")
+    result["closeness_menu"] = joel.execute_script("return !houseAvatarActions.hidden&&houseSelfActions.hidden&&!houseTogetherActions.hidden&&document.querySelectorAll('[data-house-together]:not([hidden])').length===4&&housePupitoAction.hidden")
     joel.execute_script("document.querySelector('[data-house-together=kiss]').click()")
     kiss_id = joel.execute_script("return document.querySelector('[data-avatar-for=joel]').dataset.lastMotion||''")
     result["kiss_synced"] = bool(kiss_id) and wait_for(princesa, f"document.querySelector('[data-avatar-for=joel]').dataset.lastMotion==='{kiss_id}'")
@@ -137,6 +137,17 @@ try:
         action_id = joel.execute_script("return document.querySelector('[data-avatar-for=joel]').dataset.lastMotion||''")
         result[f"{kind}_synced"] = bool(action_id) and wait_for(princesa, f"document.querySelector('[data-avatar-for=joel]').dataset.lastMotion==='{action_id}'")
         result[f"{kind}_house_message"] = wait_for(princesa, f"document.querySelector('[data-condition=house_motion]')?.textContent.includes('{word}')")
+
+    # La acción del pupito pertenece solamente a Princesa cuando toca a Joel.
+    princesa.execute_script("document.querySelector('[data-avatar-for=joel]').click()")
+    result["pupito_only_for_princesa"] = princesa.execute_script("return !housePupitoAction.hidden&&document.querySelectorAll('[data-house-together]:not([hidden])').length===5")
+    princesa.execute_script("housePupitoAction.click()")
+    pupito_id = princesa.execute_script("return document.querySelector('[data-avatar-for=princesa]').dataset.lastMotion||''")
+    result["pupito_synced"] = bool(pupito_id) and wait_for(joel, f"document.querySelector('[data-avatar-for=princesa]').dataset.lastMotion==='{pupito_id}'")
+    result["pupito_house_message"] = wait_for(joel, "document.querySelector('[data-condition=house_motion]')?.textContent.includes('modo defensa')")
+    pupito_screenshot = os.path.join(os.environ.get("TEMP", "."), "loveapp-house-pupito.png")
+    joel.save_screenshot(pupito_screenshot)
+    result["pupito_screenshot"] = pupito_screenshot
 
     # Devuelve la posición de Joel exactamente a donde estaba antes de la prueba.
     joel.execute_script(
@@ -156,6 +167,7 @@ try:
     # Joel elige dormir y Princesa recibe el estado por Realtime.
     joel.execute_script("houseBedSleep.click()")
     result["joel_sleep_synced"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
+    time.sleep(1.2)
 
     # El sueño persiste al recargar la aplicación.
     joel.refresh()

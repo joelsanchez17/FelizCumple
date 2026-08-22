@@ -695,6 +695,7 @@
     const mine = avatarStates[roomId]?.[identity];
     const theirs = avatarStates[roomId]?.[target];
     if (!layer || !mine || !theirs || roomId !== currentRoom) return;
+    layer.querySelectorAll('.house-jump-heart').forEach(item => item.remove());
     const heart = document.createElement('span');
     heart.className = 'house-jump-heart';
     heart.textContent = emoji;
@@ -720,6 +721,7 @@
     panel.hidden = false;
     $('#houseSelfActions').hidden = together;
     $('#houseTogetherActions').hidden = !together;
+    if ($('#housePupitoAction')) $('#housePupitoAction').hidden = !(together && identity === 'princesa' && target === 'joel');
     $('#houseAvatarActionsTitle').textContent = together ? `¿Qué hacemos con ${PEOPLE[target]}?` : '¿Qué querés hacer?';
     panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
@@ -743,7 +745,7 @@
   function restartMotionClass(avatar, className, duration = 1300) {
     if (!avatar) return;
     avatar.classList.remove('is-jumping', 'is-jump-reacting', 'is-dancing');
-    [...avatar.classList].filter(name => /^is-(kiss|hug|caress|tickle)-(actor|receiver)$/.test(name)).forEach(name => avatar.classList.remove(name));
+    [...avatar.classList].filter(name => /^is-(kiss|hug|caress|tickle|pupito)-(actor|receiver)$/.test(name)).forEach(name => avatar.classList.remove(name));
     void avatar.offsetWidth;
     avatar.classList.add(className);
     if (duration > 0) setTimeout(() => avatar.classList.remove(className), duration);
@@ -753,7 +755,8 @@
     kiss: { emoji:'💋', message:'Bueno… ese besito sí lo vi.' },
     hug: { emoji:'🫂', message:'Ahí entran los dos. Apriétense bien.' },
     caress: { emoji:'🤍', message:'La casa se quedó calladita para no interrumpir.' },
-    tickle: { emoji:'😂', message:'Che, sin romper nada con esas cosquillas.' }
+    tickle: { emoji:'😂', message:'Che, sin romper nada con esas cosquillas.' },
+    pupito: { emoji:'👉', message:'¡El pupito no! Agus activó el modo defensa otra vez 😂' }
   };
 
   function animateTogetherMotion(person, motion, roomId) {
