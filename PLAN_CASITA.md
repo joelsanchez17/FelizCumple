@@ -275,11 +275,14 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 
 ### Parte 2 — Dormitorio completo
 
-- Agregar cama y televisión.
-- Actividades `Mirar televisión`, `Acostarse` y `Dormir`.
-- Permitir sentarse o acostarse juntos.
+- **2A — Cama (en implementación):** tocar la cama para dormir a lo koala, conservar el sueño al cerrar la app, mostrar `zzz`, dormir juntos y permitir despertar al otro tocando su avatar.
+- **2B — Movimiento vivo:** doble toque para saltar, reacciones por saltar al lado del otro y pequeños movimientos como bailar o sentarse.
+- **2C — Cercanía:** al tocar al otro cuando está cerca, ofrecer beso, abrazo, caricias y cosquillas con animaciones breves por Realtime, sin llenar el diario.
+- **2D — Actividades compartidas:** invitaciones que el otro acepta para acostarse juntos, dormir abrazados o comenzar un momento íntimo discreto, con puerta cerrada y luces bajas.
+- Agregar televisión y la actividad `Mirar televisión`.
+- Permitir sentarse o acostarse juntos sin mover automáticamente al otro.
 - Adaptar las posiciones y objetos actuales al nuevo diseño.
-- Agregar mensajes y combinaciones del dormitorio.
+- Agregar mensajes y combinaciones del dormitorio usando la voz real de la pareja: cómplice, graciosa y breve.
 
 ### Parte 3 — Cocina
 
@@ -293,6 +296,8 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Diseñar el baño completo.
 - Agregar ducha, espejo, cepillos, toallas y luz.
 - Implementar bañarse y cepillarse los dientes.
+- Permitir invitar al otro a ducharse juntos; el otro debe aceptar antes de que comience la actividad.
+- Agregar salpicarse, empañar el espejo, escribir con el dedo y robarle la toalla al otro.
 - Agregar mensajes en el espejo y actividades sincronizadas.
 
 ### Parte 5 — Vida de toda la casa
@@ -301,7 +306,22 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Objetos que interactúen entre habitaciones.
 - Sonido o señal sutil cuando alguien llega a casa.
 - Sorpresas que solo aparecen cuando ambos coinciden.
+- Acción `Vení conmigo`: manda una señal o push, pero no revela la habitación para conservar el juego de buscarse.
+- Pedido de llamada que pueda abrir WhatsApp cuando ambos lo decidan.
+- Motor único para que la casa hable con prioridades, combinaciones y tiempo de espera, sin ventanas emergentes.
 - Preparar habitaciones futuras.
+
+## Voz de la casa
+
+La casa es cómplice, un poco chismosa y habla con frases cortas. Puede usar con moderación palabras propias de la pareja como `koalita`, `camarada`, `cielito`, `jefecita`, `mimir` y `cariñitos`. No narrará cada toque ni repetirá mensajes constantemente.
+
+Reglas:
+
+- Los mensajes permanecen visibles mientras la condición continúe.
+- Si coinciden varias condiciones, se muestran juntas por prioridad sin taparse entre sí.
+- Las acciones instantáneas viajan por Realtime y no se guardan en el diario.
+- Dormir, ducharse o mirar televisión sí son estados persistentes en `house_activities`.
+- Las actividades íntimas o compartidas requieren aceptación del otro.
 
 ## Validación obligatoria por etapa
 
@@ -319,8 +339,6 @@ Cada parte se probará con:
 - Persistencia de objetos, posiciones y actividades.
 - Ausencia de superposiciones y desplazamiento horizontal.
 
-## Criterio para comenzar
+## Estado actual
 
-La primera implementación será únicamente la **Parte 1 — Cimientos y búsqueda**. No se agregarán todavía cama, televisión, ducha ni cocina funcional. Primero debe sentirse natural llegar, recorrer habitaciones, desaparecer al salir y encontrarse con el otro.
-
-Una vez validada esa experiencia con dos dispositivos reales, se continuará con el dormitorio completo.
+La **Parte 1 — Cimientos y búsqueda** ya fue implementada y validada con dos sesiones. El desarrollo continúa con **Parte 2A — Cama**, antes de sumar el resto de las interacciones del dormitorio.

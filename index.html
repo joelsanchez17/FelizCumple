@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=15">
+  <link rel="stylesheet" href="./together.css?v=17">
   <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -424,7 +424,7 @@
           </button>
         </nav>
         <div class="house-map-future" aria-label="Lugar para una habitación futura"><span aria-hidden="true">＋</span><strong>La casa puede seguir creciendo</strong></div>
-        <p class="house-search-hint">El mapa no cuenta dónde está el otro. Hay que ir habitación por habitación ♡</p>
+        <p class="house-search-hint">La casa no te va a decir dónde está. Vas a tener que buscarlo 👀</p>
       </div>
 
       <div id="houseBedroom" class="house-room house-room-view" data-room-view="bedroom" hidden>
@@ -461,6 +461,11 @@
           <button id="houseHeater" class="house-heater" type="button" aria-label="Encender la calefacción" aria-pressed="false">
             <span aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <small>apagada</small>
+          </button>
+          <button id="houseBed" class="house-bed" type="button" aria-label="Dormir a lo koala" aria-pressed="false">
+            <span class="house-bed-pillows" aria-hidden="true"><i></i><i></i></span>
+            <span class="house-bed-blanket" aria-hidden="true"></span>
+            <small id="houseBedLabel">Dormir a lo 🐨</small>
           </button>
           <div class="house-people">
               <article id="houseJoel" class="house-person house-person-joel">
@@ -542,12 +547,12 @@
     <section class="together-card heart-card" aria-labelledby="heartTitle">
       <div class="together-section-head">
         <div>
-          <span class="together-kicker">UNA SEÑAL PEQUEÑA</span>
+          <span class="together-kicker">¿CÓMO ESTÁS HOY?</span>
           <h2 id="heartTitle">¿Cómo está tu corazón?</h2>
         </div>
         <button id="heartClear" class="text-button" type="button" hidden>Quitar</button>
       </div>
-      <p class="together-intro">Elegí una. No hace falta explicar todo.</p>
+      <p class="together-intro">Dejame saber cómo estás, aunque sea con una señal.</p>
       <div id="heartChoices" class="heart-choices">
         <button type="button" data-mood="happy"><span>☀️</span>Feliz</button>
         <button type="button" data-mood="tired"><span>🌙</span>Cansado/a</button>
@@ -568,12 +573,12 @@
     <section class="together-card note-card" aria-labelledby="noteTitle">
       <div class="together-section-head">
         <div>
-          <span class="together-kicker">SOBRE LA MESA</span>
+          <span class="together-kicker">UNA NOTITA PARA DESPUÉS</span>
           <h2 id="noteTitle">Dejale una nota</h2>
         </div>
         <span class="note-paperclip" aria-hidden="true">⌁</span>
       </div>
-      <p class="together-intro">Va a seguir acá aunque cierre la app.</p>
+      <p class="together-intro">Va a estar esperándolo cuando vuelva.</p>
       <label class="sr-only" for="houseNoteInput">Nota para tu pareja</label>
       <textarea id="houseNoteInput" maxlength="180" rows="3" placeholder="Algo breve para cuando vuelva…"></textarea>
       <div class="note-compose-bottom">
@@ -586,12 +591,12 @@
     <section class="together-card journal-card" aria-labelledby="journalTitle">
       <div class="together-section-head">
         <div>
-          <span class="together-kicker">LO QUE VAMOS DEJANDO</span>
-          <h2 id="journalTitle">Diario de nosotros</h2>
+          <span class="together-kicker">NUESTRAS COSITAS</span>
+          <h2 id="journalTitle">Lo que vamos viviendo</h2>
         </div>
         <span class="journal-book" aria-hidden="true">♧</span>
       </div>
-      <p class="together-intro">No guarda actividad. Guarda momentos.</p>
+      <p class="together-intro">Acá quedan las cosas que queremos volver a ver.</p>
       <div id="journalFilters" class="journal-filters" role="group" aria-label="Filtrar el diario">
         <button class="active" type="button" data-filter="all">Todo</button>
         <button type="button" data-filter="drawing">Dibujos</button>
@@ -5082,7 +5087,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=10"></script>
+<script src="./together.js?v=11"></script>
 </body>
 
 </html>

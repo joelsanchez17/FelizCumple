@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v30-stability';
-const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=6', './together.js?v=10', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=15', './app_refresh.css?v=5', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg'];
+const CACHE_NAME = 'love-app-v32-bedroom-sleep';
+const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=6', './together.js?v=11', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=17', './app_refresh.css?v=5', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE)));
@@ -29,7 +29,7 @@ self.addEventListener('notificationclick', event => {
     else {
       const type = event.notification.data?.type;
       const destination = type === 'drawing' ? './index.html#drawing'
-        : (type === 'house-note' || type === 'heart' || type === 'house-light') ? './index.html#together'
+        : (type === 'house-note' || type === 'heart' || type === 'house-light' || type === 'house-wake') ? './index.html#together'
         : './index.html';
       await clients.openWindow(destination);
     }
