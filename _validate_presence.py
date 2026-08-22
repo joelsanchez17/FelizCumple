@@ -47,6 +47,15 @@ def wait_for(driver, expression, seconds=8):
     return False
 
 
+def tap_avatar(driver, person, pointer_id):
+    driver.execute_async_script(
+        "const person=arguments[0],pointerId=arguments[1],done=arguments[2],a=document.querySelector('[data-avatar-for='+person+']'),r=a.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;"
+        "a.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerId,pointerType:'touch',buttons:1,clientX:x,clientY:y}));"
+        "a.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,pointerId,pointerType:'touch',buttons:0,clientX:x,clientY:y}));setTimeout(done,470)",
+        person, pointer_id
+    )
+
+
 joel = princesa = None
 try:
     joel = browser()
@@ -72,6 +81,13 @@ try:
         "return {viewport:[innerWidth,innerHeight],bed,overlaps:{table:hit(bed,table),window:hit(bed,windowBox),heater:hit(bed,heater)}}"
     )
 
+    # Cada corrida parte fuera de la cama, incluso si una prueba anterior se interrumpió.
+    for driver in (joel, princesa):
+        if driver.execute_script("return document.querySelector('[data-avatar-for='+localStorage.getItem('love_identity')+']').classList.contains('is-in-bed')"):
+            driver.execute_script("houseBedLeave.click()")
+    result["clean_bed_start"] = wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')") and wait_for(princesa, "!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')")
+    time.sleep(1)
+
     # Acerca temporalmente a Joel, hace doble toque y comprueba el salto en ambas sesiones.
     original_position = joel.execute_script(
         "const a=document.querySelector('[data-avatar-for=joel]');return {x:parseFloat(a.style.getPropertyValue('--avatar-left')),y:parseFloat(a.style.getPropertyValue('--avatar-top'))}"
@@ -96,6 +112,32 @@ try:
     result["double_tap_jump_synced"] = wait_for(princesa, f"document.querySelector('[data-avatar-for=joel]').dataset.lastMotion==='{motion_id}'")
     result["nearby_jump_reaction"] = wait_for(princesa, "Boolean(document.querySelector('[data-condition=house_motion]'))")
 
+    # Un toque propio abre el movimiento breve de bailar, que también viaja por Realtime.
+    tap_avatar(joel, "joel", 71)
+    result["self_motion_menu"] = joel.execute_script("return !houseAvatarActions.hidden&&!houseSelfActions.hidden&&houseTogetherActions.hidden")
+    self_menu_screenshot = os.path.join(os.environ.get("TEMP", "."), "loveapp-house-self-actions.png")
+    joel.save_screenshot(self_menu_screenshot)
+    result["self_menu_screenshot"] = self_menu_screenshot
+    joel.execute_script("document.querySelector('[data-house-motion=dance]').click()")
+    dance_id = joel.execute_script("return document.querySelector('[data-avatar-for=joel]').dataset.lastMotion||''")
+    result["dance_synced"] = bool(dance_id) and wait_for(princesa, f"document.querySelector('[data-avatar-for=joel]').dataset.lastMotion==='{dance_id}'")
+    # Tocar al otro estando cerca ofrece las cuatro acciones de 2C.
+    result["partner_is_interactive_when_close"] = wait_for(joel, "document.querySelector('[data-avatar-for=princesa]').classList.contains('can-interact')")
+    joel.execute_script("document.querySelector('[data-avatar-for=princesa]').click()")
+    result["closeness_menu"] = joel.execute_script("return !houseAvatarActions.hidden&&houseSelfActions.hidden&&!houseTogetherActions.hidden&&document.querySelectorAll('[data-house-together]').length===4")
+    joel.execute_script("document.querySelector('[data-house-together=kiss]').click()")
+    kiss_id = joel.execute_script("return document.querySelector('[data-avatar-for=joel]').dataset.lastMotion||''")
+    result["kiss_synced"] = bool(kiss_id) and wait_for(princesa, f"document.querySelector('[data-avatar-for=joel]').dataset.lastMotion==='{kiss_id}'")
+    result["kiss_house_message"] = wait_for(princesa, "document.querySelector('[data-condition=house_motion]')?.textContent.includes('besito')")
+    closeness_screenshot = os.path.join(os.environ.get("TEMP", "."), "loveapp-house-closeness.png")
+    princesa.save_screenshot(closeness_screenshot)
+    result["closeness_screenshot"] = closeness_screenshot
+    for kind, word in (("hug", "Apriétense"), ("caress", "calladita"), ("tickle", "cosquillas")):
+        joel.execute_script("document.querySelector('[data-avatar-for=princesa]').click();document.querySelector('[data-house-together='+arguments[0]+']').click()", kind)
+        action_id = joel.execute_script("return document.querySelector('[data-avatar-for=joel]').dataset.lastMotion||''")
+        result[f"{kind}_synced"] = bool(action_id) and wait_for(princesa, f"document.querySelector('[data-avatar-for=joel]').dataset.lastMotion==='{action_id}'")
+        result[f"{kind}_house_message"] = wait_for(princesa, f"document.querySelector('[data-condition=house_motion]')?.textContent.includes('{word}')")
+
     # Devuelve la posición de Joel exactamente a donde estaba antes de la prueba.
     joel.execute_script(
         "const ox=arguments[0],oy=arguments[1],a=document.querySelector('[data-avatar-for=joel]'),s=document.querySelector('[data-room-surface=bedroom]'),r=s.getBoundingClientRect(),ar=a.getBoundingClientRect();"
@@ -105,17 +147,11 @@ try:
     )
     time.sleep(1)
 
-    # Cada corrida parte fuera de la cama, incluso si una prueba anterior se interrumpió.
-    for driver in (joel, princesa):
-        if driver.execute_script("return document.querySelector('[data-avatar-for='+localStorage.getItem('love_identity')+']').classList.contains('is-in-bed')"):
-            driver.execute_script("houseBedLeave.click()")
-    result["clean_bed_start"] = wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')") and wait_for(princesa, "!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')")
-    time.sleep(.6)
-
     # La primera pulsación solamente acuesta a Joel; todavía no debe haber zzz.
     joel.execute_script("houseBed.click()")
     result["joel_lying_synced"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
     result["bed_actions_visible"] = joel.execute_script("return !houseBedActions.hidden&&houseBedSleep.textContent.includes('Dormir')&&houseBedLeave.textContent.includes('Levantarse')")
+    time.sleep(1)
 
     # Joel elige dormir y Princesa recibe el estado por Realtime.
     joel.execute_script("houseBedSleep.click()")
@@ -129,6 +165,7 @@ try:
     # Los dos pueden dormir simultáneamente.
     princesa.execute_script("houseBed.click()")
     wait_for(princesa, "document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-sleeping')")
+    time.sleep(1)
     princesa.execute_script("houseBedSleep.click()")
     result["both_sleeping"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')&&document.querySelector('[data-avatar-for=princesa]').classList.contains('is-sleeping')")
     time.sleep(.7)

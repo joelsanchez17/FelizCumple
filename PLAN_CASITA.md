@@ -120,7 +120,6 @@ Funciones iniciales:
 
 - Moverse libremente.
 - Acostarse o dormir.
-- Mirar televisión juntos.
 - Encender lámparas.
 - Abrir la ventana.
 - Aire acondicionado y calefacción.
@@ -129,9 +128,23 @@ Funciones iniciales:
 
 Posibles situaciones:
 
-- Una persona está mirando televisión y la otra se sienta a su lado.
 - Ambos seleccionan dormir y aparecen juntos en la cama.
 - Alguien deja una nota en la mesa de noche.
+
+### Living
+
+El living será una habitación propia y concentrará las acciones de descanso fuera de la cama.
+
+Funciones iniciales propuestas:
+
+- Televisión compartida.
+- Sillón con dos lugares reales.
+- Tocar un lugar del sillón para sentarse allí.
+- Levantarse tocando nuevamente el sillón o moviendo el avatar.
+- Sentarse al lado del otro sin moverlo automáticamente.
+- Mirar televisión, hacer cariñitos o quedarse dormidos en el sillón.
+
+`Sentarse` no será una acción genérica del avatar: existirá solamente al tocar el sillón y ocupar uno de sus lugares.
 
 ### Cocina
 
@@ -166,7 +179,7 @@ persona + habitación + actividad + inicio + finalización
 
 Ejemplos:
 
-- `princesa / dormitorio / watching_tv / hasta 22:30`
+- `princesa / living / watching_tv / hasta 22:30`
 - `joel / baño / brushing_teeth / hasta 22:05`
 - `joel / dormitorio / sleeping / hasta 07:00`
 
@@ -276,22 +289,29 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 ### Parte 2 — Dormitorio completo
 
 - **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama.
-- **2B — Movimiento vivo (en implementación):** doble toque para saltar y reacciones compartidas al saltar junto al otro ya implementados; siguen los pequeños movimientos como bailar o sentarse.
-- **2C — Cercanía:** al tocar al otro cuando está cerca, ofrecer beso, abrazo, caricias y cosquillas con animaciones breves por Realtime, sin llenar el diario.
+- **2B — Movimiento vivo (completada):** doble toque para saltar, reacciones compartidas al saltar junto al otro y una acción propia para bailar, todo visible en vivo sin persistir animaciones pasajeras. `Sentarse` queda reservado exclusivamente para el sillón del living.
+- **2C — Cercanía (completada):** al tocar al otro cuando está cerca aparecen beso, abrazo, cariñitos y cosquillas con animaciones breves por Realtime, sin llenar el diario ni enviar notificaciones.
 - **2D — Actividades compartidas:** invitaciones que el otro acepta para acostarse juntos, dormir abrazados o comenzar un momento íntimo discreto, con puerta cerrada y luces bajas.
-- Agregar televisión y la actividad `Mirar televisión`.
-- Permitir sentarse o acostarse juntos sin mover automáticamente al otro.
 - Adaptar las posiciones y objetos actuales al nuevo diseño.
 - Agregar mensajes y combinaciones del dormitorio usando la voz real de la pareja: cómplice, graciosa y breve.
 
-### Parte 3 — Cocina
+### Parte 3 — Living
+
+- Agregar el living al mapa de la casa.
+- Diseñar el sillón con dos lugares independientes.
+- Hacer que `Sentarse` sea una acción del sillón, no del avatar.
+- Agregar la televisión y la actividad persistente `Mirar televisión`.
+- Permitir sentarse juntos, hacer cariñitos o dormirse frente a la televisión.
+- Incorporar control remoto, luz ambiental y mensajes propios del living.
+
+### Parte 4 — Cocina
 
 - Diseñar la cocina completa.
 - Agregar mesa, cafetera, heladera y luces.
 - Implementar café, cocinar, sentarse y notas/imanes.
 - Crear condiciones y mensajes propios de la cocina.
 
-### Parte 4 — Baño
+### Parte 5 — Baño
 
 - Diseñar el baño completo.
 - Agregar ducha, espejo, cepillos, toallas y luz.
@@ -300,7 +320,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Agregar salpicarse, empañar el espejo, escribir con el dedo y robarle la toalla al otro.
 - Agregar mensajes en el espejo y actividades sincronizadas.
 
-### Parte 5 — Vida de toda la casa
+### Parte 6 — Vida de toda la casa
 
 - Historial de actividades importantes en el diario.
 - Objetos que interactúen entre habitaciones.
@@ -341,4 +361,4 @@ Cada parte se probará con:
 
 ## Estado actual
 
-La **Parte 1 — Cimientos y búsqueda** y la **Parte 2A — Cama** ya fueron implementadas. La **Parte 2B — Movimiento vivo** está en curso: el salto con doble toque y su reacción compartida ya están terminados; el próximo paso es agregar movimientos elegibles como bailar y sentarse.
+La **Parte 1 — Cimientos y búsqueda**, la **Parte 2A — Cama**, la **Parte 2B — Movimiento vivo** y la **Parte 2C — Cercanía** ya fueron implementadas. El próximo paso es la **Parte 2D — Actividades compartidas**, comenzando por invitaciones que el otro debe aceptar.
