@@ -276,7 +276,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 ### Parte 2 — Dormitorio completo
 
 - **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama.
-- **2B — Movimiento vivo:** doble toque para saltar, reacciones por saltar al lado del otro y pequeños movimientos como bailar o sentarse.
+- **2B — Movimiento vivo (en implementación):** doble toque para saltar y reacciones compartidas al saltar junto al otro ya implementados; siguen los pequeños movimientos como bailar o sentarse.
 - **2C — Cercanía:** al tocar al otro cuando está cerca, ofrecer beso, abrazo, caricias y cosquillas con animaciones breves por Realtime, sin llenar el diario.
 - **2D — Actividades compartidas:** invitaciones que el otro acepta para acostarse juntos, dormir abrazados o comenzar un momento íntimo discreto, con puerta cerrada y luces bajas.
 - Agregar televisión y la actividad `Mirar televisión`.
@@ -341,4 +341,4 @@ Cada parte se probará con:
 
 ## Estado actual
 
-La **Parte 1 — Cimientos y búsqueda** y la **Parte 2A — Cama** ya fueron implementadas. El desarrollo continúa con **Parte 2B — Movimiento vivo**: doble toque para saltar y pequeñas reacciones compartidas, antes de sumar acciones de cercanía.
+La **Parte 1 — Cimientos y búsqueda** y la **Parte 2A — Cama** ya fueron implementadas. La **Parte 2B — Movimiento vivo** está en curso: el salto con doble toque y su reacción compartida ya están terminados; el próximo paso es agregar movimientos elegibles como bailar y sentarse.

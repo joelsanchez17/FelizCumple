@@ -72,6 +72,46 @@ try:
         "return {viewport:[innerWidth,innerHeight],bed,overlaps:{table:hit(bed,table),window:hit(bed,windowBox),heater:hit(bed,heater)}}"
     )
 
+    # Acerca temporalmente a Joel, hace doble toque y comprueba el salto en ambas sesiones.
+    original_position = joel.execute_script(
+        "const a=document.querySelector('[data-avatar-for=joel]');return {x:parseFloat(a.style.getPropertyValue('--avatar-left')),y:parseFloat(a.style.getPropertyValue('--avatar-top'))}"
+    )
+    joel.execute_script(
+        "const a=document.querySelector('[data-avatar-for=joel]'),p=document.querySelector('[data-avatar-for=princesa]'),s=document.querySelector('[data-room-surface=bedroom]'),r=s.getBoundingClientRect();"
+        "const px=parseFloat(p.style.getPropertyValue('--avatar-left'))/100,py=parseFloat(p.style.getPropertyValue('--avatar-top'))/100,ar=a.getBoundingClientRect();"
+        "const fire=(type,x,y,buttons)=>a.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:41,pointerType:'touch',buttons,clientX:x,clientY:y}));"
+        "fire('pointerdown',ar.left+ar.width/2,ar.top+ar.height/2,1);fire('pointermove',r.left+(px-.12)*r.width,r.top+py*r.height,1);fire('pointerup',r.left+(px-.12)*r.width,r.top+py*r.height,0)"
+    )
+    time.sleep(1)
+    joel.execute_async_script(
+        "const done=arguments[0],a=document.querySelector('[data-avatar-for=joel]'),r=a.getBoundingClientRect();let id=51;"
+        "const tap=()=>{const x=r.left+r.width/2,y=r.top+r.height/2;a.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',buttons:1,clientX:x,clientY:y}));a.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,pointerId:id++,pointerType:'touch',buttons:0,clientX:x,clientY:y}))};"
+        "tap();setTimeout(()=>{tap();setTimeout(done,80)},120)"
+    )
+    motion_id = joel.execute_script("return document.querySelector('[data-avatar-for=joel]').dataset.lastMotion||''")
+    result["double_tap_jump_local"] = bool(motion_id)
+    jump_screenshot = os.path.join(os.environ.get("TEMP", "."), "loveapp-house-jump.png")
+    joel.save_screenshot(jump_screenshot)
+    result["jump_screenshot"] = jump_screenshot
+    result["double_tap_jump_synced"] = wait_for(princesa, f"document.querySelector('[data-avatar-for=joel]').dataset.lastMotion==='{motion_id}'")
+    result["nearby_jump_reaction"] = wait_for(princesa, "Boolean(document.querySelector('[data-condition=house_motion]'))")
+
+    # Devuelve la posición de Joel exactamente a donde estaba antes de la prueba.
+    joel.execute_script(
+        "const ox=arguments[0],oy=arguments[1],a=document.querySelector('[data-avatar-for=joel]'),s=document.querySelector('[data-room-surface=bedroom]'),r=s.getBoundingClientRect(),ar=a.getBoundingClientRect();"
+        "const fire=(type,x,y,buttons)=>a.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:61,pointerType:'touch',buttons,clientX:x,clientY:y}));"
+        "fire('pointerdown',ar.left+ar.width/2,ar.top+ar.height/2,1);fire('pointermove',r.left+ox*r.width/100,r.top+oy*r.height/100,1);fire('pointerup',r.left+ox*r.width/100,r.top+oy*r.height/100,0)",
+        original_position["x"], original_position["y"]
+    )
+    time.sleep(1)
+
+    # Cada corrida parte fuera de la cama, incluso si una prueba anterior se interrumpió.
+    for driver in (joel, princesa):
+        if driver.execute_script("return document.querySelector('[data-avatar-for='+localStorage.getItem('love_identity')+']').classList.contains('is-in-bed')"):
+            driver.execute_script("houseBedLeave.click()")
+    result["clean_bed_start"] = wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')") and wait_for(princesa, "!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')")
+    time.sleep(.6)
+
     # La primera pulsación solamente acuesta a Joel; todavía no debe haber zzz.
     joel.execute_script("houseBed.click()")
     result["joel_lying_synced"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
@@ -87,7 +127,9 @@ try:
     result["sleep_survives_reload"] = wait_for(joel, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
 
     # Los dos pueden dormir simultáneamente.
-    princesa.execute_script("houseBed.click(); houseBedSleep.click()")
+    princesa.execute_script("houseBed.click()")
+    wait_for(princesa, "document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-sleeping')")
+    princesa.execute_script("houseBedSleep.click()")
     result["both_sleeping"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')&&document.querySelector('[data-avatar-for=princesa]').classList.contains('is-sleeping')")
     time.sleep(.7)
     result["zzz_visible"] = princesa.execute_script(
@@ -110,6 +152,7 @@ try:
     joel.execute_script("houseBedLeave.click()")
     princesa.execute_script("houseBedLeave.click()")
     result["activities_cleaned"] = wait_for(princesa, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')")
+    time.sleep(1)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 finally:
     if joel:

@@ -54,6 +54,8 @@
   let tableNote = null;
   const houseWeatherTemps = { joel: null, princesa: null };
   let conditionTimer;
+  let houseMotionMessage = null;
+  let houseMotionTimer;
   const refreshTables = new Set();
 
   const $ = selector => document.querySelector(selector);
@@ -66,6 +68,7 @@
 
   function evaluateHouseConditions() {
     const conditions = [];
+    if (houseMotionMessage) conditions.push(['house_motion', houseMotionMessage.emoji, houseMotionMessage.text]);
     const period = $('#loveHouse')?.dataset.time;
     const daytime = period === 'morning' || period === 'day';
     const localTemperature = houseWeatherTemps[identity];
@@ -118,6 +121,16 @@
   function queueHouseConditionCheck() {
     clearTimeout(conditionTimer);
     conditionTimer = setTimeout(evaluateHouseConditions, 80);
+  }
+
+  function showHouseMotionMessage(text, emoji = '👀') {
+    houseMotionMessage = { text, emoji };
+    clearTimeout(houseMotionTimer);
+    queueHouseConditionCheck();
+    houseMotionTimer = setTimeout(() => {
+      houseMotionMessage = null;
+      queueHouseConditionCheck();
+    }, 5200);
   }
 
   function reportError(error, fallback) {
@@ -544,7 +557,7 @@
       } else if (person === identity && inBed) {
         avatar.setAttribute('aria-label', sleeping ? 'Estás durmiendo' : 'Estás acostado en la cama');
       } else {
-        avatar.setAttribute('aria-label', person === identity ? `Mover a ${PEOPLE[person]} por la habitación` : PEOPLE[person]);
+        avatar.setAttribute('aria-label', person === identity ? `Mover a ${PEOPLE[person]}; doble toque para saltar` : PEOPLE[person]);
       }
     });
   }
@@ -663,6 +676,63 @@
     if (error) reportError(error, 'No se pudo guardar tu lugar en la habitación');
   }
 
+  function avatarsAreClose(roomId = currentRoom) {
+    if (!ROOMS[roomId]) return false;
+    const mine = avatarStates[roomId]?.[identity];
+    const theirs = avatarStates[roomId]?.[target];
+    const otherAvatar = $(`[data-avatar-for="${target}"]`);
+    if (!mine || !theirs || !otherAvatar?.classList.contains('is-online')) return false;
+    return Math.hypot(mine.rx - theirs.rx, (mine.ry - theirs.ry) * 1.15) <= .24;
+  }
+
+  function showJumpHeart(roomId = currentRoom) {
+    const layer = $('#houseAvatarLayer');
+    const mine = avatarStates[roomId]?.[identity];
+    const theirs = avatarStates[roomId]?.[target];
+    if (!layer || !mine || !theirs || roomId !== currentRoom) return;
+    const heart = document.createElement('span');
+    heart.className = 'house-jump-heart';
+    heart.textContent = '💕';
+    heart.style.setProperty('--heart-x', `${(mine.rx + theirs.rx) * 50}%`);
+    heart.style.setProperty('--heart-y', `${(mine.ry + theirs.ry) * 50}%`);
+    layer.appendChild(heart);
+    heart.addEventListener('animationend', () => heart.remove(), { once:true });
+    setTimeout(() => heart.remove(), 1400);
+  }
+
+  function animateAvatarMotion(person, motion, roomId = currentRoom) {
+    if (!PEOPLE[person] || motion?.type !== 'jump' || roomId !== currentRoom || isInBed(person)) return;
+    const avatar = $(`[data-avatar-for="${person}"]`);
+    if (!avatar?.classList.contains('is-online')) return;
+    avatar.dataset.lastMotion = motion.id || String(Date.now());
+    avatar.classList.remove('is-jumping');
+    void avatar.offsetWidth;
+    avatar.classList.add('is-jumping');
+    setTimeout(() => avatar.classList.remove('is-jumping'), 680);
+
+    if (avatarsAreClose(roomId)) {
+      const otherPerson = person === 'joel' ? 'princesa' : 'joel';
+      const otherAvatar = $(`[data-avatar-for="${otherPerson}"]`);
+      otherAvatar?.classList.remove('is-jump-reacting');
+      void otherAvatar?.offsetWidth;
+      otherAvatar?.classList.add('is-jump-reacting');
+      setTimeout(() => otherAvatar?.classList.remove('is-jump-reacting'), 680);
+      showJumpHeart(roomId);
+      showHouseMotionMessage('¿Eso fue un saltito o están haciendo temblar la casa? Yo no vi nada.');
+    }
+  }
+
+  async function jumpAvatar() {
+    if (!currentRoom || isInBed(identity)) return;
+    const motion = { type:'jump', id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
+    animateAvatarMotion(identity, motion, currentRoom);
+    navigator.vibrate?.([10, 25, 10]);
+    await window._loveRoom?.send({
+      type:'broadcast', event:'house-action',
+      payload:{ room:currentRoom, action:`motion_${identity}`, value:motion, from:identity, updated_at:new Date().toISOString() }
+    });
+  }
+
   async function toggleHouseWindow() {
     setWindowState(!windowOpen, true);
     await saveHouseDevice('window', { open:windowOpen });
@@ -705,25 +775,42 @@
 
   function bindAvatarDrag(avatar) {
     let drag = null;
+    let lastTap = null;
     avatar.addEventListener('pointerdown', event => {
       const person = avatar.dataset.avatarFor;
       if (person !== identity || !avatar.classList.contains('is-mine') || isInBed(person)) return;
       event.preventDefault();
-      drag = { pointer:event.pointerId };
+      drag = { pointer:event.pointerId, startX:event.clientX, startY:event.clientY, moved:false };
       avatar.setPointerCapture?.(event.pointerId);
-      avatar.classList.add('is-dragging');
     });
     avatar.addEventListener('pointermove', event => {
       if (!drag || event.pointerId !== drag.pointer) return;
+      if (!drag.moved && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 7) return;
+      drag.moved = true;
+      avatar.classList.add('is-dragging');
       const room = $(`[data-room-surface="${currentRoom}"]`)?.getBoundingClientRect();
       if (!room?.width || !room?.height) return;
       setAvatarState(identity, { rx:(event.clientX - room.left) / room.width, ry:(event.clientY - room.top) / room.height }, currentRoom);
     });
     const finish = async event => {
       if (!drag || event.pointerId !== drag.pointer) return;
+      const completedDrag = drag;
       drag = null;
       avatar.classList.remove('is-dragging');
-      await saveAvatarPosition(identity, currentRoom);
+      if (completedDrag.moved) {
+        lastTap = null;
+        await saveAvatarPosition(identity, currentRoom);
+        return;
+      }
+      const now = Date.now();
+      const doubleTap = lastTap && now - lastTap.at <= 380
+        && Math.hypot(event.clientX - lastTap.x, event.clientY - lastTap.y) <= 28;
+      if (doubleTap) {
+        lastTap = null;
+        await jumpAvatar();
+      } else {
+        lastTap = { at:now, x:event.clientX, y:event.clientY };
+      }
     };
     avatar.addEventListener('pointerup', finish);
     avatar.addEventListener('pointercancel', finish);
@@ -737,6 +824,11 @@
         return;
       }
       if (isInBed(identity)) return;
+      if (avatar.dataset.avatarFor === identity && ['Enter', ' '].includes(event.key)) {
+        event.preventDefault();
+        await jumpAvatar();
+        return;
+      }
       if (avatar.dataset.avatarFor !== identity || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
       event.preventDefault();
       const delta = { ArrowLeft:[-.025,0], ArrowRight:[.025,0], ArrowUp:[0,-.025], ArrowDown:[0,.025] }[event.key];
@@ -1202,8 +1294,10 @@
       const roomId = event.detail?.room || 'bedroom';
       const avatarPerson = event.detail?.action?.startsWith('avatar_') ? event.detail.action.replace('avatar_', '') : null;
       const activityPerson = event.detail?.action?.startsWith('activity_') ? event.detail.action.replace('activity_', '') : null;
+      const motionPerson = event.detail?.action?.startsWith('motion_') ? event.detail.action.replace('motion_', '') : null;
       if (avatarPerson) setAvatarState(avatarPerson, event.detail?.value, roomId);
       else if (activityPerson) setActivityState(activityPerson, event.detail?.value);
+      else if (motionPerson) animateAvatarMotion(motionPerson, event.detail?.value, roomId);
       else if (roomId === 'bedroom') applyHouseDevice(event.detail?.action, event.detail?.value, true);
     });
     navigator.serviceWorker?.addEventListener('message', event => {

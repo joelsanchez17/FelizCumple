@@ -350,6 +350,23 @@ body.together-active #presence-indicator { display: none !important; }
 .house-avatar.is-mine { pointer-events:auto; cursor:grab; }
 .house-avatar.is-dragging { cursor:grabbing; transition:none; }
 .house-avatar.is-mine:focus-visible { outline:3px solid var(--together-wine); outline-offset:3px; }
+.house-avatar.is-jumping { z-index:9; overflow:visible; animation:houseAvatarJump .62s cubic-bezier(.2,.8,.25,1) both; }
+.house-avatar.is-jumping img { border-radius:50%; }
+.house-avatar.is-jumping::after { content:"¡up!"; position:absolute; left:72%; top:-12px; color:var(--together-wine); text-shadow:0 2px 4px rgba(255,255,255,.92); font:800 .58rem/1 'Quicksand',sans-serif; animation:houseJumpWord .62s ease both; }
+.house-avatar.is-jump-reacting { animation:houseAvatarReact .62s ease both; }
+.house-jump-heart { position:absolute; z-index:12; left:var(--heart-x); top:var(--heart-y); pointer-events:none; font-size:1.05rem; filter:drop-shadow(0 3px 5px rgba(100,48,70,.18)); transform:translate(-50%,-50%); animation:houseJumpHeart 1.15s ease-out both; }
+@keyframes houseAvatarJump {
+  0%,100% { transform:translate(-50%,-50%) scale(1); }
+  42% { transform:translate(-50%,calc(-50% - 25px)) scale(1.04,.97); }
+  70% { transform:translate(-50%,calc(-50% + 3px)) scale(.98,1.03); }
+}
+@keyframes houseAvatarReact {
+  0%,100% { transform:translate(-50%,-50%) rotate(0); }
+  35% { transform:translate(-50%,calc(-50% - 5px)) rotate(-4deg); }
+  65% { transform:translate(-50%,-50%) rotate(4deg); }
+}
+@keyframes houseJumpWord { 0% { opacity:0; transform:translateY(7px); } 35%,70% { opacity:1; } 100% { opacity:0; transform:translate(5px,-10px); } }
+@keyframes houseJumpHeart { 0% { opacity:0; transform:translate(-50%,0) scale(.65); } 25% { opacity:1; } 100% { opacity:0; transform:translate(-50%,-48px) scale(1.18) rotate(8deg); } }
 
 .house-lamp { position:absolute; z-index:2; bottom:0; width:58px; height:96px; margin:0; padding:0; border:0; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .house-person-joel .house-lamp { left:0; }
@@ -480,6 +497,9 @@ body.together-active #presence-indicator { display: none !important; }
 .house-bed-actions button { min-height:31px; padding:7px 11px; border:1px solid rgba(127,66,89,.18); border-radius:999px; color:var(--together-wine); background:#fffaf8; cursor:pointer; font:700 .5rem/1 'Quicksand',sans-serif; }
 .house-bed-actions button:first-child { color:#fff; border-color:var(--together-wine); background:var(--together-wine); }
 .love-house[data-time="night"] .house-bed-actions { color:#eadde2; border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.07); }
+.house-movement-hint { display:flex; align-items:center; justify-content:center; gap:6px; margin:8px 0 0; color:var(--together-muted); font:700 .44rem/1.2 'Quicksand',sans-serif; }
+.house-movement-hint span { display:grid; width:18px; height:18px; place-items:center; border-radius:50%; color:var(--together-wine); background:rgba(255,255,255,.7); }
+.love-house[data-time="night"] .house-movement-hint { color:#eadde2; }
 
 /* Las luces ya no dependen de la presencia: ambos comparten su estado. */
 .house-person .house-lamp:not(.is-lit) b { background:#bdaab2; box-shadow:none; }
@@ -528,6 +548,12 @@ body.together-active #presence-indicator { display: none !important; }
   .house-bed-actions { align-items:flex-start; flex-direction:column; }
   .house-bed-actions > div { width:100%; }
   .house-bed-actions button { flex:1; }
+  .house-movement-hint { font-size:.41rem; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .house-avatar.is-jumping,.house-avatar.is-jump-reacting { animation-duration:.01ms; }
+  .house-jump-heart { animation-duration:.01ms; }
 }
 
 /* Relojes analógicos y pequeñas acciones dentro de la habitación. */
