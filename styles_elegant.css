@@ -887,7 +887,8 @@ body::after {
     radial-gradient(2px 2px at 80% 50%, rgba(255,200,230,.25), transparent),
     radial-gradient(1.5px 1.5px at 15% 80%, rgba(255,255,255,.3), transparent),
     radial-gradient(2px 2px at 90% 85%, rgba(255,180,210,.2), transparent);
-  animation: particleFloat 20s ease-in-out infinite alternate;
+  /* El fondo conserva sus puntos, pero no necesita repintarse continuamente. */
+  animation: none;
   border: none;
   border-radius: 0;
   z-index: -1;

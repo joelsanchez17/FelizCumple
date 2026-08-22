@@ -10,12 +10,11 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Quicksand:wght@400;600;700&display=swap"
     rel="stylesheet">
-  <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
-  <link rel="stylesheet" href="./styles_elegant.css?v=8">
+  <link rel="stylesheet" href="./styles_elegant.css?v=9">
   <link rel="stylesheet" href="./together.css?v=15">
-  <link rel="stylesheet" href="./app_refresh.css?v=4">
+  <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -37,9 +36,10 @@
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="twitter:title" content="Feliz Cumple, amor 💖">
   <meta name="twitter:description" content="Una app hecha para mi Princesa, con todo mi corazón.">
-  <meta name="twitter:image" content="https://i.imgur.com/tQ7vAwV.jpeg">
+  <meta name="twitter:image" content="https://joelsanchez17.github.io/FelizCumple/nosotros.jpeg">
 
 
 </head>
@@ -595,7 +595,6 @@
       <div id="journalFilters" class="journal-filters" role="group" aria-label="Filtrar el diario">
         <button class="active" type="button" data-filter="all">Todo</button>
         <button type="button" data-filter="drawing">Dibujos</button>
-        <button type="button" data-filter="mimo">Mimos</button>
         <button type="button" data-filter="note">Notas</button>
         <button type="button" data-filter="favorite">Favoritos</button>
       </div>
@@ -817,16 +816,16 @@
       <div class="title"> Zusammen 👩🏻‍🔬👨🏻‍💻 💞 </div>
       <div class="photo-gallery">
 
-        <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Nuestra despedida 🥺">
+        <img src="https://i.imgur.com/tQ7vAwV.jpeg" alt="Nuestra despedida 🥺" loading="lazy" referrerpolicy="no-referrer">
         <img src="https://i.postimg.cc/yd6SkzQ4/Whats-App-Image-2025-08-21-at-00-34-56-a325ee5c.jpg"
-          alt="Nos escapamos por la puerta 🤭">
-        <img src="bonita_2.jpeg" alt="Mi bonita 💖">
-        <img src="bonita_3.jpeg" alt="Ella 🥰">
-        <img src="princesa.jpg" alt="Mi princesa favorita 👸🏻">
-        <img src="alien.jpg" alt="Mirá ese look 😍">
-        <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Un lindo día en Hamburgo 🥰">
-        <img src="https://i.imgur.com/04vNGHg.jpeg" alt="Cuando conocí a tu familia 🫂🤗">
-        <img src="https://i.imgur.com/7piACeA.jpeg" alt="Tu, yo y Ana 👨‍👩‍👧">
+          alt="Nos escapamos por la puerta 🤭" loading="lazy">
+        <img src="bonita_2.jpeg" alt="Mi bonita 💖" loading="lazy">
+        <img src="bonita_3.jpeg" alt="Ella 🥰" loading="lazy">
+        <img src="princesa.jpg" alt="Mi princesa favorita 👸🏻" loading="lazy">
+        <img src="alien.jpg" alt="Mirá ese look 😍" loading="lazy">
+        <img src="https://i.imgur.com/TmbRUfQ.jpeg" alt="Un lindo día en Hamburgo 🥰" loading="lazy" referrerpolicy="no-referrer">
+        <img src="https://i.imgur.com/04vNGHg.jpeg" alt="Cuando conocí a tu familia 🫂🤗" loading="lazy" referrerpolicy="no-referrer">
+        <img src="https://i.imgur.com/7piACeA.jpeg" alt="Tu, yo y Ana 👨‍👩‍👧" loading="lazy" referrerpolicy="no-referrer">
 
       </div>
     </div>
@@ -879,9 +878,9 @@
             <option value="34" selected>Mediano</option>
             <option value="48">Grande</option>
           </select>
-          <button id="drawTextPlace" type="button">Elegir dónde va</button>
+          <button id="drawTextPlace" type="button">Mover y colocar</button>
         </div>
-        <small>Después tocá el lienzo para colocarlo. Usará el color elegido.</small>
+        <small>Después arrastralo por el lienzo y soltalo donde quede mejor.</small>
       </div>
 
       <div id="drawShapePanel" class="draw-shape-panel" hidden>
@@ -907,6 +906,11 @@
           <button class="draw-color" data-color="#2196f3" style="background:#2196f3" title="Azul"></button>
           <button class="draw-color" data-color="#795548" style="background:#795548" title="Marrón"></button>
           <button class="draw-color" data-color="#212121" style="background:#212121" title="Negro"></button>
+          <button class="draw-color" data-color="#ffffff" style="background:#ffffff" title="Blanco"></button>
+          <label class="draw-custom-color" title="Elegir cualquier color">
+            <input id="drawCustomColor" type="color" value="#e91e63" aria-label="Elegir cualquier color">
+            <span aria-hidden="true">＋</span>
+          </label>
         </div>
 
         <div class="draw-tools">
@@ -1375,7 +1379,7 @@
   <div id="player-container" style="display: none; margin-top: 15px; text-align: center;">
     <iframe id="youtube-player" width="560" height="315"
       src="https://www.youtube.com/embed/450p7goxZqg?si=U8xQUahZ3uw4mHt_" title="YouTube video player" frameborder="0"
-      allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      allow="autoplay; encrypted-media; picture-in-picture" loading="lazy" allowfullscreen></iframe>
   </div>
 
 
@@ -1780,6 +1784,11 @@
       if (options.vibrate !== false) navigator.vibrate?.(10);
       window.scrollTo(0, 0);
     }
+    function syncAppVisibility() {
+      document.body.classList.toggle('app-backgrounded', document.hidden);
+    }
+    document.addEventListener('visibilitychange', syncAppVisibility);
+    syncAppVisibility();
     window.addEventListener('load', () => {
       const savedTab = localStorage.getItem('love_active_tab');
       const validTabs = ['home', 'together', 'games', 'memories', 'anniversary'];
@@ -1819,8 +1828,16 @@
         elDown.textContent = fmtDHMS(secsDown);
       }
     }
-    tick();
-    setInterval(tick, 1000);
+    let countdownTimer = null;
+    function syncCountdownTimer() {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      if (document.hidden) return;
+      tick();
+      countdownTimer = setInterval(tick, 1000);
+    }
+    document.addEventListener('visibilitychange', syncCountdownTimer);
+    syncCountdownTimer();
 
     // --- Mensaje secreto + corazones ---
     const playBtn = document.getElementById('playSongBtn');
@@ -1897,9 +1914,7 @@
           p.style.setProperty('--rot', (Math.random() * 360) + 'deg'); confettiBox.appendChild(p); setTimeout(() => p.remove(), 4000);
         }
       }
-      window.addEventListener('load', () => confettiBurst(55));
       if (loveBtn) {
-        loveBtn.classList.add('btn-pulse', 'btn-glow');
         loveBtn.addEventListener('click', () => { loveBtn.classList.add('spin-once'); setTimeout(() => loveBtn.classList.remove('spin-once'), 520); confettiBurst(12); });
       }
       // Expose for the game (optional)
@@ -2414,10 +2429,9 @@
       box.querySelector('.update-close')?.addEventListener('click', close);
 
       const show = () => {
+        if (!box.isConnected) return;
         box.style.display = 'flex';
         requestAnimationFrame(() => box.classList.add('show'));
-        if (typeof window.confettiBurst === 'function') setTimeout(() => window.confettiBurst(16), 600);
-        if (typeof window.dropHearts === 'function') setTimeout(() => window.dropHearts(12), 900);
         if (AUTO_CLOSE_MS > 0) setTimeout(close, AUTO_CLOSE_MS);
       };
 
@@ -3995,11 +4009,12 @@
             c.style.animationDelay = (i * 0.1) + 's';
             candleRow.appendChild(c);
           }
-          // Celebration on first load
-          if (!window._bdayCelebrated) {
-            window._bdayCelebrated = true;
-            if (typeof dropHearts === 'function') dropHearts(100);
-            if (typeof window.confettiBurst === 'function') window.confettiBurst(80);
+          // La celebración automática ocurre una sola vez en este dispositivo.
+          // Repetir cientos de partículas en cada apertura trababa algunos teléfonos.
+          if (localStorage.getItem('birthday_2026_celebrated') !== '1') {
+            localStorage.setItem('birthday_2026_celebrated', '1');
+            if (typeof dropHearts === 'function') dropHearts(45);
+            if (typeof window.confettiBurst === 'function') window.confettiBurst(35);
           }
         } else if (days > 0) {
           // COUNTING DOWN
@@ -4019,10 +4034,10 @@
           // BIRTHDAY PASSED
           countdownText.textContent = '🎂 ¡Feliz Cumple! 🎂';
           message.innerHTML = 'Que este nuevo año de vida esté lleno de amor, ciencia y aventuras juntos 💖';
-          if (panel) panel.classList.add('birthday-active');
+          if (panel) panel.classList.remove('birthday-active');
           for (let i = 0; i < totalCandles; i++) {
             const c = document.createElement('div');
-            c.className = 'bday-candle lit';
+            c.className = 'bday-candle';
             c.style.animationDelay = (i * 0.1) + 's';
             candleRow.appendChild(c);
           }
@@ -4117,7 +4132,7 @@
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
       const s = document.createElement('script');
-      s.src = 'realtime.js?v=5';
+      s.src = 'realtime.js?v=6';
       document.head.appendChild(s);
     } else {
       // En file:// simulamos las funciones para que no rompa nada
@@ -4522,6 +4537,8 @@
   let dirty = false;
   let toolMode = 'pen';
   let pendingText = '';
+  let textBase = null;
+  let textCurrent = null;
   let selectedShape = 'heart';
   let shapeStart = null;
   let shapeCurrent = null;
@@ -4654,8 +4671,20 @@
     e.preventDefault();
     const p = getXY(e);
     if (toolMode === 'text') {
-      if (pendingText) placeText(p);
-      else document.getElementById('drawTextInput')?.focus();
+      if (!pendingText) {
+        document.getElementById('drawTextInput')?.focus();
+        return;
+      }
+      rememberBeforeChange();
+      textBase = snapshot();
+      textCurrent = p;
+      drawing = true;
+      dirty = true;
+      hint?.classList.add('hidden');
+      canvas.style.cursor = 'grabbing';
+      ctx.putImageData(textBase.image, 0, 0);
+      renderText(p);
+      try { canvas.setPointerCapture?.(e.pointerId); } catch {}
       return;
     }
     if (toolMode === 'shape') {
@@ -4666,7 +4695,7 @@
       drawing = true;
       dirty = true;
       hint?.classList.add('hidden');
-      canvas.setPointerCapture?.(e.pointerId);
+      try { canvas.setPointerCapture?.(e.pointerId); } catch {}
       return;
     }
     rememberBeforeChange();
@@ -4685,6 +4714,13 @@
     e.preventDefault();
     if (!drawing) return;
     const p = getXY(e);
+    if (toolMode === 'text' && textBase && pendingText) {
+      textCurrent = p;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.putImageData(textBase.image, 0, 0);
+      renderText(textCurrent);
+      return;
+    }
     if (toolMode === 'shape' && shapeStart && shapeBase) {
       shapeCurrent = p;
       ctx.globalCompositeOperation = 'source-over';
@@ -4704,6 +4740,20 @@
   }
 
   function endDraw() {
+    if (drawing && toolMode === 'text' && textBase && pendingText) {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.putImageData(textBase.image, 0, 0);
+      renderText(textCurrent || { x:canvas.width / 2, y:canvas.height / 2 });
+      textBase = null;
+      textCurrent = null;
+      drawing = false;
+      dirty = true;
+      const input = document.getElementById('drawTextInput');
+      if (input) input.value = '';
+      navigator.vibrate?.(10);
+      setTool('pen');
+      return;
+    }
     if (drawing && toolMode === 'shape' && shapeStart && shapeBase) {
       ctx.globalCompositeOperation = 'source-over';
       ctx.putImageData(shapeBase.image, 0, 0);
@@ -4729,6 +4779,8 @@
     toolMode = mode;
     erasing = mode === 'eraser';
     pendingText = '';
+    textBase = null;
+    textCurrent = null;
     const pen = document.getElementById('drawPen');
     const text = document.getElementById('drawTextTool');
     const shape = document.getElementById('drawShapeTool');
@@ -4765,7 +4817,7 @@
     return result.slice(0, 5);
   }
 
-  function placeText(point) {
+  function renderText(point) {
     const size = parseInt(document.getElementById('drawTextSize')?.value || '34', 10);
     const x = Math.max(10, Math.min(point.x, canvas.width - 45));
     ctx.save();
@@ -4776,15 +4828,8 @@
     const lines = splitTextIntoLines(pendingText, Math.max(70, canvas.width - x - 12));
     const lineHeight = Math.round(size * 1.12);
     const y = Math.max(8, Math.min(point.y, canvas.height - lines.length * lineHeight - 8));
-    rememberBeforeChange();
     lines.forEach((line, index) => ctx.fillText(line, x, y + index * lineHeight));
     ctx.restore();
-    dirty = true;
-    hint.classList.add('hidden');
-    const input = document.getElementById('drawTextInput');
-    if (input) input.value = '';
-    navigator.vibrate?.(15);
-    setTool('pen');
   }
 
   document.getElementById('drawPen')?.addEventListener('click', () => setTool('pen'));
@@ -4808,8 +4853,9 @@
     const value = input?.value.trim();
     if (!value) { input?.focus(); return; }
     pendingText = value;
-    hint.textContent = 'Tocá donde querés colocar el texto';
+    hint.textContent = 'Arrastrá el texto y soltalo donde lo querés';
     hint.classList.remove('hidden');
+    canvas.style.cursor = 'grab';
     canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
   document.getElementById('drawUndo')?.addEventListener('click', () => {
@@ -4833,8 +4879,15 @@
       document.querySelectorAll('.draw-color').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       color   = btn.dataset.color;
+      const custom = document.getElementById('drawCustomColor');
+      if (custom) custom.value = color;
       if (toolMode === 'eraser') setTool('pen');
     });
+  });
+  document.getElementById('drawCustomColor')?.addEventListener('input', event => {
+    color = event.target.value;
+    document.querySelectorAll('.draw-color').forEach(button => button.classList.remove('active'));
+    if (toolMode === 'eraser') setTool('pen');
   });
 
   /* ---- Tamaños ---- */
@@ -5029,7 +5082,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=9"></script>
+<script src="./together.js?v=10"></script>
 </body>
 
 </html>

@@ -263,6 +263,10 @@
 #drawingPanel .draw-shape { min-height:42px; padding:4px; border:1px solid rgba(145,71,102,.16); border-radius:12px; color:var(--app-wine); background:#fff; cursor:pointer; font:700 1.55rem/1 'Cormorant Garamond',serif; }
 #drawingPanel .draw-shape.active { color:#fff; border-color:var(--app-wine); background:var(--app-wine); }
 #drawingPanel .draw-shape-panel small { display:block; margin-top:8px; color:#947d88; font:600 .61rem/1.4 'Quicksand',sans-serif; }
+#drawingPanel .draw-custom-color { position:relative; display:grid; width:32px; height:32px; flex:0 0 32px; place-items:center; overflow:hidden; border:2px solid rgba(145,71,102,.22); border-radius:50%; background:conic-gradient(#f44336,#ffeb3b,#4caf50,#2196f3,#9c27b0,#f44336); cursor:pointer; }
+#drawingPanel .draw-custom-color input { position:absolute; width:46px; height:46px; opacity:0; cursor:pointer; }
+#drawingPanel .draw-custom-color span { z-index:1; display:grid; width:19px; height:19px; place-items:center; border-radius:50%; color:#633d50; background:rgba(255,255,255,.92); font:800 .9rem/1 sans-serif; pointer-events:none; }
+#drawingPanel .draw-color[data-color="#ffffff"] { border-color:rgba(80,60,70,.22); }
 #drawingPanel .draw-actions { gap:8px; }
 #drawingPanel .draw-clear { color:#735967 !important; background:#eee6e8 !important; }
 #drawingPanel .draw-save { color:var(--app-wine) !important; border:1px solid rgba(145,71,102,.22) !important; background:#fff !important; }
@@ -305,6 +309,24 @@
   #drawingPanel .draw-text-options { grid-template-columns:auto 1fr; }
   #drawingPanel .draw-text-options button { grid-column:1 / -1; }
   .app-section-hero-compact { min-height:104px; }
+}
+
+/* Nada oculto o en segundo plano debe seguir gastando batería en animaciones. */
+.tab-content:not(.active) *,
+body.app-backgrounded *,
+body.app-backgrounded::before,
+body.app-backgrounded::after { animation-play-state:paused !important; }
+
+/* Los detalles se mueven al entrar y luego descansan; antes quedaban animándose
+   indefinidamente mientras se usaba Inicio. */
+.heart,
+.plane-icon,
+.lock,
+#wdayBtn,
+.bday-glow { animation-iteration-count:1 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; }
 }
 
 /* iPhone 14 Pro en vertical: 393 × 852 puntos CSS. */

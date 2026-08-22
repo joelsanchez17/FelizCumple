@@ -869,7 +869,8 @@
   }
 
   async function loadJournal() {
-    const { data, error } = await client.from('love_journal').select('*').order('created_at', { ascending: false }).limit(journalLimit);
+    // Los mimos son instantáneos: no deben tapar notas y dibujos en el diario.
+    const { data, error } = await client.from('love_journal').select('*').neq('event_type', 'mimo').order('created_at', { ascending: false }).limit(journalLimit);
     if (error) return reportError(error, 'No se pudo cargar el diario');
     journalEntries = data || [];
     const drawingIds = [...new Set(journalEntries.map(entry => entry.drawing_id).filter(Boolean))];
@@ -934,7 +935,12 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'love_journal' }, () => scheduleRefresh('love_journal'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_device_states' }, () => scheduleRefresh('house_device_states'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_avatar_positions' }, () => scheduleRefresh('house_avatar_positions'))
-      .subscribe();
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED') {
+          loadHouseDevices();
+          loadAvatarPositions();
+        }
+      });
   }
 
   function openTogether() {
@@ -989,10 +995,17 @@
     });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) window.updateLoveLocation?.('app', null);
-      else if (document.body.classList.contains('together-active')) window.updateLoveLocation?.('house', currentRoom);
+      else if (document.body.classList.contains('together-active')) {
+        window.updateLoveLocation?.('house', currentRoom);
+        loadHouseDevices();
+        loadAvatarPositions();
+      }
+    });
+    window.addEventListener('loverealtimeconnected', () => {
+      loadHouseDevices();
+      loadAvatarPositions();
     });
     window.addEventListener('lovehouseaction', event => {
-      if (event.detail?.from === identity) return;
       const roomId = event.detail?.room || 'bedroom';
       const avatarPerson = event.detail?.action?.startsWith('avatar_') ? event.detail.action.replace('avatar_', '') : null;
       if (avatarPerson) setAvatarState(avatarPerson, event.detail?.value, roomId);

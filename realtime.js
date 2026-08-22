@@ -106,10 +106,13 @@ async function startLoveRoom() {
   window.loveTargetIdentity = target;
   const sessionId = sessionStorage.getItem('love_session_id') || crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   sessionStorage.setItem('love_session_id', sessionId);
+  window.loveSessionId = sessionId;
   const onlineAt = new Date().toISOString();
   let roomSubscribed = false;
   let presenceLocation = { area:'app', room:null, room_changed_at:onlineAt };
-  const room = client.channel('room_amor', { config: { presence: { key: identity } } });
+  // Cada pestaña/dispositivo necesita su propia presencia. Si ambos usan la misma
+  // identidad como key, una reconexión puede dejar visible un estado viejo.
+  const room = client.channel('room_amor', { config: { presence: { key: `${identity}:${sessionId}` } } });
   window._loveRoom = room;
   window.updateLoveLocation = async (area = 'app', roomId = null) => {
     const nextArea = area === 'house' ? 'house' : 'app';
@@ -123,6 +126,7 @@ async function startLoveRoom() {
       label:LABEL[identity],
       session_id:sessionId,
       online_at:onlineAt,
+      tracked_at:new Date().toISOString(),
       ...presenceLocation
     });
     return true;
@@ -136,9 +140,12 @@ async function startLoveRoom() {
     .on('presence', { event: 'sync' }, () => {
       const state = room.presenceState();
       const metas = Object.values(state).flat().filter(Boolean);
-      const latestFor = person => metas
-        .filter(item => item?.identity === person)
-        .sort((a, b) => new Date(b.room_changed_at || b.online_at || 0) - new Date(a.room_changed_at || a.online_at || 0))[0] || null;
+      const latestFor = person => {
+        const personMetas = metas.filter(item => item?.identity === person);
+        const inHouse = personMetas.filter(item => item.area === 'house' && item.room);
+        return (inHouse.length ? inHouse : personMetas)
+          .sort((a, b) => new Date(b.tracked_at || b.room_changed_at || b.online_at || 0) - new Date(a.tracked_at || a.room_changed_at || a.online_at || 0))[0] || null;
+      };
       const locations = { joel:latestFor('joel'), princesa:latestFor('princesa') };
       const presence = { joel:Boolean(locations.joel), princesa:Boolean(locations.princesa), locations };
       window.lovePresenceState = presence;
@@ -156,7 +163,10 @@ async function startLoveRoom() {
     })
     .subscribe(async status => {
       roomSubscribed = status === 'SUBSCRIBED';
-      if (roomSubscribed) await window.updateLoveLocation(presenceLocation.area, presenceLocation.room);
+      if (roomSubscribed) {
+        await window.updateLoveLocation(presenceLocation.area, presenceLocation.room);
+        window.dispatchEvent(new CustomEvent('loverealtimeconnected'));
+      }
     });
 
   function updateInterface(online) {
@@ -189,17 +199,6 @@ async function startLoveRoom() {
     await room.send({ type: 'broadcast', event: 'mimo', payload: { type, from: identity } });
     mostrarEfecto(type, true);
     const emoji = type === 'beso' ? '💋' : type === 'ojos' ? '👀' : '👆';
-    const mimoName = type === 'beso' ? 'un beso' : type === 'ojos' ? 'una mirada' : 'un toque';
-    const eventId = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    client.from('love_journal').insert({
-      event_key: `mimo:${eventId}`,
-      from_identity: identity,
-      event_type: 'mimo',
-      title: `${identity === 'joel' ? 'Joel' : 'Princesa'} dejó ${mimoName}`,
-      body: `${emoji} Un mimo enviado desde lejos.`
-    }).then(({ error }) => {
-      if (error && error.code !== '42P01') console.warn('No se pudo guardar el mimo en el diario:', error);
-    });
     try {
       await sendPush(target, 'Un mimo para vos 💌', `${identity === 'joel' ? 'Joel' : 'Princesa'} te mandó un mimo ${emoji}`, { type: 'mimo' });
     } catch { mostrarMensaje('No se pudo enviar el mimo'); }
@@ -209,7 +208,7 @@ async function startLoveRoom() {
     await room.send({ type:'broadcast', event:'mensaje', payload:{ text, from:identity } });
     mostrarMensaje(text, true);
     try {
-      await sendPush(target, `${identity === 'joel' ? 'Joel' : 'Princesa'} pensó en vos`, text, { type:'mensaje', text });
+      await sendPush(target, `Un mensajito de ${identity === 'joel' ? 'Joel' : 'Princesa'} 💌`, text, { type:'mensaje', text });
     } catch { mostrarMensaje('No se pudo enviar el mensaje'); }
   };
   window.enviarMensajePersonalizado = () => {
