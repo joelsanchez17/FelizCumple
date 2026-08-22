@@ -125,6 +125,7 @@ Funciones iniciales:
 - Aire acondicionado y calefacción.
 - Notas sobre la mesa.
 - Planta compartida.
+- Escena cómplice bajo la sábana cuando ambos están acostados y despiertos; dura unos segundos, se comparte en vivo y no llena el diario.
 
 Posibles situaciones:
 
@@ -156,6 +157,8 @@ Funciones iniciales propuestas:
 - Abrir la heladera.
 - Dejar una nota o un imán.
 - Encender y apagar luces o electrodomésticos.
+- Cuidar el cactus: necesita su recorrida diaria, crece con los días y puede florecer.
+- Tener un cuadrito real de Joel y Princesa en la pared.
 
 ### Baño
 
@@ -166,6 +169,7 @@ Funciones iniciales propuestas:
 - Dejar un mensaje en el espejo empañado.
 - Preparar una toalla para el otro.
 - Encender o apagar la luz.
+- Cuidar la orquídea con el mismo ciclo diario de crecimiento, sed y floración que las otras plantas.
 
 Las acciones del baño serán tiernas y cotidianas, sin convertirlo en una lista de botones. Se iniciarán tocando los objetos correspondientes: ducha, espejo, cepillos o toalla.
 
@@ -288,7 +292,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 
 ### Parte 2 — Dormitorio completo
 
-- **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama.
+- **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama. Si ambos están despiertos pueden esconderse bajo la sábana y la cama reacciona durante unos segundos.
 - **2B — Movimiento vivo (completada):** doble toque para saltar, reacciones compartidas al saltar junto al otro y una acción propia para bailar, todo visible en vivo sin persistir animaciones pasajeras. `Sentarse` queda reservado exclusivamente para el sillón del living.
 - **2C — Cercanía (completada):** al tocar al otro cuando está cerca aparecen beso, abrazo, cariñitos y cosquillas con animaciones breves por Realtime. Princesa tiene además la acción privada `Tocar el pupito` sobre Joel, que él intenta esquivar. Nada de esto llena el diario ni envía notificaciones.
 - **2D — Actividades compartidas:** invitaciones que el otro acepta para acostarse juntos, dormir abrazados o comenzar un momento íntimo discreto, con puerta cerrada y luces bajas.
@@ -307,6 +311,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 ### Parte 4 — Cocina
 
 - Diseñar la cocina completa.
+- Base implementada: cuadrito real de ambos y cactus persistente, sincronizado y con crecimiento diario.
 - Agregar mesa, cafetera, heladera y luces.
 - Implementar café, cocinar, sentarse y notas/imanes.
 - Crear condiciones y mensajes propios de la cocina.
@@ -314,6 +319,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 ### Parte 5 — Baño
 
 - Diseñar el baño completo.
+- Base implementada: la ducha se toca para entrar o salir, muestra a uno o a ambos dentro y sincroniza el estado; la orquídea tiene cuidado diario compartido.
 - Agregar ducha, espejo, cepillos, toallas y luz.
 - Implementar bañarse y cepillarse los dientes.
 - Permitir invitar al otro a ducharse juntos; el otro debe aceptar antes de que comience la actividad.

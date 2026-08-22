@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=24">
+  <link rel="stylesheet" href="./together.css?v=27">
   <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -417,10 +417,10 @@
             <span aria-hidden="true">🛏️</span><strong>Dormitorio</strong><small>Nuestra habitación</small>
           </button>
           <button type="button" class="house-map-room house-map-bathroom" data-enter-room="bathroom">
-            <span aria-hidden="true">🚿</span><strong>Baño</strong><small>Todavía por llenar</small>
+            <span aria-hidden="true">🚿</span><strong>Baño</strong><small>Orquídea y ducha</small>
           </button>
           <button type="button" class="house-map-room house-map-kitchen" data-enter-room="kitchen">
-            <span aria-hidden="true">🍳</span><strong>Cocina</strong><small>Todavía por llenar</small>
+            <span aria-hidden="true">🍳</span><strong>Cocina</strong><small>Nuestro cuadrito y cactus</small>
           </button>
         </nav>
         <div class="house-map-future" aria-label="Lugar para una habitación futura"><span aria-hidden="true">＋</span><strong>La casa puede seguir creciendo</strong></div>
@@ -477,7 +477,7 @@
                 <small id="houseJoelHeart">Sin señal todavía</small>
               </article>
               <div class="house-table">
-                <button id="housePlant" class="house-plant" type="button" aria-label="Regar la plantita compartida">
+                <button id="housePlant" class="house-plant" type="button" data-room-plant="bedroom" aria-label="Regar la plantita compartida">
                   <span aria-hidden="true">🌱</span><i aria-hidden="true"></i>
                 </button>
                 <button id="houseTableNote" class="house-table-note" type="button" hidden aria-label="Hay una nota sobre la mesa"><span aria-hidden="true">💌</span></button>
@@ -518,6 +518,7 @@
           <span id="houseBedActionText">Ya estás en la cama.</span>
           <div>
             <button id="houseBedSleep" type="button">Dormir a lo 🐨</button>
+            <button id="houseBedIntimate" type="button" disabled>Escondernos bajo la sábana 😏</button>
             <button id="houseBedLeave" type="button">Levantarse</button>
           </div>
         </div>
@@ -546,9 +547,13 @@
         </div>
         <div class="house-placeholder-interior house-room-surface kitchen-room" data-room-surface="kitchen" aria-label="La cocina compartida">
           <div class="empty-kitchen-window" aria-hidden="true"></div>
+          <figure class="kitchen-couple-picture"><img src="besos.jpg" alt="Joel y Princesa besándose"></figure>
           <div class="empty-kitchen-counter" aria-hidden="true"><i></i><i></i><i></i></div>
           <div class="empty-kitchen-table" aria-hidden="true"></div>
-          <p>La cocina todavía está casi vacía.<br>Ya podemos encontrarnos acá.</p>
+          <button id="kitchenPlant" class="room-potted-plant room-cactus" type="button" data-room-plant="kitchen" aria-label="Regar el cactus de la cocina">
+            <span aria-hidden="true">🌵</span><i aria-hidden="true"></i><small id="kitchenPlantStatus">El cactus espera agüita</small>
+          </button>
+          <p>Nuestra cocina ya tiene un pedacito de nosotros.</p>
         </div>
         <p class="house-presence-message room-presence-message" data-room-presence="kitchen" aria-live="polite">Entraste a la cocina.</p>
       </div>
@@ -561,8 +566,14 @@
         <div class="house-placeholder-interior house-room-surface bathroom-room" data-room-surface="bathroom" aria-label="El baño compartido">
           <div class="empty-bathroom-mirror" aria-hidden="true"></div>
           <div class="empty-bathroom-sink" aria-hidden="true"><i></i></div>
-          <div class="empty-bathroom-shower" aria-hidden="true"></div>
-          <p>Por ahora solo se escucha el eco.<br>Ya podemos encontrarnos acá.</p>
+          <div class="bathroom-plant-stand" aria-hidden="true"><i></i></div>
+          <button id="bathroomPlant" class="room-potted-plant room-orchid" type="button" data-room-plant="bathroom" aria-label="Regar la orquídea del baño">
+            <span aria-hidden="true">🌸</span><i aria-hidden="true"></i><small id="bathroomPlantStatus">La orquídea espera agüita</small>
+          </button>
+          <button id="bathroomShower" class="empty-bathroom-shower" type="button" aria-label="Entrar a la ducha" aria-pressed="false">
+            <span aria-hidden="true">🚿</span><i aria-hidden="true"></i><small>Entrar a la ducha</small>
+          </button>
+          <p id="bathroomShowerStatus">La ducha está libre.</p>
         </div>
         <p class="house-presence-message room-presence-message" data-room-presence="bathroom" aria-live="polite">Entraste al baño.</p>
       </div>
@@ -5111,7 +5122,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=18"></script>
+<script src="./together.js?v=20"></script>
 </body>
 
 </html>

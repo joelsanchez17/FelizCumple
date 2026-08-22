@@ -41,7 +41,17 @@
   let heaterOn = false;
   const lampStates = { joel: false, princesa: false };
   let activityStates = {};
-  let plantState = { watered_at: null, watered_by: null, reference_at: null, growth: 0 };
+  const ROOM_PLANTS = {
+    bedroom: { device:'plant', element:'#housePlant', status:'#housePlantStatus', name:'plantita', article:'la' },
+    kitchen: { device:'cactus', element:'#kitchenPlant', status:'#kitchenPlantStatus', name:'cactus', article:'el' },
+    bathroom: { device:'orchid', element:'#bathroomPlant', status:'#bathroomPlantStatus', name:'orquídea', article:'la' }
+  };
+  const emptyPlantState = () => ({ watered_at:null, watered_by:null, watered_day:null, reference_at:null, growth:0 });
+  const plantStates = {
+    bedroom:emptyPlantState(),
+    kitchen:emptyPlantState(),
+    bathroom:emptyPlantState()
+  };
   const avatarStates = {
     bedroom: { joel:{ rx:0.31, ry:0.58 }, princesa:{ rx:0.69, ry:0.58 } },
     kitchen: { joel:{ rx:0.31, ry:0.64 }, princesa:{ rx:0.69, ry:0.64 } },
@@ -56,6 +66,7 @@
   let conditionTimer;
   let houseMotionMessage = null;
   let houseMotionTimer;
+  let bedMomentTimer;
   const refreshTables = new Set();
 
   const $ = selector => document.querySelector(selector);
@@ -97,12 +108,15 @@
       conditions.push(['day_lights', '💡', `Será que en Ecuador regalan la luz… ${plural ? 'lámparas prendidas' : 'lámpara prendida'} y de día, camarada 💸`]);
     }
 
-    const plantReference = plantState.watered_at || plantState.reference_at;
-    if (plantReference) {
-      const dryHours = (Date.now() - new Date(plantReference).getTime()) / 3600000;
-      if (dryHours >= 72) conditions.push(['plant_days', '🥀', 'La plantita dice que si hoy tampoco toma agua se muda.']);
-      else if (dryHours >= 36) conditions.push(['plant_hours', '💧', 'Che, la plantita está pidiendo agüita hace rato. ¿Querés que termine como tu orquídea?']);
-    }
+    Object.entries(plantStates).forEach(([roomId, state]) => {
+      const reference = state.watered_at || state.reference_at;
+      if (!reference) return;
+      const dryHours = (Date.now() - new Date(reference).getTime()) / 3600000;
+      if (roomId === 'bedroom' && dryHours >= 72) conditions.push(['plant_days', '🥀', 'La plantita dice que si hoy tampoco toma agua se muda.']);
+      else if (roomId === 'bedroom' && dryHours >= 36) conditions.push(['plant_hours', '💧', 'Che, la plantita está pidiendo agüita hace rato. ¿Querés que termine como tu orquídea?']);
+      else if (roomId === 'bathroom' && dryHours >= 36) conditions.push(['orchid_thirsty', '🌸', 'La orquídea del baño está esperando su recorrida de agüita.']);
+      else if (roomId === 'kitchen' && dryHours >= 72) conditions.push(['cactus_thirsty', '🌵', 'Hasta el cactus de la cocina tiene sed… eso ya es mucho.']);
+    });
 
     const panel = $('#houseConditionMessages');
     const list = $('#houseConditionList');
@@ -320,7 +334,7 @@
 
   async function enterHouseRoom(roomId) {
     if (!ROOMS[roomId]) return;
-    if (roomId !== 'bedroom' && isInBed(identity)) await clearActivity(identity, { announce:false });
+    if (activityStates[identity] && activityStates[identity].room_id !== roomId) await clearActivity(identity, { announce:false });
     currentRoom = roomId;
     closeAvatarActions();
     $('#houseEntrance').hidden = true;
@@ -429,30 +443,45 @@
     lamp?.setAttribute('aria-label', `${lampStates[person] ? 'Apagar' : 'Encender'} la lámpara de ${PEOPLE[person]}`);
   }
 
-  function setPlantState(state = {}, announce = false) {
-    plantState = {
-      watered_at: state.watered_at || null,
-      watered_by: state.watered_by || null,
-      reference_at: state.watered_at || state.reference_at || plantState.reference_at || null,
-      growth: Math.max(0, Math.min(4, Number(state.growth ?? plantState.growth) || 0))
+  function localDayKey(date = new Date()) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  function setRoomPlantState(roomId, state = {}, announce = false) {
+    const config = ROOM_PLANTS[roomId];
+    if (!config) return;
+    const previous = plantStates[roomId];
+    const next = {
+      watered_at:state.watered_at || null,
+      watered_by:state.watered_by || null,
+      watered_day:state.watered_day || (state.watered_at ? localDayKey(new Date(state.watered_at)) : null),
+      reference_at:state.watered_at || state.reference_at || previous.reference_at || null,
+      growth:Math.max(0, Math.min(4, Number(state.growth ?? previous.growth) || 0))
     };
-    const plant = $('#housePlant');
-    const status = $('#housePlantStatus');
+    plantStates[roomId] = next;
+    const plant = $(config.element);
+    const status = $(config.status);
     const sprout = plant?.querySelector('span');
-    const reference = plantState.watered_at || plantState.reference_at;
-    const dryHours = reference ? (Date.now() - new Date(reference).getTime()) / 3600000 : Infinity;
-    const stage = dryHours >= 72 ? 'wilted' : dryHours >= 36 ? 'thirsty' : plantState.growth >= 4 ? 'flower' : plantState.growth >= 2 ? 'grown' : 'sprout';
+    const reference = next.watered_at || next.reference_at;
+    const dryHours = reference ? (Date.now() - new Date(reference).getTime()) / 3600000 : 0;
+    const stage = dryHours >= 72 ? 'wilted' : dryHours >= 36 ? 'thirsty' : next.growth >= 4 ? 'flower' : next.growth >= 2 ? 'grown' : 'sprout';
+    const wateredToday = next.watered_day === localDayKey();
     ['sprout', 'grown', 'flower', 'thirsty', 'wilted'].forEach(name => plant?.classList.toggle(`plant-stage-${name}`, name === stage));
-    if (sprout) sprout.textContent = stage === 'wilted' ? '🥀' : stage === 'thirsty' ? '🍂' : stage === 'flower' ? '🌷' : stage === 'grown' ? '🌿' : '🌱';
-    if (plantState.watered_at) {
-      plant?.classList.add('is-watered');
-      if (status) status.textContent = stage === 'flower'
-        ? `¡Le salió una flor! · ${relativeTime(plantState.watered_at).toLowerCase()}`
-        : `${PEOPLE[plantState.watered_by] || 'Alguien'} la regó · ${relativeTime(plantState.watered_at).toLowerCase()}`;
-    } else {
-      plant?.classList.remove('is-watered');
-      if (status) status.textContent = 'Nuestra plantita';
+    plant?.classList.toggle('is-watered', wateredToday);
+    if (sprout) {
+      if (stage === 'wilted') sprout.textContent = '🥀';
+      else if (stage === 'thirsty') sprout.textContent = roomId === 'kitchen' ? '🌵' : '🍂';
+      else if (stage === 'flower') sprout.textContent = roomId === 'kitchen' ? '🌵' : roomId === 'bathroom' ? '🌸' : '🌷';
+      else if (stage === 'grown') sprout.textContent = roomId === 'kitchen' ? '🌵' : '🌿';
+      else sprout.textContent = roomId === 'kitchen' ? '🌵' : '🌱';
     }
+    if (status) {
+      if (stage === 'flower') status.textContent = `¡A ${config.article} ${config.name} le salió una flor!`;
+      else if (wateredToday) status.textContent = `${PEOPLE[next.watered_by] || 'Alguien'} ${config.article} regó hoy`;
+      else if (stage === 'thirsty' || stage === 'wilted') status.textContent = `${config.article === 'el' ? 'El' : 'La'} ${config.name} necesita agüita`;
+      else status.textContent = `${config.article === 'el' ? 'El' : 'La'} ${config.name} espera su agüita de hoy`;
+    }
+    if (announce) queueHouseConditionCheck();
   }
 
   function setAvatarState(person, state = {}, roomId = currentRoom || 'bedroom') {
@@ -470,21 +499,23 @@
     updateAvatarInteractionState();
   }
 
-  function applyHouseDevice(device, state, announce = false) {
+  function applyHouseDevice(device, state, announce = false, roomId = 'bedroom') {
+    const roomPlant = Object.entries(ROOM_PLANTS).find(([candidate, config]) => candidate === roomId && config.device === device);
+    if (roomPlant) setRoomPlantState(roomId, state, announce);
+    if (roomId !== 'bedroom') return;
     if (device === 'window') setWindowState(state?.open ?? state, announce);
     if (device === 'ac') setAcState(state?.on ?? state, announce);
     if (device === 'heater') setHeaterState(state?.on ?? state, announce);
     if (device === 'lamp_joel') setLampState('joel', state?.on ?? state, announce);
     if (device === 'lamp_princesa') setLampState('princesa', state?.on ?? state, announce);
-    if (device === 'plant') setPlantState(state, announce);
     if (announce) queueHouseConditionCheck(true);
   }
 
-  async function saveHouseDevice(device, state) {
+  async function saveHouseDevice(device, state, roomId = 'bedroom') {
     const updatedAt = new Date().toISOString();
-    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ room:'bedroom', action:device, value:state, from:identity, updated_at:updatedAt } });
+    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ room:roomId, action:device, value:state, from:identity, updated_at:updatedAt } });
     const { error } = await client.from('house_device_states').upsert({
-      room_id:'bedroom',
+      room_id:roomId,
       device_id:device,
       state,
       updated_by: identity,
@@ -494,11 +525,12 @@
   }
 
   async function loadHouseDevices() {
-    const { data, error } = await client.from('house_device_states').select('*').eq('room_id', 'bedroom');
+    const { data, error } = await client.from('house_device_states').select('*');
     if (error) return reportError(error, 'No se pudo cargar el estado de la casita');
-    (data || []).forEach(row => applyHouseDevice(row.device_id, row.device_id === 'plant'
+    (data || []).forEach(row => applyHouseDevice(row.device_id, ROOM_PLANTS[row.room_id]?.device === row.device_id
       ? { ...row.state, reference_at:row.state?.watered_at || row.updated_at }
-      : row.state));
+      : row.state, false, row.room_id));
+    Object.entries(plantStates).forEach(([roomId, state]) => setRoomPlantState(roomId, state));
   }
 
   async function loadAvatarPositions() {
@@ -516,6 +548,16 @@
 
   function isSleeping(person) {
     return isInBed(person) && activityStates[person]?.activity === 'sleeping';
+  }
+
+  function isShowering(person) {
+    const activity = activityStates[person];
+    if (!activity || activity.activity !== 'showering' || activity.room_id !== 'bathroom') return false;
+    return !activity.expires_at || new Date(activity.expires_at).getTime() > Date.now();
+  }
+
+  function hasFixedActivity(person) {
+    return isInBed(person) || isShowering(person);
   }
 
   function setActivityState(person, activity) {
@@ -545,6 +587,27 @@
     if (actionText) actionText.textContent = mineSleeping ? 'Estás durmiendo a lo koala.' : 'Ya estás en la cama.';
     const sleepButton = $('#houseBedSleep');
     if (sleepButton) sleepButton.textContent = mineSleeping ? 'Despertarme' : 'Dormir a lo 🐨';
+    const intimateButton = $('#houseBedIntimate');
+    const bothAwakeInBed = occupants.length === 2 && sleepers.length === 0;
+    if (intimateButton) {
+      intimateButton.disabled = !bothAwakeInBed;
+      intimateButton.textContent = bothAwakeInBed ? 'Escondernos bajo la sábana 😏' : 'Esperando al otro 😏';
+    }
+    if (!bothAwakeInBed) stopBedMoment();
+
+    const showering = ['joel', 'princesa'].filter(isShowering);
+    const shower = $('#bathroomShower');
+    const mineShowering = isShowering(identity);
+    shower?.classList.toggle('is-running', showering.length > 0);
+    shower?.classList.toggle('has-two', showering.length === 2);
+    shower?.setAttribute('aria-pressed', String(mineShowering));
+    shower?.setAttribute('aria-label', mineShowering ? 'Salir de la ducha' : 'Entrar a la ducha');
+    const showerLabel = shower?.querySelector('small');
+    if (showerLabel) showerLabel.textContent = mineShowering ? 'Salir de la ducha' : 'Entrar a la ducha';
+    const showerStatus = $('#bathroomShowerStatus');
+    if (showerStatus) showerStatus.textContent = showering.length === 2
+      ? 'Se metieron juntos a la ducha 😏'
+      : showering.length === 1 ? `${PEOPLE[showering[0]]} está en la ducha.` : 'La ducha está libre.';
 
     ['joel', 'princesa'].forEach(person => {
       const avatar = $(`[data-avatar-for="${person}"]`);
@@ -554,6 +617,16 @@
       const canWake = person === target && sleeping && currentRoom === 'bedroom' && avatar.classList.contains('is-online');
       avatar.classList.toggle('is-in-bed', inBed && currentRoom === 'bedroom');
       avatar.classList.toggle('is-sleeping', sleeping && currentRoom === 'bedroom');
+      avatar.classList.toggle('is-in-shower', isShowering(person) && currentRoom === 'bathroom');
+      const activityVisible = (inBed && currentRoom === 'bedroom') || (isShowering(person) && currentRoom === 'bathroom');
+      avatar.classList.toggle('is-activity-visible', activityVisible);
+      if (activityVisible) {
+        avatar.style.opacity = '1';
+        avatar.style.transform = 'translate(-50%,-50%) scale(1)';
+      } else {
+        avatar.style.removeProperty('opacity');
+        avatar.style.removeProperty('transform');
+      }
       avatar.classList.toggle('can-wake', canWake);
       if (canWake) {
         avatar.tabIndex = 0;
@@ -579,17 +652,20 @@
 
   async function clearActivity(person, { announce = true, notify = false } = {}) {
     if (!PEOPLE[person] || !activityStates[person]) return;
+    const previous = activityStates[person];
     setActivityState(person, null);
     await window._loveRoom?.send({
       type:'broadcast', event:'house-action',
-      payload:{ room:'bedroom', action:`activity_${person}`, value:null, from:identity, updated_at:new Date().toISOString() }
+      payload:{ room:previous.room_id || 'bedroom', action:`activity_${person}`, value:null, from:identity, updated_at:new Date().toISOString() }
     });
     const { error } = await client.from('house_activities').delete().eq('identity', person);
     if (error) {
       loadHouseActivities();
       return reportError(error, 'No se pudo terminar la actividad');
     }
-    if (announce) toast(person === identity ? 'Ya te levantaste' : `Arriba, ${gendered(person, 'dormilón', 'dormilona')}.`);
+    if (announce) toast(previous.activity === 'showering'
+      ? (person === identity ? 'Saliste de la ducha.' : `${PEOPLE[person]} salió de la ducha.`)
+      : (person === identity ? 'Ya te levantaste' : `Arriba, ${gendered(person, 'dormilón', 'dormilona')}.`));
     if (notify && person === target) {
       await window._loveRoom?.send({ type:'broadcast', event:'mensaje', payload:{ text:`${PEOPLE[identity]} te despertó. Parece que quería atención o cariñitos.`, from:identity } });
       try {
@@ -600,12 +676,12 @@
     }
   }
 
-  async function saveActivity(person, activityName, state = {}) {
+  async function saveActivity(person, activityName, state = {}, roomId = 'bedroom') {
     if (!PEOPLE[person]) return false;
     const now = new Date().toISOString();
     const activity = {
       identity:person,
-      room_id:'bedroom',
+      room_id:roomId,
       activity:activityName,
       state,
       started_at:activityStates[person]?.started_at || now,
@@ -615,12 +691,12 @@
     setActivityState(person, activity);
     await window._loveRoom?.send({
       type:'broadcast', event:'house-action',
-      payload:{ room:'bedroom', action:`activity_${person}`, value:activity, from:identity, updated_at:now }
+      payload:{ room:roomId, action:`activity_${person}`, value:activity, from:identity, updated_at:now }
     });
     const { error } = await client.from('house_activities').upsert(activity, { onConflict:'identity' });
     if (error) {
       await loadHouseActivities();
-      reportError(error, 'No se pudo guardar la actividad en la cama');
+      reportError(error, 'No se pudo guardar la actividad en la casa');
       return false;
     }
     return true;
@@ -650,6 +726,41 @@
 
   async function leaveBed() {
     if (isInBed(identity)) await clearActivity(identity);
+  }
+
+  function stopBedMoment() {
+    clearTimeout(bedMomentTimer);
+    $('#houseBed')?.classList.remove('is-private-moment');
+    $$('[data-avatar-for]').forEach(avatar => avatar.classList.remove('is-under-blanket'));
+  }
+
+  function animateBedMoment(roomId = currentRoom) {
+    if (roomId !== 'bedroom' || currentRoom !== 'bedroom' || !isInBed('joel') || !isInBed('princesa') || isSleeping('joel') || isSleeping('princesa')) return;
+    stopBedMoment();
+    $('#houseBed')?.classList.add('is-private-moment');
+    $$('[data-avatar-for]').forEach(avatar => avatar.classList.add('is-under-blanket'));
+    showHouseMotionMessage('Bueno… cierro la puerta. Yo no vi nada 😏', '🫣');
+    navigator.vibrate?.([15, 40, 15]);
+    bedMomentTimer = setTimeout(stopBedMoment, 8000);
+  }
+
+  async function startBedMoment() {
+    if (currentRoom !== 'bedroom' || !isInBed('joel') || !isInBed('princesa') || isSleeping('joel') || isSleeping('princesa')) return;
+    const motion = { type:'bed_moment', id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
+    animateBedMoment('bedroom');
+    await window._loveRoom?.send({
+      type:'broadcast', event:'house-action',
+      payload:{ room:'bedroom', action:`motion_${identity}`, value:motion, from:identity, updated_at:new Date().toISOString() }
+    });
+  }
+
+  async function toggleShower() {
+    if (currentRoom !== 'bathroom') return;
+    if (isShowering(identity)) return clearActivity(identity);
+    if (await saveActivity(identity, 'showering', { water:'warm' }, 'bathroom')) {
+      toast('Entraste a la ducha 🚿');
+      navigator.vibrate?.([12, 30, 12]);
+    }
   }
 
   async function wakeSleepingPartner() {
@@ -713,8 +824,8 @@
 
   function openAvatarActions(mode) {
     const together = mode === 'together';
-    if (together && (!avatarsAreClose() || isInBed(identity) || isInBed(target))) return;
-    if (!together && isInBed(identity)) return;
+    if (together && (!avatarsAreClose() || hasFixedActivity(identity) || hasFixedActivity(target))) return;
+    if (!together && hasFixedActivity(identity)) return;
     const panel = $('#houseAvatarActions');
     if (!panel) return;
     panel.dataset.mode = mode;
@@ -730,7 +841,7 @@
     if (!identity || !target) return;
     const partner = $(`[data-avatar-for="${target}"]`);
     if (!partner) return;
-    const canInteract = avatarsAreClose() && !isInBed(identity) && !isInBed(target);
+    const canInteract = avatarsAreClose() && !hasFixedActivity(identity) && !hasFixedActivity(target);
     partner.classList.toggle('can-interact', canInteract);
     if (canInteract) {
       partner.tabIndex = 0;
@@ -777,7 +888,9 @@
   }
 
   function animateAvatarMotion(person, motion, roomId = currentRoom) {
-    if (!PEOPLE[person] || !motion?.type || roomId !== currentRoom || isInBed(person)) return;
+    if (!PEOPLE[person] || !motion?.type || roomId !== currentRoom) return;
+    if (motion.type === 'bed_moment') return animateBedMoment(roomId);
+    if (hasFixedActivity(person)) return;
     if (motion.type === 'together') return animateTogetherMotion(person, motion, roomId);
     const avatar = $(`[data-avatar-for="${person}"]`);
     if (!avatar?.classList.contains('is-online')) return;
@@ -803,7 +916,7 @@
   }
 
   async function jumpAvatar() {
-    if (!currentRoom || isInBed(identity)) return;
+    if (!currentRoom || hasFixedActivity(identity)) return;
     const motion = { type:'jump', id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
     animateAvatarMotion(identity, motion, currentRoom);
     navigator.vibrate?.([10, 25, 10]);
@@ -814,8 +927,8 @@
   }
 
   async function sendAvatarMotion(type, extra = {}) {
-    if (!currentRoom || isInBed(identity)) return;
-    if (type === 'together' && (!avatarsAreClose() || isInBed(target))) return;
+    if (!currentRoom || hasFixedActivity(identity)) return;
+    if (type === 'together' && (!avatarsAreClose() || hasFixedActivity(target))) return;
     const motion = { type, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}`, ...extra };
     animateAvatarMotion(identity, motion, currentRoom);
     closeAvatarActions();
@@ -851,18 +964,22 @@
     queueHouseConditionCheck(true);
   }
 
-  async function waterHousePlant() {
-    const lastWatered = plantState.watered_at ? new Date(plantState.watered_at).getTime() : 0;
-    const mayGrow = !lastWatered || Date.now() - lastWatered >= 6 * 3600000;
+  async function waterRoomPlant(roomId) {
+    const config = ROOM_PLANTS[roomId];
+    if (!config) return;
+    const current = plantStates[roomId];
+    const today = localDayKey();
+    const mayGrow = current.watered_day !== today;
     const state = {
       watered_at:new Date().toISOString(),
       watered_by:identity,
-      growth:Math.min(4, plantState.growth + (mayGrow ? 1 : 0))
+      watered_day:today,
+      growth:Math.min(4, current.growth + (mayGrow ? 1 : 0))
     };
-    setPlantState(state, true);
-    $('#housePlant')?.classList.add('is-watering');
-    setTimeout(() => $('#housePlant')?.classList.remove('is-watering'), 900);
-    await saveHouseDevice('plant', state);
+    setRoomPlantState(roomId, state, true);
+    $(config.element)?.classList.add('is-watering');
+    setTimeout(() => $(config.element)?.classList.remove('is-watering'), 900);
+    await saveHouseDevice(config.device, state, roomId);
     queueHouseConditionCheck(false);
   }
 
@@ -872,7 +989,7 @@
     let singleTapTimer;
     avatar.addEventListener('pointerdown', event => {
       const person = avatar.dataset.avatarFor;
-      if (person !== identity || !avatar.classList.contains('is-mine') || isInBed(person)) return;
+      if (person !== identity || !avatar.classList.contains('is-mine') || hasFixedActivity(person)) return;
       event.preventDefault();
       drag = { pointer:event.pointerId, startX:event.clientX, startY:event.clientY, moved:false };
       avatar.setPointerCapture?.(event.pointerId);
@@ -934,7 +1051,7 @@
         openAvatarActions('together');
         return;
       }
-      if (isInBed(identity)) return;
+      if (hasFixedActivity(identity)) return;
       if (avatar.dataset.avatarFor === identity && ['Enter', ' '].includes(event.key)) {
         event.preventDefault();
         await jumpAvatar();
@@ -1355,7 +1472,9 @@
     $('#houseHeater')?.addEventListener('click', toggleHouseHeater);
     $('#houseBed')?.addEventListener('click', useBed);
     $('#houseBedSleep')?.addEventListener('click', toggleBedSleep);
+    $('#houseBedIntimate')?.addEventListener('click', startBedMoment);
     $('#houseBedLeave')?.addEventListener('click', leaveBed);
+    $('#bathroomShower')?.addEventListener('click', toggleShower);
     $('#houseAvatarActionsClose')?.addEventListener('click', closeAvatarActions);
     $('#houseSelfActions')?.addEventListener('click', event => {
       const button = event.target.closest('[data-house-motion]');
@@ -1365,7 +1484,7 @@
       const button = event.target.closest('[data-house-together]');
       if (button) sendAvatarMotion('together', { kind:button.dataset.houseTogether });
     });
-    $('#housePlant')?.addEventListener('click', waterHousePlant);
+    $$('[data-room-plant]').forEach(plant => plant.addEventListener('click', () => waterRoomPlant(plant.dataset.roomPlant)));
     $('#houseTableNote')?.addEventListener('click', () => {
       document.querySelector('.note-card')?.scrollIntoView({ behavior:'smooth', block:'start' });
     });
@@ -1418,7 +1537,7 @@
       if (avatarPerson) setAvatarState(avatarPerson, event.detail?.value, roomId);
       else if (activityPerson) setActivityState(activityPerson, event.detail?.value);
       else if (motionPerson) animateAvatarMotion(motionPerson, event.detail?.value, roomId);
-      else if (roomId === 'bedroom') applyHouseDevice(event.detail?.action, event.detail?.value, true);
+      else applyHouseDevice(event.detail?.action, event.detail?.value, true, roomId);
     });
     navigator.serviceWorker?.addEventListener('message', event => {
       if (event.data?.type === 'notification-click' && ['house-note', 'heart', 'house-light', 'house-wake'].includes(event.data?.data?.type)) openTogether();
@@ -1441,7 +1560,7 @@
     setInterval(updateHouseClocks, 30 * 1000);
     setInterval(loadHouseWeather, 15 * 60 * 1000);
     setInterval(() => {
-      setPlantState(plantState);
+      Object.entries(plantStates).forEach(([roomId, state]) => setRoomPlantState(roomId, state));
       queueHouseConditionCheck(true);
     }, 60 * 60 * 1000);
     renderPresence();
