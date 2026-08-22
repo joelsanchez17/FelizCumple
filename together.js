@@ -69,9 +69,12 @@
     const period = $('#loveHouse')?.dataset.time;
     const daytime = period === 'morning' || period === 'day';
     const localTemperature = houseWeatherTemps[identity];
+    const bothInBed = isInBed('joel') && isInBed('princesa');
     const joelSleeping = isSleeping('joel');
     const princesaSleeping = isSleeping('princesa');
-    if (joelSleeping && princesaSleeping) {
+    if (daytime && bothInBed) {
+      conditions.push(['daytime_bed', '😏', '¿Acostados de día? Primero cariñitos, después ya sabemos… y al final una siestita.']);
+    } else if (joelSleeping && princesaSleeping) {
       conditions.push(['sleeping_together', '💤', 'Bueno, apago la luz. Modo cucharita activado.']);
     } else if (joelSleeping || princesaSleeping) {
       const sleeper = joelSleeping ? 'joel' : 'princesa';
@@ -304,7 +307,7 @@
 
   async function enterHouseRoom(roomId) {
     if (!ROOMS[roomId]) return;
-    if (roomId !== 'bedroom' && isSleeping(identity)) await clearActivity(identity, { announce:false });
+    if (roomId !== 'bedroom' && isInBed(identity)) await clearActivity(identity, { announce:false });
     currentRoom = roomId;
     $('#houseEntrance').hidden = true;
     $$('.house-room-view').forEach(view => { view.hidden = view.dataset.roomView !== roomId; });
@@ -488,10 +491,14 @@
     renderAvatarPositions();
   }
 
-  function isSleeping(person) {
+  function isInBed(person) {
     const activity = activityStates[person];
-    if (!activity || activity.activity !== 'sleeping' || activity.room_id !== 'bedroom') return false;
+    if (!activity || !['lying', 'sleeping'].includes(activity.activity) || activity.room_id !== 'bedroom') return false;
     return !activity.expires_at || new Date(activity.expires_at).getTime() > Date.now();
+  }
+
+  function isSleeping(person) {
+    return isInBed(person) && activityStates[person]?.activity === 'sleeping';
   }
 
   function setActivityState(person, activity) {
@@ -503,28 +510,39 @@
   }
 
   function renderHouseActivities() {
-    const sleepers = ['joel', 'princesa'].filter(isSleeping);
+    const occupants = ['joel', 'princesa'].filter(isInBed);
+    const sleepers = occupants.filter(isSleeping);
+    const mineInBed = isInBed(identity);
     const mineSleeping = isSleeping(identity);
     const bed = $('#houseBed');
-    bed?.classList.toggle('has-sleeper', sleepers.length > 0);
+    bed?.classList.toggle('has-occupant', occupants.length > 0);
     bed?.classList.toggle('both-sleeping', sleepers.length === 2);
-    bed?.setAttribute('aria-pressed', String(mineSleeping));
-    bed?.setAttribute('aria-label', mineSleeping ? 'Levantarte de la cama' : 'Dormir a lo koala');
+    bed?.setAttribute('aria-pressed', String(mineInBed));
+    bed?.setAttribute('aria-label', mineInBed ? 'Ver las opciones de la cama' : 'Acostarse en la cama');
     const bedLabel = $('#houseBedLabel');
-    if (bedLabel) bedLabel.textContent = mineSleeping ? 'Levantarme' : 'Dormir a lo 🐨';
+    if (bedLabel) bedLabel.textContent = mineSleeping ? 'Durmiendo 💤' : mineInBed ? '¿Qué hacemos?' : 'Acostarse';
+
+    const actions = $('#houseBedActions');
+    if (actions) actions.hidden = currentRoom !== 'bedroom' || !mineInBed;
+    const actionText = $('#houseBedActionText');
+    if (actionText) actionText.textContent = mineSleeping ? 'Estás durmiendo a lo koala.' : 'Ya estás en la cama.';
+    const sleepButton = $('#houseBedSleep');
+    if (sleepButton) sleepButton.textContent = mineSleeping ? 'Despertarme' : 'Dormir a lo 🐨';
 
     ['joel', 'princesa'].forEach(person => {
       const avatar = $(`[data-avatar-for="${person}"]`);
       if (!avatar) return;
+      const inBed = isInBed(person);
       const sleeping = isSleeping(person);
       const canWake = person === target && sleeping && currentRoom === 'bedroom' && avatar.classList.contains('is-online');
+      avatar.classList.toggle('is-in-bed', inBed && currentRoom === 'bedroom');
       avatar.classList.toggle('is-sleeping', sleeping && currentRoom === 'bedroom');
       avatar.classList.toggle('can-wake', canWake);
       if (canWake) {
         avatar.tabIndex = 0;
         avatar.setAttribute('aria-label', `Despertar a ${PEOPLE[person]}`);
-      } else if (person === identity && sleeping) {
-        avatar.setAttribute('aria-label', 'Estás durmiendo. Tocá la cama para levantarte');
+      } else if (person === identity && inBed) {
+        avatar.setAttribute('aria-label', sleeping ? 'Estás durmiendo' : 'Estás acostado en la cama');
       } else {
         avatar.setAttribute('aria-label', person === identity ? `Mover a ${PEOPLE[person]} por la habitación` : PEOPLE[person]);
       }
@@ -564,38 +582,70 @@
     }
   }
 
-  async function toggleSleep() {
-    if (currentRoom !== 'bedroom') return;
-    if (isSleeping(identity)) return clearActivity(identity);
+  async function saveActivity(person, activityName, state = {}) {
+    if (!PEOPLE[person]) return false;
     const now = new Date().toISOString();
     const activity = {
-      identity,
+      identity:person,
       room_id:'bedroom',
-      activity:'sleeping',
-      state:{ style:'koala' },
-      started_at:now,
+      activity:activityName,
+      state,
+      started_at:activityStates[person]?.started_at || now,
       expires_at:null,
       updated_at:now
     };
-    setActivityState(identity, activity);
+    setActivityState(person, activity);
     await window._loveRoom?.send({
       type:'broadcast', event:'house-action',
-      payload:{ room:'bedroom', action:`activity_${identity}`, value:activity, from:identity, updated_at:now }
+      payload:{ room:'bedroom', action:`activity_${person}`, value:activity, from:identity, updated_at:now }
     });
     const { error } = await client.from('house_activities').upsert(activity, { onConflict:'identity' });
     if (error) {
-      setActivityState(identity, null);
-      return reportError(error, 'No se pudo guardar que estás durmiendo');
+      await loadHouseActivities();
+      reportError(error, 'No se pudo guardar la actividad en la cama');
+      return false;
     }
-    toast('Te acomodaste en la cama. A mimir 😴 o qué 😏?');
-    navigator.vibrate?.([12, 30, 12]);
+    return true;
+  }
+
+  async function useBed() {
+    if (currentRoom !== 'bedroom') return;
+    if (isInBed(identity)) return $('#houseBedActions')?.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    if (await saveActivity(identity, 'lying', { style:'koala' })) {
+      toast('Te acostaste un ratito.');
+      navigator.vibrate?.([12, 30, 12]);
+    }
+  }
+
+  async function toggleBedSleep() {
+    if (currentRoom !== 'bedroom') return;
+    if (!isInBed(identity)) return useBed();
+    if (isSleeping(identity)) {
+      if (await saveActivity(identity, 'lying', { style:'koala', woke_up:true })) toast(`Ya estás ${gendered(identity, 'despierto', 'despierta')}, pero seguís ${gendered(identity, 'acostado', 'acostada')}.`);
+      return;
+    }
+    if (await saveActivity(identity, 'sleeping', { style:'koala' })) {
+      toast('Te acomodaste en la cama. A mimir 😴 o qué 😏?');
+      navigator.vibrate?.([12, 30, 12]);
+    }
+  }
+
+  async function leaveBed() {
+    if (isInBed(identity)) await clearActivity(identity);
   }
 
   async function wakeSleepingPartner() {
     if (currentRoom !== 'bedroom' || !isSleeping(target)) return;
     const avatar = $(`[data-avatar-for="${target}"]`);
     if (!avatar?.classList.contains('is-online')) return;
-    await clearActivity(target, { announce:true, notify:true });
+    if (!await saveActivity(target, 'lying', { style:'koala', woken_by:identity })) return;
+    toast(`Arriba, ${gendered(target, 'dormilón', 'dormilona')}.`);
+    await window._loveRoom?.send({ type:'broadcast', event:'mensaje', payload:{ text:`${PEOPLE[identity]} te despertó. Parece que quería atención o cariñitos.`, from:identity } });
+    try {
+      await window.sendLovePush(target, `${PEOPLE[identity]} te despertó ☀️`, 'Parece que quería atención o cariñitos.', { type:'house-wake', room:'bedroom' });
+    } catch (error) {
+      console.warn('No se pudo enviar el aviso para despertar', error);
+    }
   }
 
   async function saveAvatarPosition(person, roomId) {
@@ -657,7 +707,7 @@
     let drag = null;
     avatar.addEventListener('pointerdown', event => {
       const person = avatar.dataset.avatarFor;
-      if (person !== identity || !avatar.classList.contains('is-mine') || isSleeping(person)) return;
+      if (person !== identity || !avatar.classList.contains('is-mine') || isInBed(person)) return;
       event.preventDefault();
       drag = { pointer:event.pointerId };
       avatar.setPointerCapture?.(event.pointerId);
@@ -686,7 +736,7 @@
         await wakeSleepingPartner();
         return;
       }
-      if (isSleeping(identity)) return;
+      if (isInBed(identity)) return;
       if (avatar.dataset.avatarFor !== identity || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
       event.preventDefault();
       const delta = { ArrowLeft:[-.025,0], ArrowRight:[.025,0], ArrowUp:[0,-.025], ArrowDown:[0,.025] }[event.key];
@@ -1100,7 +1150,9 @@
     $('#houseWindow')?.addEventListener('click', toggleHouseWindow);
     $('#houseAc')?.addEventListener('click', toggleHouseAc);
     $('#houseHeater')?.addEventListener('click', toggleHouseHeater);
-    $('#houseBed')?.addEventListener('click', toggleSleep);
+    $('#houseBed')?.addEventListener('click', useBed);
+    $('#houseBedSleep')?.addEventListener('click', toggleBedSleep);
+    $('#houseBedLeave')?.addEventListener('click', leaveBed);
     $('#housePlant')?.addEventListener('click', waterHousePlant);
     $('#houseTableNote')?.addEventListener('click', () => {
       document.querySelector('.note-card')?.scrollIntoView({ behavior:'smooth', block:'start' });

@@ -15,7 +15,7 @@ service_worker_source = (ROOT / "sw.js").read_text(encoding="utf-8")
 results["presence_uses_per_session_key"] = "key: `${identity}:${sessionId}`" in realtime_source and "tracked_at:new Date().toISOString()" in realtime_source
 results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_source and "event_key: `mimo:" not in realtime_source
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
-results["cache_version"] = "love-app-v32-bedroom-sleep" in service_worker_source
+results["cache_version"] = "love-app-v34-bedroom-actions" in service_worker_source
 
 opts = Options()
 opts.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"

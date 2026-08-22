@@ -460,19 +460,26 @@ body.together-active #presence-indicator { display: none !important; }
 .house-bed small { position:absolute; z-index:5; left:5px; right:5px; top:-31px; min-height:21px; display:grid; place-items:center; padding:4px 5px; border:1px solid rgba(126,69,91,.13); border-radius:999px; color:#765260; background:rgba(255,250,247,.91); box-shadow:0 4px 10px rgba(71,42,52,.09); font:700 .43rem/1.1 'Quicksand',sans-serif; }
 .house-bed:active { filter:brightness(.96); transform:translateY(1px); }
 .house-bed:focus-visible { outline:3px solid var(--together-wine); outline-offset:4px; }
-.house-bed.has-sleeper .house-bed-blanket { filter:saturate(1.08) brightness(.98); }
+.house-bed.has-occupant .house-bed-blanket { filter:saturate(1.08) brightness(.98); }
 .house-bed.both-sleeping .house-bed-blanket::after { content:"♡ ♡"; }
 
-/* Al dormir, las fotos descansan sobre las almohadas y dejan de poder arrastrarse. */
-.house-avatar.is-sleeping { z-index:8; top:calc(100% - 56px) !important; width:42px; height:42px; overflow:visible; border-width:3px; cursor:default !important; transition:left .45s ease,top .45s ease,transform .45s ease,opacity .3s ease; }
-.house-avatar.is-sleeping img { border-radius:50%; }
-.house-avatar.is-sleeping[data-avatar-for="joel"] { left:37px !important; transform:translate(-50%,-50%) rotate(-7deg) !important; }
-.house-avatar.is-sleeping[data-avatar-for="princesa"] { left:85px !important; transform:translate(-50%,-50%) rotate(7deg) !important; }
+/* Al acostarse, las fotos descansan sobre las almohadas; zzz aparece solo al dormir. */
+.house-avatar.is-in-bed { z-index:8; top:calc(100% - 56px) !important; width:42px; height:42px; overflow:visible; border-width:3px; cursor:default !important; transition:left .45s ease,top .45s ease,transform .45s ease,opacity .3s ease; }
+.house-avatar.is-in-bed img { border-radius:50%; }
+.house-avatar-joel.is-in-bed { left:37px !important; transform:translate(-50%,-50%) rotate(-7deg) !important; }
+.house-avatar-princesa.is-in-bed { left:85px !important; transform:translate(-50%,-50%) rotate(7deg) !important; }
 .house-avatar.is-sleeping::after { content:"zzz"; position:absolute; z-index:3; left:75%; top:-18px; overflow:visible; color:#745879; text-shadow:0 2px 4px rgba(255,255,255,.9); font:800 .72rem/1 'Cormorant Garamond',serif; letter-spacing:.05em; animation:houseSleepZ 2.1s ease-in-out infinite; }
 .house-avatar.can-wake { pointer-events:auto; cursor:pointer !important; }
 .house-avatar.can-wake::before { content:"Tocá para despertar"; position:absolute; z-index:4; left:50%; top:calc(100% + 8px); width:88px; padding:4px 5px; border-radius:999px; color:#fff; background:rgba(102,62,81,.9); font:700 .36rem/1.1 'Quicksand',sans-serif; transform:translateX(-50%) rotate(-7deg); }
 .house-avatar.can-wake[data-avatar-for="princesa"]::before { transform:translateX(-50%) rotate(7deg); }
 @keyframes houseSleepZ { 50% { opacity:.45; transform:translate(5px,-5px) scale(1.08); } }
+
+.house-bed-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:9px 10px 9px 13px; border:1px solid rgba(127,66,89,.13); border-radius:15px; color:var(--together-muted); background:rgba(255,250,248,.66); font:600 .5rem/1.25 'Quicksand',sans-serif; }
+.house-bed-actions[hidden] { display:none; }
+.house-bed-actions > div { display:flex; flex:0 0 auto; gap:7px; }
+.house-bed-actions button { min-height:31px; padding:7px 11px; border:1px solid rgba(127,66,89,.18); border-radius:999px; color:var(--together-wine); background:#fffaf8; cursor:pointer; font:700 .5rem/1 'Quicksand',sans-serif; }
+.house-bed-actions button:first-child { color:#fff; border-color:var(--together-wine); background:var(--together-wine); }
+.love-house[data-time="night"] .house-bed-actions { color:#eadde2; border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.07); }
 
 /* Las luces ya no dependen de la presencia: ambos comparten su estado. */
 .house-person .house-lamp:not(.is-lit) b { background:#bdaab2; box-shadow:none; }
@@ -515,9 +522,12 @@ body.together-active #presence-indicator { display: none !important; }
   .house-light-notify-row { font-size:.46rem; }
   .house-bed { left:7px; bottom:9px; width:120px; height:68px; }
   .house-bed small { top:-29px; font-size:.4rem; }
-  .house-avatar.is-sleeping { top:calc(100% - 53px) !important; width:39px; height:39px; }
-  .house-avatar.is-sleeping[data-avatar-for="joel"] { left:34px !important; }
-  .house-avatar.is-sleeping[data-avatar-for="princesa"] { left:78px !important; }
+  .house-avatar.is-in-bed { top:calc(100% - 53px) !important; width:39px; height:39px; }
+  .house-avatar-joel.is-in-bed { left:34px !important; }
+  .house-avatar-princesa.is-in-bed { left:78px !important; }
+  .house-bed-actions { align-items:flex-start; flex-direction:column; }
+  .house-bed-actions > div { width:100%; }
+  .house-bed-actions button { flex:1; }
 }
 
 /* Relojes analógicos y pequeñas acciones dentro de la habitación. */

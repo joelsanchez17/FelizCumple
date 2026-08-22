@@ -72,8 +72,13 @@ try:
         "return {viewport:[innerWidth,innerHeight],bed,overlaps:{table:hit(bed,table),window:hit(bed,windowBox),heater:hit(bed,heater)}}"
     )
 
-    # Joel duerme y Princesa recibe el estado por Realtime.
+    # La primera pulsación solamente acuesta a Joel; todavía no debe haber zzz.
     joel.execute_script("houseBed.click()")
+    result["joel_lying_synced"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
+    result["bed_actions_visible"] = joel.execute_script("return !houseBedActions.hidden&&houseBedSleep.textContent.includes('Dormir')&&houseBedLeave.textContent.includes('Levantarse')")
+
+    # Joel elige dormir y Princesa recibe el estado por Realtime.
+    joel.execute_script("houseBedSleep.click()")
     result["joel_sleep_synced"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
 
     # El sueño persiste al recargar la aplicación.
@@ -82,10 +87,18 @@ try:
     result["sleep_survives_reload"] = wait_for(joel, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
 
     # Los dos pueden dormir simultáneamente.
-    princesa.execute_script("houseBed.click()")
+    princesa.execute_script("houseBed.click(); houseBedSleep.click()")
     result["both_sleeping"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')&&document.querySelector('[data-avatar-for=princesa]').classList.contains('is-sleeping')")
+    time.sleep(.7)
     result["zzz_visible"] = princesa.execute_script(
         "const j=document.querySelector('[data-avatar-for=joel]'),p=document.querySelector('[data-avatar-for=princesa]');return getComputedStyle(j,'::after').content.includes('zzz')&&getComputedStyle(p,'::after').content.includes('zzz')"
+    )
+    result["sleeping_avatar_layout"] = princesa.execute_script(
+        "const info=s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();return {classes:e.className,left:r.left,top:r.top,width:r.width,height:r.height,cssLeft:getComputedStyle(e).left}};"
+        "return {joel:info('[data-avatar-for=joel]'),princesa:info('[data-avatar-for=princesa]')}"
+    )
+    result["daytime_bed_message"] = princesa.execute_script(
+        "const day=['morning','day'].includes(loveHouse.dataset.time); const message=document.querySelector('[data-condition=daytime_bed]'); return !day||Boolean(message&&message.textContent.includes('Primero cariñitos'))"
     )
     screenshot = os.path.join(os.environ.get("TEMP", "."), "loveapp-bedroom-sleep.png")
     princesa.save_screenshot(screenshot)
@@ -93,9 +106,10 @@ try:
 
     # Evita enviar una push real durante la prueba; el despertar sí usa Realtime y Supabase.
     princesa.execute_script("window.sendLovePush=async()=>true; document.querySelector('[data-avatar-for=joel]').click()")
-    result["princesa_woke_joel"] = wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
-    princesa.execute_script("houseBed.click()")
-    result["activities_cleaned"] = wait_for(princesa, "!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-sleeping')")
+    result["princesa_woke_joel"] = wait_for(joel, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=joel]').classList.contains('is-sleeping')")
+    joel.execute_script("houseBedLeave.click()")
+    princesa.execute_script("houseBedLeave.click()")
+    result["activities_cleaned"] = wait_for(princesa, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')")
     print(json.dumps(result, ensure_ascii=False, indent=2))
 finally:
     if joel:

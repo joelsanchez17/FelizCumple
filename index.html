@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=17">
+  <link rel="stylesheet" href="./together.css?v=19">
   <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -462,10 +462,10 @@
             <span aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <small>apagada</small>
           </button>
-          <button id="houseBed" class="house-bed" type="button" aria-label="Dormir a lo koala" aria-pressed="false">
+          <button id="houseBed" class="house-bed" type="button" aria-label="Acostarse en la cama" aria-pressed="false">
             <span class="house-bed-pillows" aria-hidden="true"><i></i><i></i></span>
             <span class="house-bed-blanket" aria-hidden="true"></span>
-            <small id="houseBedLabel">Dormir a lo 🐨</small>
+            <small id="houseBedLabel">Acostarse</small>
           </button>
           <div class="house-people">
               <article id="houseJoel" class="house-person house-person-joel">
@@ -495,6 +495,13 @@
           <div id="houseAvatarLayer" class="house-avatar-layer" aria-label="Personas dentro de la habitación">
             <div class="house-avatar house-avatar-joel" data-avatar-for="joel" role="button" aria-label="Mover a Joel por la habitación"><img src="perfil_yo.jpg" alt="" draggable="false"></div>
             <div class="house-avatar house-avatar-princesa" data-avatar-for="princesa" role="button" aria-label="Mover a Princesa por la habitación"><img src="princesa2.jpg" alt="" draggable="false"></div>
+          </div>
+        </div>
+        <div id="houseBedActions" class="house-bed-actions" hidden aria-live="polite">
+          <span id="houseBedActionText">Ya estás en la cama.</span>
+          <div>
+            <button id="houseBedSleep" type="button">Dormir a lo 🐨</button>
+            <button id="houseBedLeave" type="button">Levantarse</button>
           </div>
         </div>
         <aside id="houseConditionMessages" class="house-condition-messages" hidden aria-live="polite">
@@ -5087,7 +5094,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=11"></script>
+<script src="./together.js?v=13"></script>
 </body>
 
 </html>
