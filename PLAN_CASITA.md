@@ -292,9 +292,9 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 
 ### Parte 2 — Dormitorio completo
 
-- **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama. Si ambos están despiertos pueden esconderse bajo la sábana y la cama reacciona durante unos segundos.
+- **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama. Si ambos están despiertos pueden meterse y asomarse manualmente bajo la sábana todas las veces que quieran; la escena se comparte en vivo y la casa alterna comentarios cómplices.
 - **2B — Movimiento vivo (completada):** doble toque para saltar, reacciones compartidas al saltar junto al otro y una acción propia para bailar, todo visible en vivo sin persistir animaciones pasajeras. `Sentarse` queda reservado exclusivamente para el sillón del living.
-- **2C — Cercanía (completada):** al tocar al otro cuando está cerca aparecen beso, abrazo, cariñitos y cosquillas con animaciones breves por Realtime. Princesa tiene además la acción privada `Tocar el pupito` sobre Joel, que él intenta esquivar. Nada de esto llena el diario ni envía notificaciones.
+- **2C — Cercanía (completada):** al tocar al otro cuando está cerca aparecen beso, abrazo, cariñitos y cosquillas con animaciones breves por Realtime. Princesa tiene además el minijuego privado `Tocar el pupito`: puede insistir sin cerrar el panel y Agus reacciona con defensa, un casi, una distracción y guardia reforzada. Nada de esto llena el diario ni envía notificaciones.
 - **2D — Actividades compartidas:** invitaciones que el otro acepta para acostarse juntos, dormir abrazados o comenzar un momento íntimo discreto, con puerta cerrada y luces bajas.
 - Adaptar las posiciones y objetos actuales al nuevo diseño.
 - Agregar mensajes y combinaciones del dormitorio usando la voz real de la pareja: cómplice, graciosa y breve.
@@ -319,7 +319,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 ### Parte 5 — Baño
 
 - Diseñar el baño completo.
-- Base implementada: la ducha se toca para entrar o salir, muestra a uno o a ambos dentro y sincroniza el estado; la orquídea tiene cuidado diario compartido.
+- Base implementada: la ducha se toca para entrar o salir, muestra a uno o a ambos dentro y sincroniza el estado; la orquídea tiene cuidado diario compartido. Dentro de la ducha se puede levantar el jabón, ofrecer `¿Te lavo el rabito?`, aceptar la propuesta y cerrar o abrir la cortina para un momento íntimo discreto compartido en vivo.
 - Agregar ducha, espejo, cepillos, toallas y luz.
 - Implementar bañarse y cepillarse los dientes.
 - Permitir invitar al otro a ducharse juntos; el otro debe aceptar antes de que comience la actividad.

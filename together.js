@@ -67,6 +67,16 @@
   let houseMotionMessage = null;
   let houseMotionTimer;
   let bedMomentTimer;
+  let bedMomentActive = false;
+  let bedMomentCount = 0;
+  let pupitoAttempts = 0;
+  let showerMotionTimer;
+  let showerPrivateTimer;
+  let showerPrivateActive = false;
+  let pendingTailFrom = null;
+  let pendingTailTimer;
+  let roomMotionTimer;
+  const seenMotionIds = new Set();
   const refreshTables = new Set();
 
   const $ = selector => document.querySelector(selector);
@@ -145,6 +155,18 @@
       houseMotionMessage = null;
       queueHouseConditionCheck();
     }, 5200);
+  }
+
+  function showRoomMotionMessage(roomId, text, emoji = '👀') {
+    const panel = $(`[data-room-motion-message="${roomId}"]`);
+    if (!panel) return showHouseMotionMessage(text, emoji);
+    panel.hidden = false;
+    const icon = panel.querySelector('[data-room-motion-emoji]');
+    const copy = panel.querySelector('[data-room-motion-copy]');
+    if (icon) icon.textContent = emoji;
+    if (copy) copy.textContent = text;
+    clearTimeout(roomMotionTimer);
+    roomMotionTimer = setTimeout(() => { panel.hidden = true; }, 6200);
   }
 
   function reportError(error, fallback) {
@@ -493,6 +515,13 @@
   }
 
   function applyHouseDevice(device, state, announce = false, roomId = 'bedroom') {
+    if (device?.startsWith('motion_')) {
+      const person = device.replace('motion_', '');
+      const motion = state?.motion || state;
+      const expiresAt = state?.expires_at ? new Date(state.expires_at).getTime() : 0;
+      if (!expiresAt || expiresAt > Date.now()) animateAvatarMotion(person, motion, roomId);
+      return;
+    }
     const roomPlant = Object.entries(ROOM_PLANTS).find(([candidate, config]) => candidate === roomId && config.device === device);
     if (roomPlant) setRoomPlantState(roomId, state, announce);
     if (roomId !== 'bedroom') return;
@@ -515,6 +544,22 @@
       updated_at: updatedAt
     }, { onConflict:'room_id,device_id' });
     if (error) reportError(error, 'No se pudo guardar el estado de la casita');
+  }
+
+  async function sendHouseMotion(roomId, motion) {
+    const updatedAt = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 30000).toISOString();
+    const payload = { room:roomId, action:`motion_${identity}`, value:motion, from:identity, updated_at:updatedAt };
+    const broadcast = window._loveRoom?.send({ type:'broadcast', event:'house-action', payload });
+    const fallback = client.from('house_device_states').upsert({
+      room_id:roomId,
+      device_id:`motion_${identity}`,
+      state:{ motion, expires_at:expiresAt },
+      updated_by:identity,
+      updated_at:updatedAt
+    }, { onConflict:'room_id,device_id' });
+    const [, { error }] = await Promise.all([broadcast, fallback]);
+    if (error) console.warn('No se pudo guardar el respaldo breve de la acción', error);
   }
 
   async function loadHouseDevices() {
@@ -584,7 +629,9 @@
     const bothAwakeInBed = occupants.length === 2 && sleepers.length === 0;
     if (intimateButton) {
       intimateButton.disabled = !bothAwakeInBed;
-      intimateButton.textContent = bothAwakeInBed ? 'Escondernos bajo la sábana 😏' : 'Esperando al otro 😏';
+      intimateButton.textContent = bothAwakeInBed
+        ? (bedMomentActive ? 'Asomarnos de la sábana 👀' : 'Meternos bajo la sábana 😏')
+        : 'Esperando al otro 😏';
     }
     if (!bothAwakeInBed) stopBedMoment();
 
@@ -601,6 +648,19 @@
     if (showerStatus) showerStatus.textContent = showering.length === 2
       ? 'Se metieron juntos a la ducha 😏'
       : showering.length === 1 ? `${PEOPLE[showering[0]]} está en la ducha.` : 'La ducha está libre.';
+    const showerActions = $('#bathroomShowerActions');
+    if (showerActions) showerActions.hidden = currentRoom !== 'bathroom' || !mineShowering;
+    const bothShowering = showering.length === 2;
+    const requestTail = $('#bathroomRequestTail');
+    const washTail = $('#bathroomWashTail');
+    const privateButton = $('#bathroomShowerPrivate');
+    if (requestTail) requestTail.disabled = !bothShowering;
+    if (washTail) washTail.hidden = !(bothShowering && pendingTailFrom === target);
+    if (privateButton) {
+      privateButton.disabled = !bothShowering;
+      privateButton.textContent = showerPrivateActive ? 'Abrir la cortina 👀' : 'Cerrar la cortina 😏';
+    }
+    if (!bothShowering) stopShowerPrivateMoment();
 
     ['joel', 'princesa'].forEach(person => {
       const avatar = $(`[data-avatar-for="${person}"]`);
@@ -723,28 +783,120 @@
 
   function stopBedMoment() {
     clearTimeout(bedMomentTimer);
+    bedMomentActive = false;
     $('#houseBed')?.classList.remove('is-private-moment');
     $$('[data-avatar-for]').forEach(avatar => avatar.classList.remove('is-under-blanket'));
+    const button = $('#houseBedIntimate');
+    if (button && !button.disabled) button.textContent = 'Meternos bajo la sábana 😏';
   }
 
-  function animateBedMoment(roomId = currentRoom) {
+  function animateBedMoment(roomId = currentRoom, motion = {}) {
     if (roomId !== 'bedroom' || currentRoom !== 'bedroom' || !isInBed('joel') || !isInBed('princesa') || isSleeping('joel') || isSleeping('princesa')) return;
+    if (motion.active === false) {
+      stopBedMoment();
+      showHouseMotionMessage('Ah, aparecieron otra vez. Acá no pasó nada 👀', '👀');
+      return;
+    }
     stopBedMoment();
+    bedMomentActive = true;
     $('#houseBed')?.classList.add('is-private-moment');
     $$('[data-avatar-for]').forEach(avatar => avatar.classList.add('is-under-blanket'));
-    showHouseMotionMessage('Bueno… cierro la puerta. Yo no vi nada 😏', '🫣');
+    const messages = [
+      'Bueno… cierro la puerta. Yo no vi nada 😏',
+      '¿Otra vez abajo? Esa sábana ya sabe demasiado 👀',
+      'Entraron dos y desaparecieron. La casa no hace preguntas 😏',
+      'Shhh… parece que abajo de esa sábana está pasando algo.'
+    ];
+    showHouseMotionMessage(messages[Math.abs(Number(motion.sequence) || 0) % messages.length], '🫣');
     navigator.vibrate?.([15, 40, 15]);
-    bedMomentTimer = setTimeout(stopBedMoment, 8000);
+    const button = $('#houseBedIntimate');
+    if (button) button.textContent = 'Asomarnos de la sábana 👀';
+    bedMomentTimer = setTimeout(stopBedMoment, 20000);
   }
 
   async function startBedMoment() {
     if (currentRoom !== 'bedroom' || !isInBed('joel') || !isInBed('princesa') || isSleeping('joel') || isSleeping('princesa')) return;
-    const motion = { type:'bed_moment', id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
-    animateBedMoment('bedroom');
-    await window._loveRoom?.send({
-      type:'broadcast', event:'house-action',
-      payload:{ room:'bedroom', action:`motion_${identity}`, value:motion, from:identity, updated_at:new Date().toISOString() }
-    });
+    const motion = { type:'bed_moment', active:!bedMomentActive, sequence:++bedMomentCount, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
+    animateBedMoment('bedroom', motion);
+    await sendHouseMotion('bedroom', motion);
+  }
+
+  function clearTailRequest() {
+    clearTimeout(pendingTailTimer);
+    pendingTailFrom = null;
+    renderHouseActivities();
+  }
+
+  function stopShowerPrivateMoment() {
+    clearTimeout(showerPrivateTimer);
+    showerPrivateActive = false;
+    $('#bathroomShower')?.classList.remove('is-private-moment');
+    $$('[data-avatar-for]').forEach(avatar => avatar.classList.remove('is-under-shower-curtain'));
+    const button = $('#bathroomShowerPrivate');
+    if (button && !button.disabled) button.textContent = 'Cerrar la cortina 😏';
+  }
+
+  function showShowerEffect(emoji, className = '') {
+    const shower = $('#bathroomShower');
+    if (!shower) return;
+    shower.querySelectorAll('.shower-action-effect').forEach(item => item.remove());
+    const effect = document.createElement('b');
+    effect.className = `shower-action-effect ${className}`.trim();
+    effect.textContent = emoji;
+    shower.appendChild(effect);
+    clearTimeout(showerMotionTimer);
+    showerMotionTimer = setTimeout(() => effect.remove(), 1800);
+  }
+
+  function animateShowerMotion(person, motion, roomId = currentRoom) {
+    if (roomId !== 'bathroom' || currentRoom !== 'bathroom' || !isShowering(person) || !motion?.kind) return;
+    if (motion.kind === 'soap') {
+      showShowerEffect('🧼', 'is-soap');
+      showRoomMotionMessage('bathroom', `${PEOPLE[person]} levantó el jabón. Yo no voy a preguntar por qué se cayó.`, '🧼');
+      return;
+    }
+    if (motion.kind === 'request_tail') {
+      pendingTailFrom = person;
+      clearTimeout(pendingTailTimer);
+      pendingTailTimer = setTimeout(clearTailRequest, 20000);
+      showShowerEffect('🫧', 'is-bubbles');
+      showRoomMotionMessage('bathroom', `${PEOPLE[person]} preguntó: “¿Te lavo el rabito?”`, '🫧');
+      renderHouseActivities();
+      return;
+    }
+    if (motion.kind === 'wash_tail') {
+      clearTailRequest();
+      showShowerEffect('🫧🫧', 'is-bubbles');
+      showRoomMotionMessage('bathroom', 'Aceptado. Listo, rabito lavado. Qué servicio tiene esta casa 😂', '🫧');
+      return;
+    }
+    if (motion.kind !== 'private') return;
+    if (motion.active === false) {
+      stopShowerPrivateMoment();
+      showRoomMotionMessage('bathroom', 'Bueno, ya abrieron la cortina. Acá no pasó nada 👀', '👀');
+      return;
+    }
+    if (!isShowering('joel') || !isShowering('princesa')) return;
+    stopShowerPrivateMoment();
+    showerPrivateActive = true;
+    $('#bathroomShower')?.classList.add('is-private-moment');
+    $$('[data-avatar-for]').forEach(avatar => avatar.classList.add('is-under-shower-curtain'));
+    showRoomMotionMessage('bathroom', 'Se cerró la cortina… el baño no da declaraciones 😏', '🚿');
+    const button = $('#bathroomShowerPrivate');
+    if (button) button.textContent = 'Abrir la cortina 👀';
+    showerPrivateTimer = setTimeout(stopShowerPrivateMoment, 15000);
+  }
+
+  async function sendShowerMotion(kind) {
+    if (currentRoom !== 'bathroom' || !isShowering(identity)) return;
+    const bothShowering = isShowering('joel') && isShowering('princesa');
+    if (['request_tail', 'wash_tail', 'private'].includes(kind) && !bothShowering) return;
+    if (kind === 'wash_tail' && pendingTailFrom !== target) return;
+    const motion = { type:'shower', kind, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
+    if (kind === 'private') motion.active = !showerPrivateActive;
+    animateShowerMotion(identity, motion, 'bathroom');
+    navigator.vibrate?.([10, 30, 10]);
+    await sendHouseMotion('bathroom', motion);
   }
 
   async function toggleShower() {
@@ -848,7 +1000,7 @@
 
   function restartMotionClass(avatar, className, duration = 1300) {
     if (!avatar) return;
-    avatar.classList.remove('is-jumping', 'is-jump-reacting', 'is-dancing');
+    avatar.classList.remove('is-jumping', 'is-jump-reacting', 'is-dancing', 'pupito-almost', 'pupito-caught', 'pupito-guard');
     [...avatar.classList].filter(name => /^is-(kiss|hug|caress|tickle|pupito)-(actor|receiver)$/.test(name)).forEach(name => avatar.classList.remove(name));
     void avatar.offsetWidth;
     avatar.classList.add(className);
@@ -863,6 +1015,13 @@
     pupito: { emoji:'👉', message:'¡El pupito no! Agus activó el modo defensa otra vez 😂' }
   };
 
+  const PUPITO_REACTIONS = [
+    { receiver:'', message:'Agus vio venir esa mano y activó defensa 😂' },
+    { receiver:'pupito-almost', message:'Casi, Koalita. Ese pupito estuvo demasiado cerca 👀' },
+    { receiver:'pupito-caught', message:'¡Lo tocó! Agus se distrajo un segundo 😳' },
+    { receiver:'pupito-guard', message:'Ahora Agus está cuidando el pupito con las dos manos 😂' }
+  ];
+
   function animateTogetherMotion(person, motion, roomId) {
     const meta = TOGETHER_MOTIONS[motion?.kind];
     if (!meta || roomId !== currentRoom || !avatarsAreClose(roomId) || isInBed('joel') || isInBed('princesa')) return;
@@ -876,13 +1035,26 @@
     actor.dataset.lastMotion = motion.id;
     restartMotionClass(actor, `is-${motion.kind}-actor`);
     restartMotionClass(receiver, `is-${motion.kind}-receiver`);
+    let message = meta.message;
+    if (motion.kind === 'pupito') {
+      const reaction = PUPITO_REACTIONS[(Math.max(1, Number(motion.attempt) || 1) - 1) % PUPITO_REACTIONS.length];
+      if (reaction.receiver) receiver.classList.add(reaction.receiver);
+      message = reaction.message;
+      setTimeout(() => receiver.classList.remove('pupito-almost', 'pupito-caught', 'pupito-guard'), 1300);
+    }
     showSharedEmoji(meta.emoji, roomId);
-    showHouseMotionMessage(meta.message, meta.emoji);
+    showHouseMotionMessage(message, meta.emoji);
   }
 
   function animateAvatarMotion(person, motion, roomId = currentRoom) {
     if (!PEOPLE[person] || !motion?.type || roomId !== currentRoom) return;
-    if (motion.type === 'bed_moment') return animateBedMoment(roomId);
+    if (motion.id && seenMotionIds.has(motion.id)) return;
+    if (motion.id) {
+      seenMotionIds.add(motion.id);
+      setTimeout(() => seenMotionIds.delete(motion.id), 45000);
+    }
+    if (motion.type === 'bed_moment') return animateBedMoment(roomId, motion);
+    if (motion.type === 'shower') return animateShowerMotion(person, motion, roomId);
     if (hasFixedActivity(person)) return;
     if (motion.type === 'together') return animateTogetherMotion(person, motion, roomId);
     const avatar = $(`[data-avatar-for="${person}"]`);
@@ -913,23 +1085,18 @@
     const motion = { type:'jump', id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
     animateAvatarMotion(identity, motion, currentRoom);
     navigator.vibrate?.([10, 25, 10]);
-    await window._loveRoom?.send({
-      type:'broadcast', event:'house-action',
-      payload:{ room:currentRoom, action:`motion_${identity}`, value:motion, from:identity, updated_at:new Date().toISOString() }
-    });
+    await sendHouseMotion(currentRoom, motion);
   }
 
   async function sendAvatarMotion(type, extra = {}) {
     if (!currentRoom || hasFixedActivity(identity)) return;
     if (type === 'together' && (!avatarsAreClose() || hasFixedActivity(target))) return;
+    if (type === 'together' && extra.kind === 'pupito') extra.attempt = ++pupitoAttempts;
     const motion = { type, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}`, ...extra };
     animateAvatarMotion(identity, motion, currentRoom);
-    closeAvatarActions();
+    if (extra.kind !== 'pupito') closeAvatarActions();
     navigator.vibrate?.(type === 'together' ? [10, 35, 10] : 10);
-    await window._loveRoom?.send({
-      type:'broadcast', event:'house-action',
-      payload:{ room:currentRoom, action:`motion_${identity}`, value:motion, from:identity, updated_at:new Date().toISOString() }
-    });
+    await sendHouseMotion(currentRoom, motion);
   }
 
   async function toggleHouseWindow() {
@@ -1468,6 +1635,10 @@
     $('#houseBedIntimate')?.addEventListener('click', startBedMoment);
     $('#houseBedLeave')?.addEventListener('click', leaveBed);
     $('#bathroomShower')?.addEventListener('click', toggleShower);
+    $('#bathroomShowerActions')?.addEventListener('click', event => {
+      const button = event.target.closest('[data-shower-action]');
+      if (button && !button.disabled) sendShowerMotion(button.dataset.showerAction);
+    });
     $('#houseAvatarActionsClose')?.addEventListener('click', closeAvatarActions);
     $('#houseSelfActions')?.addEventListener('click', event => {
       const button = event.target.closest('[data-house-motion]');

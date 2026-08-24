@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=33">
+  <link rel="stylesheet" href="./together.css?v=34">
   <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -575,6 +575,19 @@
           </button>
           <p id="bathroomShowerStatus">La ducha está libre.</p>
         </div>
+        <div id="bathroomShowerActions" class="house-shower-actions" hidden aria-live="polite">
+          <span>¿Qué hacemos en la ducha?</span>
+          <div>
+            <button type="button" data-shower-action="soap">Levantar el jabón 🧼</button>
+            <button id="bathroomRequestTail" type="button" data-shower-action="request_tail" disabled>¿Te lavo el rabito? 🫧</button>
+            <button id="bathroomWashTail" type="button" data-shower-action="wash_tail" hidden>Sí, lavame el rabito 🫧</button>
+            <button id="bathroomShowerPrivate" type="button" data-shower-action="private" disabled>Cerrar la cortina 😏</button>
+          </div>
+        </div>
+        <aside class="house-condition-messages room-motion-message" data-room-motion-message="bathroom" hidden aria-live="polite">
+          <strong>La casita tiene algo que decir</strong>
+          <p><span data-room-motion-emoji aria-hidden="true">👀</span><span data-room-motion-copy></span></p>
+        </aside>
         <p class="house-presence-message room-presence-message" data-room-presence="bathroom" aria-live="polite">Entraste al baño.</p>
       </div>
     </section>
@@ -5122,7 +5135,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=23"></script>
+<script src="./together.js?v=25"></script>
 </body>
 
 </html>

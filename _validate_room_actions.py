@@ -72,12 +72,29 @@ try:
     joel.execute_script("houseBedIntimate.click()")
     result["blanket_scene_shared"] = wait_for(joel, "houseBed.classList.contains('is-private-moment')") and wait_for(princesa, "houseBed.classList.contains('is-private-moment')")
     result["blanket_hides_both"] = joel.execute_script("return document.querySelectorAll('.house-avatar.is-under-blanket').length === 2")
+    joel.execute_script("houseBedIntimate.click()")
+    result["blanket_can_peek_together"] = wait_for(joel, "!houseBed.classList.contains('is-private-moment')") and wait_for(princesa, "!houseBed.classList.contains('is-private-moment')")
+    joel.execute_script("houseBedIntimate.click()")
+    result["blanket_can_repeat"] = wait_for(joel, "houseBed.classList.contains('is-private-moment')") and wait_for(princesa, "houseBed.classList.contains('is-private-moment')")
     bed_screenshot = Path(tempfile.gettempdir()) / "loveapp-bed-secret.png"
     joel.save_screenshot(str(bed_screenshot))
     result["bed_screenshot"] = str(bed_screenshot)
     joel.execute_script("houseBedLeave.click()")
     princesa.execute_script("houseBedLeave.click()")
     wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')")
+
+    # Pupito: se puede insistir sin que se cierre el panel y la tercera reacciÃ³n logra tocarlo.
+    for driver in (joel, princesa):
+        driver.execute_script(
+            "window.dispatchEvent(new CustomEvent('lovehouseaction',{detail:{room:'bedroom',action:'avatar_joel',value:{rx:.49,ry:.58}}}));"
+            "window.dispatchEvent(new CustomEvent('lovehouseaction',{detail:{room:'bedroom',action:'avatar_princesa',value:{rx:.53,ry:.58}}}));"
+        )
+    result["avatars_close_for_pupito"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('can-interact')")
+    princesa.execute_script("document.querySelector('[data-avatar-for=joel]').click()")
+    result["pupito_available_only_to_her"] = wait_for(princesa, "!housePupitoAction.hidden") and joel.execute_script("document.querySelector('[data-avatar-for=princesa]').click();return housePupitoAction.hidden")
+    princesa.execute_script("housePupitoAction.click();housePupitoAction.click();housePupitoAction.click()")
+    result["pupito_panel_stays_open"] = princesa.execute_script("return !houseAvatarActions.hidden")
+    result["pupito_has_sequence"] = wait_for(princesa, "houseConditionList.textContent.includes('Lo tocó')") and wait_for(joel, "houseConditionList.textContent.includes('Lo tocó')")
 
     # Cocina: foto visible, cactus regable y estado reflejado en la otra sesión.
     result["kitchen_entered"] = enter(joel, "kitchen") and enter(princesa, "kitchen")
@@ -104,6 +121,26 @@ try:
     result["single_shower_synced"] = wait_for(princesa, "document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-shower')")
     princesa.execute_script("bathroomShower.click()")
     result["shared_shower_synced"] = wait_for(joel, "bathroomShower.classList.contains('has-two') && bathroomShowerStatus.textContent.includes('juntos')")
+    result["shower_actions_visible"] = wait_for(joel, "!bathroomShowerActions.hidden") and wait_for(princesa, "!bathroomShowerActions.hidden")
+    joel.execute_script("document.querySelector('[data-shower-action=soap]').click()")
+    result["soap_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-copy]').textContent.includes('Joel levantó el jabón')")
+    result["soap_views"] = {
+        "joel": joel.execute_script("return document.querySelector('[data-room-motion-copy]').textContent"),
+        "princesa": princesa.execute_script("return document.querySelector('[data-room-motion-copy]').textContent"),
+        "local_effect": joel.execute_script("return Boolean(document.querySelector('.shower-action-effect'))"),
+    }
+    princesa.execute_script("bathroomRequestTail.click()")
+    result["tail_request_shared"] = wait_for(joel, "!bathroomWashTail.hidden && document.querySelector('[data-room-motion-copy]').textContent.includes('¿Te lavo el rabito?')")
+    result["tail_request_views"] = {
+        "joel": joel.execute_script("return {text:document.querySelector('[data-room-motion-copy]').textContent,washHidden:bathroomWashTail.hidden}"),
+        "princesa": princesa.execute_script("return document.querySelector('[data-room-motion-copy]').textContent"),
+    }
+    joel.execute_script("bathroomWashTail.click()")
+    result["tail_wash_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-copy]').textContent.includes('rabito lavado')")
+    joel.execute_script("bathroomShowerPrivate.click()")
+    result["shower_curtain_shared"] = wait_for(joel, "bathroomShower.classList.contains('is-private-moment')") and wait_for(princesa, "bathroomShower.classList.contains('is-private-moment')")
+    joel.execute_script("bathroomShowerPrivate.click()")
+    result["shower_curtain_reopens"] = wait_for(joel, "!bathroomShower.classList.contains('is-private-moment')") and wait_for(princesa, "!bathroomShower.classList.contains('is-private-moment')")
     time.sleep(.8)
     result["shower_layout"] = joel.execute_script(
         "const hit=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;"
