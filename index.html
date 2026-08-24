@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=34">
+  <link rel="stylesheet" href="./together.css?v=35">
   <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -422,6 +422,9 @@
           <button type="button" class="house-map-room house-map-kitchen" data-enter-room="kitchen">
             <span aria-hidden="true">🍳</span><strong>Cocina</strong><small>Nuestro cuadrito y cactus</small>
           </button>
+          <button type="button" class="house-map-room house-map-dining" data-enter-room="dining">
+            <span aria-hidden="true">🍽️</span><strong>Comedor</strong><small>Todavía en construcción</small>
+          </button>
         </nav>
         <div class="house-map-future" aria-label="Lugar para una habitación futura"><span aria-hidden="true">＋</span><strong>La casa puede seguir creciendo</strong></div>
         <p class="house-search-hint">La casa no te va a decir dónde está. Vas a tener que buscarlo 👀</p>
@@ -549,12 +552,19 @@
           <div class="empty-kitchen-window" aria-hidden="true"></div>
           <figure class="kitchen-couple-picture"><img src="besos.jpg" alt="Joel y Princesa besándose"></figure>
           <div class="empty-kitchen-counter" aria-hidden="true"><i></i><i></i><i></i></div>
+          <button id="kitchenCoffee" class="kitchen-coffee-machine" type="button" aria-label="Preparar café">
+            <span aria-hidden="true"><i></i></span><small>Hacer café</small>
+          </button>
           <div class="empty-kitchen-table" aria-hidden="true"></div>
           <button id="kitchenPlant" class="room-potted-plant room-cactus" type="button" data-room-plant="kitchen" aria-label="Regar el cactus de la cocina">
             <span class="plant-visual" aria-hidden="true"></span><i aria-hidden="true"></i><small id="kitchenPlantStatus">El cactus espera agüita</small>
           </button>
           <p>Nuestra cocina ya tiene un pedacito de nosotros.</p>
         </div>
+        <aside class="house-condition-messages room-motion-message" data-room-motion-message="kitchen" hidden aria-live="polite">
+          <strong>La casita tiene algo que decir</strong>
+          <p><span data-room-motion-emoji aria-hidden="true">☕</span><span data-room-motion-copy></span></p>
+        </aside>
         <p class="house-presence-message room-presence-message" data-room-presence="kitchen" aria-live="polite">Entraste a la cocina.</p>
       </div>
 
@@ -566,6 +576,9 @@
         <div class="house-placeholder-interior house-room-surface bathroom-room" data-room-surface="bathroom" aria-label="El baño compartido">
           <div class="empty-bathroom-mirror" aria-hidden="true"></div>
           <div class="empty-bathroom-sink" aria-hidden="true"><i></i></div>
+          <button id="bathroomToothbrush" class="bathroom-toothbrushes" type="button" aria-label="Cepillarse los dientes">
+            <span aria-hidden="true"><i></i><i></i></span><small>Cepillarse</small>
+          </button>
           <div class="bathroom-plant-stand" aria-hidden="true"><i></i></div>
           <button id="bathroomPlant" class="room-potted-plant room-orchid" type="button" data-room-plant="bathroom" aria-label="Regar la orquídea del baño">
             <span class="plant-visual" aria-hidden="true"></span><i aria-hidden="true"></i><small id="bathroomPlantStatus">La orquídea espera agüita</small>
@@ -589,6 +602,31 @@
           <p><span data-room-motion-emoji aria-hidden="true">👀</span><span data-room-motion-copy></span></p>
         </aside>
         <p class="house-presence-message room-presence-message" data-room-presence="bathroom" aria-live="polite">Entraste al baño.</p>
+      </div>
+
+      <div id="houseDining" class="house-room house-room-view house-empty-room" data-room-view="dining" hidden>
+        <div class="house-title-row">
+          <div><span class="together-kicker">COMEDOR</span><h2>Acá van a pasar muchas sobremesas</h2></div>
+          <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa"><span aria-hidden="true">🏠</span><small>Mapa</small></button>
+        </div>
+        <div class="house-placeholder-interior house-room-surface dining-room" data-room-surface="dining" aria-label="El comedor compartido, todavía en construcción">
+          <div class="dining-window" aria-hidden="true"></div>
+          <div class="dining-boxes" aria-hidden="true"><i></i><i></i></div>
+          <button id="diningTable" class="dining-table" type="button" aria-label="Poner la mesa del comedor" aria-pressed="false">
+            <span class="dining-place dining-place-one" aria-hidden="true"><i></i><b></b></span>
+            <span class="dining-place dining-place-two" aria-hidden="true"><i></i><b></b></span>
+            <small id="diningTableLabel">Poner la mesa</small>
+          </button>
+          <span class="dining-chair dining-chair-left" aria-hidden="true"></span>
+          <span class="dining-chair dining-chair-right" aria-hidden="true"></span>
+          <button id="diningToast" class="dining-toast" type="button" disabled>Dejar un brindis 🥂</button>
+          <p>El comedor ya existe. Todavía le faltan muebles y recuerdos.</p>
+        </div>
+        <aside class="house-condition-messages room-motion-message" data-room-motion-message="dining" hidden aria-live="polite">
+          <strong>La casita tiene algo que decir</strong>
+          <p><span data-room-motion-emoji aria-hidden="true">🍽️</span><span data-room-motion-copy></span></p>
+        </aside>
+        <p class="house-presence-message room-presence-message" data-room-presence="dining" aria-live="polite">Entraste al comedor.</p>
       </div>
     </section>
 
@@ -5135,7 +5173,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=25"></script>
+<script src="./together.js?v=26"></script>
 </body>
 
 </html>

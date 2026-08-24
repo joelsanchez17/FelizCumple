@@ -101,6 +101,8 @@ try:
     result["real_photo_loaded"] = joel.execute_script("const i=document.querySelector('.kitchen-couple-picture img');return i.complete && i.naturalWidth>0 && i.getAttribute('src')==='besos.jpg'")
     joel.execute_script("kitchenPlant.click()")
     result["cactus_synced"] = wait_for(princesa, "kitchenPlant.classList.contains('is-watered') && kitchenPlantStatus.textContent.includes('Joel')")
+    joel.execute_script("kitchenCoffee.click()")
+    result["coffee_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-message=kitchen] [data-room-motion-copy]').textContent.includes('cafecito')")
     kitchen_screenshot = Path(tempfile.gettempdir()) / "loveapp-kitchen.png"
     joel.save_screenshot(str(kitchen_screenshot))
     result["kitchen_screenshot"] = str(kitchen_screenshot)
@@ -109,6 +111,8 @@ try:
     result["bathroom_entered"] = enter(joel, "bathroom") and enter(princesa, "bathroom")
     princesa.execute_script("bathroomPlant.click()")
     result["orchid_synced"] = wait_for(joel, "bathroomPlant.classList.contains('is-watered') && bathroomPlantStatus.textContent.includes('Princesa')")
+    princesa.execute_script("bathroomToothbrush.click()")
+    result["toothbrush_shared"] = wait_for(joel, "document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent.includes('cepillando')")
     joel.execute_script(
         "['sprout','grown','thirsty','wilted'].forEach(x=>bathroomPlant.classList.remove('plant-stage-'+x));"
         "[0,1,2,3].forEach(x=>bathroomPlant.classList.remove('plant-growth-'+x));"
@@ -123,20 +127,20 @@ try:
     result["shared_shower_synced"] = wait_for(joel, "bathroomShower.classList.contains('has-two') && bathroomShowerStatus.textContent.includes('juntos')")
     result["shower_actions_visible"] = wait_for(joel, "!bathroomShowerActions.hidden") and wait_for(princesa, "!bathroomShowerActions.hidden")
     joel.execute_script("document.querySelector('[data-shower-action=soap]').click()")
-    result["soap_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-copy]').textContent.includes('Joel levantó el jabón')")
+    result["soap_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent.includes('Joel levantó el jabón')")
     result["soap_views"] = {
-        "joel": joel.execute_script("return document.querySelector('[data-room-motion-copy]').textContent"),
-        "princesa": princesa.execute_script("return document.querySelector('[data-room-motion-copy]').textContent"),
+        "joel": joel.execute_script("return document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent"),
+        "princesa": princesa.execute_script("return document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent"),
         "local_effect": joel.execute_script("return Boolean(document.querySelector('.shower-action-effect'))"),
     }
     princesa.execute_script("bathroomRequestTail.click()")
-    result["tail_request_shared"] = wait_for(joel, "!bathroomWashTail.hidden && document.querySelector('[data-room-motion-copy]').textContent.includes('¿Te lavo el rabito?')")
+    result["tail_request_shared"] = wait_for(joel, "!bathroomWashTail.hidden && document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent.includes('¿Te lavo el rabito?')")
     result["tail_request_views"] = {
-        "joel": joel.execute_script("return {text:document.querySelector('[data-room-motion-copy]').textContent,washHidden:bathroomWashTail.hidden}"),
-        "princesa": princesa.execute_script("return document.querySelector('[data-room-motion-copy]').textContent"),
+        "joel": joel.execute_script("return {text:document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent,washHidden:bathroomWashTail.hidden}"),
+        "princesa": princesa.execute_script("return document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent"),
     }
     joel.execute_script("bathroomWashTail.click()")
-    result["tail_wash_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-copy]').textContent.includes('rabito lavado')")
+    result["tail_wash_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent.includes('rabito lavado')")
     joel.execute_script("bathroomShowerPrivate.click()")
     result["shower_curtain_shared"] = wait_for(joel, "bathroomShower.classList.contains('is-private-moment')") and wait_for(princesa, "bathroomShower.classList.contains('is-private-moment')")
     joel.execute_script("bathroomShowerPrivate.click()")
@@ -162,6 +166,36 @@ try:
     joel.execute_script("bathroomShower.click()")
     princesa.execute_script("bathroomShower.click()")
     result["activities_cleaned"] = wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-shower')") and wait_for(princesa, "!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-shower')")
+
+    # Comedor: accesible desde el mapa, mesa persistente y brindis disponible sÃ³lo al encontrarse.
+    result["dining_entered"] = enter(joel, "dining") and enter(princesa, "dining")
+    result["dining_on_map"] = joel.execute_script("return Boolean(document.querySelector('[data-enter-room=dining]'))")
+    if joel.execute_script("return diningTable.classList.contains('is-set')"):
+        joel.execute_script("diningTable.click()")
+        wait_for(princesa, "!diningTable.classList.contains('is-set')")
+    joel.execute_script("diningTable.click()")
+    result["dining_table_shared"] = wait_for(princesa, "diningTable.classList.contains('is-set') && diningTable.getAttribute('aria-pressed')==='true'")
+    result["toast_enabled_together"] = wait_for(joel, "!diningToast.disabled") and wait_for(princesa, "!diningToast.disabled")
+    joel.execute_script("diningToast.click()")
+    result["toast_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-message=dining] [data-room-motion-copy]').textContent.includes('brindis')")
+    joel.execute_script("diningTable.click()")
+    result["dining_table_clears"] = wait_for(princesa, "!diningTable.classList.contains('is-set')")
+    dining_screenshot = Path(tempfile.gettempdir()) / "loveapp-dining.png"
+    joel.save_screenshot(str(dining_screenshot))
+    result["dining_screenshot"] = str(dining_screenshot)
+    result["dining_layout"] = joel.execute_script(
+        "const s=document.querySelector('[data-room-surface=dining]').getBoundingClientRect(),t=diningTable.getBoundingClientRect();"
+        "return {viewport:[innerWidth,innerHeight],tableInside:t.left>=s.left&&t.right<=s.right&&t.top>=s.top&&t.bottom<=s.bottom,overflow:document.documentElement.scrollWidth>innerWidth}"
+    )
+    joel.execute_script("document.querySelector('#houseDining [data-open-house-map]').click()")
+    map_screenshot = Path(tempfile.gettempdir()) / "loveapp-house-map-four-rooms.png"
+    joel.save_screenshot(str(map_screenshot))
+    result["map_screenshot"] = str(map_screenshot)
+    result["map_layout"] = joel.execute_script(
+        "const m=document.querySelector('.house-map').getBoundingClientRect(),rooms=[...document.querySelectorAll('.house-map-room')].map(x=>x.getBoundingClientRect());"
+        "const overlap=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;"
+        "return {rooms:rooms.length,inside:rooms.every(r=>r.left>=m.left&&r.right<=m.right&&r.top>=m.top&&r.bottom<=m.bottom),overlap:rooms.some((a,i)=>rooms.slice(i+1).some(b=>overlap(a,b))),overflow:document.documentElement.scrollWidth>innerWidth}"
+    )
 
     errors = []
     for driver in (joel, princesa):

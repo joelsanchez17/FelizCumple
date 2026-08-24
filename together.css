@@ -744,9 +744,9 @@ body.together-active #presence-indicator { display: none !important; }
 .house-home-status.is-home > span { background:#65a47a; box-shadow:0 0 0 4px rgba(101,164,122,.14),0 0 10px rgba(101,164,122,.32); }
 .house-home-status.is-found > span { background:#d87991; box-shadow:0 0 0 4px rgba(216,121,145,.15),0 0 12px rgba(216,121,145,.36); }
 
-.house-map { position:relative; display:grid; grid-template-columns:minmax(0,1.12fr) 38px minmax(0,.88fr); grid-template-rows:122px 122px; gap:8px 0; padding:10px; border:7px solid rgba(143,69,101,.12); border-radius:18px; background:#f0e8e5; box-shadow:inset 0 0 0 1px rgba(143,69,101,.08),0 12px 30px rgba(78,42,58,.08); }
+.house-map { position:relative; display:grid; grid-template-columns:minmax(0,1.12fr) 38px minmax(0,.88fr); grid-template-rows:84px 84px 84px; gap:6px 0; padding:10px; border:7px solid rgba(143,69,101,.12); border-radius:18px; background:#f0e8e5; box-shadow:inset 0 0 0 1px rgba(143,69,101,.08),0 12px 30px rgba(78,42,58,.08); }
 .house-map::before { content:""; position:absolute; z-index:0; left:calc(55.6% - 19px); top:10px; bottom:10px; width:38px; border-left:1px solid rgba(143,69,101,.1); border-right:1px solid rgba(143,69,101,.1); background:#e8deda; pointer-events:none; }
-.house-map::after { content:""; position:absolute; z-index:0; left:calc(55.6% - 19px); right:10px; top:calc(50% - 19px); height:38px; border-top:1px solid rgba(143,69,101,.1); border-bottom:1px solid rgba(143,69,101,.1); background:#e8deda; pointer-events:none; }
+.house-map::after { content:""; position:absolute; z-index:0; left:calc(55.6% - 19px); right:10px; top:76px; height:38px; border-top:1px solid rgba(143,69,101,.1); border-bottom:1px solid rgba(143,69,101,.1); background:#e8deda; box-shadow:0 90px 0 #e8deda; pointer-events:none; }
 .house-map-room { position:relative; z-index:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; padding:13px; border:2px solid rgba(143,69,101,.16); border-radius:8px; color:var(--together-ink); background:rgba(255,255,255,.78); text-align:left; overflow:visible; }
 .house-map-room { cursor:pointer; transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
 .house-map-room:active { transform:scale(.98); }
@@ -754,13 +754,15 @@ body.together-active #presence-indicator { display: none !important; }
 .house-map-room > span { position:absolute; left:13px; top:12px; font-size:1.45rem; }
 .house-map-room strong { font:700 1.08rem/1 'Cormorant Garamond',serif; }
 .house-map-room small { margin-top:4px; color:var(--together-muted); font:600 .5rem/1.2 'Quicksand',sans-serif; }
-.house-map-bedroom { grid-column:1; grid-row:1 / span 2; }
+.house-map-bedroom { grid-column:1; grid-row:1 / span 3; }
 .house-map-bathroom { grid-column:3; grid-row:1; }
 .house-map-kitchen { grid-column:3; grid-row:2; }
-.house-map-bedroom::before,.house-map-bathroom::before,.house-map-kitchen::before { content:""; position:absolute; z-index:3; width:5px; height:27px; background:#e8deda; }
+.house-map-dining { grid-column:3; grid-row:3; }
+.house-map-bedroom::before,.house-map-bathroom::before,.house-map-kitchen::before,.house-map-dining::before { content:""; position:absolute; z-index:3; width:5px; height:27px; background:#e8deda; }
 .house-map-bedroom::before { right:-4px; top:47%; }
 .house-map-bathroom::before { left:-4px; bottom:15px; }
 .house-map-kitchen::before { left:-4px; top:15px; }
+.house-map-dining::before { left:-4px; top:15px; }
 .house-map-bedroom::after { content:""; position:absolute; right:14px; top:17px; width:45px; height:28px; border:4px solid #d9bdc6; border-radius:6px 6px 2px 2px; box-shadow:inset 0 9px #f0dfe5; opacity:.7; }
 .house-map-future { display:flex; align-items:center; justify-content:center; gap:6px; width:max-content; max-width:100%; margin:10px auto 0; padding:6px 11px; border:1px dashed rgba(143,69,101,.22); border-radius:999px; color:var(--together-muted); background:rgba(255,255,255,.4); font:600 .52rem/1.2 'Quicksand',sans-serif; }
 .house-map-future > span { font-size:.82rem; }
@@ -790,6 +792,17 @@ body.together-active #presence-indicator { display: none !important; }
 .kitchen-couple-picture { position:absolute; z-index:2; left:92px; top:18px; width:72px; height:58px; margin:0; padding:5px 5px 12px; border:4px solid #f5e6df; border-radius:3px; background:#fffaf6; box-shadow:0 5px 12px rgba(80,46,60,.13); transform:rotate(-2deg); }
 .kitchen-couple-picture::after { content:"nosotros"; position:absolute; left:0; right:0; bottom:2px; text-align:center; color:#8d6b76; font:700 .36rem/1 'Quicksand',sans-serif; }
 .kitchen-couple-picture img { width:100%; height:100%; display:block; border-radius:1px; object-fit:cover; object-position:center 42%; }
+
+.kitchen-coffee-machine { position:absolute; z-index:5; right:105px; top:69px; width:46px; height:69px; padding:0; border:0; color:#735463; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.kitchen-coffee-machine > span { position:absolute; left:5px; top:5px; width:36px; height:40px; border-radius:8px 8px 5px 5px; background:linear-gradient(145deg,#b69091,#805f69); box-shadow:inset 0 4px rgba(255,255,255,.2),0 4px 8px rgba(77,45,56,.14); }
+.kitchen-coffee-machine > span::before { content:""; position:absolute; left:9px; bottom:-8px; width:20px; height:12px; border:3px solid #e3c2ad; border-top:0; border-radius:0 0 8px 8px; background:#fff4e9; }
+.kitchen-coffee-machine > span::after { content:""; position:absolute; left:16px; bottom:1px; width:5px; height:7px; border-radius:0 0 4px 4px; background:#55414a; }
+.kitchen-coffee-machine > span i { position:absolute; left:17px; top:8px; width:6px; height:6px; border-radius:50%; background:#f2c778; box-shadow:0 0 0 2px rgba(255,255,255,.15); }
+.kitchen-coffee-machine > small { position:absolute; left:50%; bottom:0; width:64px; padding:3px 4px; border-radius:999px; color:#765260; background:rgba(255,250,247,.86); font:700 .36rem/1 'Quicksand',sans-serif; transform:translateX(-50%); }
+.kitchen-coffee-machine.is-brewing > span::before { animation:coffeeCupBounce .65s ease 3; }
+.kitchen-coffee-machine.is-brewing::before { content:"♨"; position:absolute; z-index:3; left:17px; top:37px; color:#9f6d66; font-size:.75rem; animation:coffeeSteam 1.15s ease 2; }
+@keyframes coffeeCupBounce { 50% { transform:translateY(2px); } }
+@keyframes coffeeSteam { 0% { opacity:0; transform:translateY(6px) scale(.7); } 45% { opacity:.8; } 100% { opacity:0; transform:translateY(-11px) scale(1.05); } }
 
 .room-potted-plant { position:absolute; z-index:4; width:76px; height:88px; padding:0; border:0; color:inherit; background:transparent; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 .room-potted-plant > .plant-visual { position:absolute; z-index:3; left:50%; top:-5px; width:52px; height:41px; transform:translateX(-50%); transition:transform .35s ease,filter .35s ease; }
@@ -872,6 +885,18 @@ body.together-active #presence-indicator { display: none !important; }
 .empty-bathroom-sink { position:absolute; z-index:2; left:17px; top:118px; width:91px; height:31px; border-radius:5px 5px 40px 40px; background:#f4e9e5; box-shadow:0 5px #c7aeb2; }
 .empty-bathroom-sink::after { content:""; position:absolute; left:39px; top:28px; width:14px; height:55px; background:#bfa5aa; }
 .empty-bathroom-sink i { position:absolute; left:39px; top:-15px; width:16px; height:17px; border:4px solid #a98c94; border-bottom:0; border-radius:9px 9px 0 0; }
+.bathroom-toothbrushes { position:absolute; z-index:6; left:71px; top:91px; width:32px; height:65px; padding:0; border:0; color:#765260; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.bathroom-toothbrushes > span { position:absolute; left:5px; top:2px; width:23px; height:43px; border-radius:3px 3px 9px 9px; background:linear-gradient(90deg,#d4a4ad,#f0c6ca); box-shadow:0 3px 6px rgba(80,46,60,.12); }
+.bathroom-toothbrushes > span::after { content:""; position:absolute; left:3px; right:3px; top:-2px; height:5px; border-radius:5px; background:#fff4f2; }
+.bathroom-toothbrushes i { position:absolute; bottom:7px; width:4px; height:42px; border-radius:4px; background:#81aec1; transform-origin:center bottom; }
+.bathroom-toothbrushes i::before { content:""; position:absolute; left:-2px; top:-5px; width:8px; height:7px; border-radius:3px; background:#dbeff2; }
+.bathroom-toothbrushes i:first-child { left:6px; transform:rotate(-7deg); }
+.bathroom-toothbrushes i:last-child { right:6px; background:#d67b98; transform:rotate(7deg); }
+.bathroom-toothbrushes > small { position:absolute; left:50%; bottom:0; width:58px; padding:3px; border-radius:999px; background:rgba(255,250,247,.88); font:700 .34rem/1 'Quicksand',sans-serif; transform:translateX(-50%); }
+.bathroom-toothbrushes.is-brushing i:first-child { animation:brushWiggle .22s ease 7; }
+.house-avatar.is-brushing-teeth { animation:avatarBrush 1.4s ease both !important; }
+@keyframes brushWiggle { 50% { transform:rotate(9deg) translateY(-3px); } }
+@keyframes avatarBrush { 0%,100% { transform:translate(-50%,-50%); } 25%,65% { transform:translate(calc(-50% - 2px),calc(-50% - 1px)) rotate(-3deg); } 45%,85% { transform:translate(calc(-50% + 2px),calc(-50% + 1px)) rotate(3deg); } }
 .room-orchid { left:112px; top:105px; }
 .room-orchid > small { z-index:6; bottom:-11px; width:132px; padding:3px 6px; border:1px solid rgba(126,69,91,.1); border-radius:999px; background:rgba(255,250,247,.84); }
 .bathroom-plant-stand { position:absolute; z-index:2; left:107px; top:157px; width:86px; height:8px; border-radius:50%; background:#b47c6a; box-shadow:0 4px #8f6259,0 7px 10px rgba(80,46,60,.12); }
@@ -900,6 +925,28 @@ body.together-active #presence-indicator { display: none !important; }
 .house-avatar.is-in-shower img { border-radius:50%; }
 .house-avatar.is-in-shower.is-under-shower-curtain { opacity:.12 !important; transform:translate(-50%,-50%) scale(.92) !important; }
 
+.dining-room { background:linear-gradient(180deg,#fff9f5 0 69%,#d6c0b7 69% 100%); }
+.dining-window { position:absolute; left:22px; top:22px; width:76px; height:72px; border:7px solid #f1dfe2; border-radius:34px 34px 5px 5px; background:linear-gradient(180deg,#cce3ed,#f5d6c7); box-shadow:0 6px 13px rgba(80,46,60,.08); }
+.dining-boxes { position:absolute; z-index:2; right:18px; top:31px; width:72px; height:58px; }
+.dining-boxes i { position:absolute; right:0; bottom:0; width:46px; height:34px; border-radius:3px; background:#c89c7d; box-shadow:inset 0 5px rgba(255,255,255,.13); }
+.dining-boxes i:last-child { right:37px; width:35px; height:26px; background:#d5ad8f; transform:rotate(-3deg); }
+.dining-table { position:absolute; z-index:4; left:50%; top:105px; width:150px; height:87px; padding:0; border:0; color:#765260; background:transparent; cursor:pointer; transform:translateX(-50%); -webkit-tap-highlight-color:transparent; }
+.dining-table::before { content:""; position:absolute; z-index:2; left:5px; right:5px; top:15px; height:45px; border-radius:50%; background:linear-gradient(180deg,#b98270,#99665e); box-shadow:0 7px #80534e,0 12px 17px rgba(75,44,51,.18); }
+.dining-table::after { content:""; position:absolute; left:68px; top:56px; width:14px; height:31px; background:#8c5d56; }
+.dining-place { position:absolute; z-index:4; top:25px; width:29px; height:20px; opacity:0; transform:scale(.7); transition:opacity .25s ease,transform .25s ease; }
+.dining-place-one { left:29px; }.dining-place-two { right:29px; }
+.dining-place i { position:absolute; inset:0; border:3px solid #f8e9df; border-radius:50%; background:#d9b6a7; }
+.dining-place b { position:absolute; right:-7px; top:0; width:3px; height:22px; border-radius:3px; background:#e8d8d1; }
+.dining-table.is-set .dining-place { opacity:1; transform:scale(1); }
+.dining-table.is-toasting .dining-place { opacity:1; animation:diningToast .7s ease 3; }
+.dining-table > small { position:absolute; z-index:5; left:50%; bottom:-17px; min-width:92px; padding:5px 8px; border-radius:999px; color:#765260; background:rgba(255,250,247,.9); font:700 .4rem/1 'Quicksand',sans-serif; transform:translateX(-50%); }
+.dining-chair { position:absolute; z-index:2; top:132px; width:37px; height:49px; border-radius:10px 10px 3px 3px; background:#b79596; box-shadow:inset 0 -9px #927174; }
+.dining-chair::after { content:""; position:absolute; left:7px; right:7px; bottom:-22px; height:25px; border-left:5px solid #8d6a6c; border-right:5px solid #8d6a6c; }
+.dining-chair-left { left:28px; transform:rotate(-3deg); }.dining-chair-right { right:28px; transform:rotate(3deg); }
+.dining-toast { position:absolute; z-index:6; left:50%; bottom:42px; min-width:130px; padding:8px 12px; border:1px solid rgba(127,66,89,.16); border-radius:999px; color:#fff; background:var(--together-wine); cursor:pointer; font:700 .45rem/1 'Quicksand',sans-serif; transform:translateX(-50%); }
+.dining-toast:disabled { color:#806d75; background:rgba(255,250,247,.82); opacity:.72; cursor:not-allowed; }
+@keyframes diningToast { 50% { transform:translateY(-7px) rotate(6deg); } }
+
 .house-shower-actions { display:flex; align-items:center; justify-content:space-between; gap:9px; margin-top:10px; padding:9px 10px 9px 13px; border:1px solid rgba(127,66,89,.13); border-radius:15px; color:var(--together-muted); background:rgba(255,250,248,.66); font:600 .5rem/1.25 'Quicksand',sans-serif; }
 .house-shower-actions[hidden] { display:none; }
 .house-shower-actions > div { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
@@ -912,9 +959,9 @@ body.together-active #presence-indicator { display: none !important; }
 @media (max-width:430px) {
   .house-entry { min-height:500px; padding:24px 14px 20px; }
   .house-entry-heading h2 { font-size:1.65rem; }
-  .house-map { grid-template-columns:minmax(0,1.08fr) 30px minmax(0,.92fr); grid-template-rows:112px 112px; padding:8px; border-width:5px; }
+  .house-map { grid-template-columns:minmax(0,1.08fr) 30px minmax(0,.92fr); grid-template-rows:78px 78px 78px; gap:5px 0; padding:8px; border-width:5px; }
   .house-map::before { left:calc(53.7% - 15px); top:8px; bottom:8px; width:30px; }
-  .house-map::after { left:calc(53.7% - 15px); right:8px; top:calc(50% - 15px); height:30px; }
+  .house-map::after { left:calc(53.7% - 15px); right:8px; top:57px; height:30px; box-shadow:0 83px 0 #e8deda; }
   .house-map-room { padding:11px; }
   .house-map-room > span { left:11px; top:10px; font-size:1.25rem; }
   .house-map-bedroom::after { right:10px; width:34px; height:23px; }
@@ -923,13 +970,17 @@ body.together-active #presence-indicator { display: none !important; }
   .house-room-tools { gap:4px; }
   .house-map-button { min-width:61px; height:35px; padding:4px 7px; }
   .empty-kitchen-counter { right:12px; width:112px; }
+  .kitchen-coffee-machine { right:96px; transform:scale(.92); transform-origin:bottom center; }
   .room-cactus { right:30px; }
   .room-orchid { left:104px; }
   .bathroom-plant-stand { left:99px; }
+  .bathroom-toothbrushes { left:67px; }
   .empty-bathroom-shower { right:12px; width:102px; }
   .house-avatar-joel.is-in-shower { left:calc(100% - 82px) !important; }
   .house-avatar-princesa.is-in-shower { left:calc(100% - 38px) !important; }
   .house-shower-actions { align-items:flex-start; flex-direction:column; }
   .house-shower-actions > div { width:100%; justify-content:flex-start; }
   .house-shower-actions button { flex:1 1 calc(50% - 6px); padding:7px 6px; }
+  .dining-table { width:138px; }
+  .dining-chair-left { left:20px; }.dining-chair-right { right:20px; }
 }

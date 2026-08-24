@@ -311,22 +311,29 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 ### Parte 4 — Cocina
 
 - Diseñar la cocina completa.
-- Base implementada: cuadrito real de ambos y cactus persistente, sincronizado y con crecimiento diario.
-- Agregar mesa, cafetera, heladera y luces.
-- Implementar café, cocinar, sentarse y notas/imanes.
+- Base implementada: cuadrito real de ambos, cactus persistente y cafetera interactiva que prepara café y se ve en vivo en ambos dispositivos.
+- Agregar heladera y luces.
+- Implementar cocinar, sentarse y notas/imanes.
 - Crear condiciones y mensajes propios de la cocina.
 
 ### Parte 5 — Baño
 
 - Diseñar el baño completo.
 - Base implementada: la ducha se toca para entrar o salir, muestra a uno o a ambos dentro y sincroniza el estado; la orquídea tiene cuidado diario compartido. Dentro de la ducha se puede levantar el jabón, ofrecer `¿Te lavo el rabito?`, aceptar la propuesta y cerrar o abrir la cortina para un momento íntimo discreto compartido en vivo.
-- Agregar ducha, espejo, cepillos, toallas y luz.
-- Implementar bañarse y cepillarse los dientes.
+- Ya hay un vaso con dos cepillos interactivos; al cepillarse, el avatar y el objeto reaccionan en ambos dispositivos.
+- Agregar toallas y luz.
 - Permitir invitar al otro a ducharse juntos; el otro debe aceptar antes de que comience la actividad.
 - Agregar salpicarse, empañar el espejo, escribir con el dedo y robarle la toalla al otro.
 - Agregar mensajes en el espejo y actividades sincronizadas.
 
-### Parte 6 — Vida de toda la casa
+### Parte 6 — Comedor
+
+- Base transitable implementada aunque la habitación siga en construcción.
+- La mesa se puede poner y levantar; su estado queda compartido y persistente.
+- Cuando ambos coinciden en el comedor pueden brindar juntos y la casa reacciona.
+- Agregar lámpara, cuadro, aparador y los recuerdos de futuras sobremesas.
+
+### Parte 7 — Vida de toda la casa
 
 - Historial de actividades importantes en el diario.
 - Objetos que interactúen entre habitaciones.

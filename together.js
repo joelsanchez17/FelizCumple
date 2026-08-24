@@ -6,7 +6,8 @@
   const ROOMS = {
     bedroom: { label:'dormitorio', title:'Dormitorio' },
     kitchen: { label:'cocina', title:'Cocina' },
-    bathroom: { label:'baño', title:'Baño' }
+    bathroom: { label:'baño', title:'Baño' },
+    dining: { label:'comedor', title:'Comedor' }
   };
   const gendered = (person, masculine, feminine) => person === 'princesa' ? feminine : masculine;
   const MOODS = {
@@ -39,6 +40,7 @@
   let windowOpen = false;
   let acOn = false;
   let heaterOn = false;
+  let diningTableSet = false;
   const lampStates = { joel: false, princesa: false };
   let activityStates = {};
   const ROOM_PLANTS = {
@@ -55,7 +57,8 @@
   const avatarStates = {
     bedroom: { joel:{ rx:0.31, ry:0.58 }, princesa:{ rx:0.69, ry:0.58 } },
     kitchen: { joel:{ rx:0.31, ry:0.64 }, princesa:{ rx:0.69, ry:0.64 } },
-    bathroom: { joel:{ rx:0.31, ry:0.65 }, princesa:{ rx:0.69, ry:0.65 } }
+    bathroom: { joel:{ rx:0.31, ry:0.65 }, princesa:{ rx:0.69, ry:0.65 } },
+    dining: { joel:{ rx:0.31, ry:0.64 }, princesa:{ rx:0.69, ry:0.64 } }
   };
   let currentRoom = null;
   let latestPresence = window.lovePresenceState || { joel:false, princesa:false, locations:{} };
@@ -75,7 +78,7 @@
   let showerPrivateActive = false;
   let pendingTailFrom = null;
   let pendingTailTimer;
-  let roomMotionTimer;
+  const roomMotionTimers = new Map();
   const seenMotionIds = new Set();
   const refreshTables = new Set();
 
@@ -165,8 +168,11 @@
     const copy = panel.querySelector('[data-room-motion-copy]');
     if (icon) icon.textContent = emoji;
     if (copy) copy.textContent = text;
-    clearTimeout(roomMotionTimer);
-    roomMotionTimer = setTimeout(() => { panel.hidden = true; }, 6200);
+    clearTimeout(roomMotionTimers.get(roomId));
+    roomMotionTimers.set(roomId, setTimeout(() => {
+      panel.hidden = true;
+      roomMotionTimers.delete(roomId);
+    }, 6200));
   }
 
   function reportError(error, fallback) {
@@ -347,6 +353,7 @@
         : 'La casa está tranquila.';
     }
     renderHouseActivities();
+    updateRoomActionAvailability();
   }
 
   function renderAvatarPositions(roomId = currentRoom) {
@@ -524,6 +531,7 @@
     }
     const roomPlant = Object.entries(ROOM_PLANTS).find(([candidate, config]) => candidate === roomId && config.device === device);
     if (roomPlant) setRoomPlantState(roomId, state, announce);
+    if (roomId === 'dining' && device === 'dining_table') setDiningTableState(state?.set ?? state, announce);
     if (roomId !== 'bedroom') return;
     if (device === 'window') setWindowState(state?.open ?? state, announce);
     if (device === 'ac') setAcState(state?.on ?? state, announce);
@@ -560,6 +568,23 @@
     }, { onConflict:'room_id,device_id' });
     const [, { error }] = await Promise.all([broadcast, fallback]);
     if (error) console.warn('No se pudo guardar el respaldo breve de la acción', error);
+  }
+
+  function setDiningTableState(isSet, announce = false) {
+    diningTableSet = Boolean(isSet);
+    const table = $('#diningTable');
+    table?.classList.toggle('is-set', diningTableSet);
+    table?.setAttribute('aria-pressed', String(diningTableSet));
+    table?.setAttribute('aria-label', diningTableSet ? 'Levantar la mesa del comedor' : 'Poner la mesa del comedor');
+    const label = $('#diningTableLabel');
+    if (label) label.textContent = diningTableSet ? 'Levantar la mesa' : 'Poner la mesa';
+    if (announce) showRoomMotionMessage('dining', diningTableSet ? 'Mesa puesta. Ahora falta decidir quién cocina 👀' : 'Mesa levantada. Milagro: nadie dejó el plato ahí.', diningTableSet ? '🍽️' : '✨');
+  }
+
+  async function toggleDiningTable() {
+    if (currentRoom !== 'dining') return;
+    setDiningTableState(!diningTableSet, true);
+    await saveHouseDevice('dining_table', { set:diningTableSet }, 'dining');
   }
 
   async function loadHouseDevices() {
@@ -899,6 +924,61 @@
     await sendHouseMotion('bathroom', motion);
   }
 
+  function bothPeopleAreHere(roomId = currentRoom) {
+    if (!roomId || roomId !== currentRoom) return false;
+    const otherLocation = latestPresence.locations?.[target] || partnerPresenceGrace;
+    return Boolean(otherLocation?.area === 'house' && otherLocation?.room === roomId);
+  }
+
+  function updateRoomActionAvailability() {
+    const toastButton = $('#diningToast');
+    if (toastButton) {
+      const inDining = currentRoom === 'dining';
+      const together = inDining && bothPeopleAreHere('dining');
+      toastButton.disabled = !inDining;
+      toastButton.textContent = together ? 'Brindar juntos 🥂' : 'Dejar un brindis 🥂';
+    }
+  }
+
+  function restartObjectAnimation(element, className, duration = 1800) {
+    if (!element) return;
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+    setTimeout(() => element.classList.remove(className), duration);
+  }
+
+  function animateRoomObjectMotion(person, motion, roomId = currentRoom) {
+    if (roomId !== currentRoom || !motion?.kind) return;
+    if (motion.kind === 'coffee' && roomId === 'kitchen') {
+      restartObjectAnimation($('#kitchenCoffee'), 'is-brewing', 2400);
+      showRoomMotionMessage('kitchen', `${PEOPLE[person]} preparó cafecito. La casa ya huele a mañana juntos.`, '☕');
+      return;
+    }
+    if (motion.kind === 'brush' && roomId === 'bathroom') {
+      restartObjectAnimation($('#bathroomToothbrush'), 'is-brushing', 1900);
+      restartObjectAnimation($(`[data-avatar-for="${person}"]`), 'is-brushing-teeth', 1500);
+      showRoomMotionMessage('bathroom', `${PEOPLE[person]} se está cepillando. Dos minutitos, sin hacer trampa 🪥`, '🪥');
+      return;
+    }
+    if (motion.kind === 'toast' && roomId === 'dining') {
+      restartObjectAnimation($('#diningTable'), 'is-toasting', 2100);
+      const message = motion.together
+        ? 'Un brindis por esta casita y por todo lo que falta vivir juntos.'
+        : `${PEOPLE[person]} dejó una copa levantada. El brindis queda esperando al otro.`;
+      showRoomMotionMessage('dining', message, '🥂');
+    }
+  }
+
+  async function sendRoomObjectMotion(kind, roomId = currentRoom) {
+    if (roomId !== currentRoom || hasFixedActivity(identity)) return;
+    const motion = { type:'room_object', kind, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
+    if (kind === 'toast') motion.together = bothPeopleAreHere('dining');
+    animateRoomObjectMotion(identity, motion, roomId);
+    navigator.vibrate?.([10, 25, 10]);
+    await sendHouseMotion(roomId, motion);
+  }
+
   async function toggleShower() {
     if (currentRoom !== 'bathroom') return;
     if (isShowering(identity)) return clearActivity(identity);
@@ -1055,6 +1135,7 @@
     }
     if (motion.type === 'bed_moment') return animateBedMoment(roomId, motion);
     if (motion.type === 'shower') return animateShowerMotion(person, motion, roomId);
+    if (motion.type === 'room_object') return animateRoomObjectMotion(person, motion, roomId);
     if (hasFixedActivity(person)) return;
     if (motion.type === 'together') return animateTogetherMotion(person, motion, roomId);
     const avatar = $(`[data-avatar-for="${person}"]`);
@@ -1639,6 +1720,10 @@
       const button = event.target.closest('[data-shower-action]');
       if (button && !button.disabled) sendShowerMotion(button.dataset.showerAction);
     });
+    $('#kitchenCoffee')?.addEventListener('click', () => sendRoomObjectMotion('coffee', 'kitchen'));
+    $('#bathroomToothbrush')?.addEventListener('click', () => sendRoomObjectMotion('brush', 'bathroom'));
+    $('#diningTable')?.addEventListener('click', toggleDiningTable);
+    $('#diningToast')?.addEventListener('click', () => sendRoomObjectMotion('toast', 'dining'));
     $('#houseAvatarActionsClose')?.addEventListener('click', closeAvatarActions);
     $('#houseSelfActions')?.addEventListener('click', event => {
       const button = event.target.closest('[data-house-motion]');
