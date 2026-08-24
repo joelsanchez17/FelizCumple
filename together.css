@@ -837,6 +837,24 @@ body.together-active #presence-indicator { display: none !important; }
 .room-cactus.plant-growth-4 .plant-leaf-2 { height:23px; transform:scale(1); }
 .room-cactus .plant-bloom { bottom:34px; }
 .room-cactus.plant-stage-wilted .plant-stem { height:27px; transform:translateX(-50%) rotate(5deg); }
+
+/* Sprites botánicos: cada especie y cada estado conserva su propia ilustración. */
+.plant-visual { display:block; background-repeat:no-repeat; background-size:400% 200%; filter:drop-shadow(0 2px 2px rgba(52,70,43,.16)); transform-origin:center bottom; transition:transform .3s ease,filter .3s ease; }
+.house-plant > .plant-visual { bottom:13px; width:48px; height:48px; }
+.room-potted-plant > .plant-visual { top:auto; bottom:52px; width:58px; height:58px; }
+.house-plant .plant-visual { background-image:url('./assets/plants/bedroom-calathea-states.webp'); }
+.room-orchid .plant-visual { background-image:url('./assets/plants/bathroom-orchid-states.webp'); }
+.room-cactus .plant-visual { background-image:url('./assets/plants/kitchen-cactus-states.webp'); }
+.room-cactus > .plant-visual { bottom:54px; width:48px; height:48px; }
+.plant-growth-0 > .plant-visual { background-position:0 0; }
+.plant-growth-1 > .plant-visual { background-position:33.333% 0; }
+.plant-growth-2 > .plant-visual { background-position:66.666% 0; }
+.plant-growth-3 > .plant-visual { background-position:100% 0; }
+.plant-growth-4 > .plant-visual { background-position:0 100%; }
+.plant-stage-thirsty > .plant-visual { background-position:33.333% 100%; filter:drop-shadow(0 2px 2px rgba(52,70,43,.12)); transform:translateX(-50%); }
+.plant-stage-wilted > .plant-visual { background-position:66.666% 100%; filter:drop-shadow(0 2px 2px rgba(52,70,43,.1)); transform:translateX(-50%); }
+.plant-growth-3.is-watering > .plant-visual,.plant-growth-4.is-watering > .plant-visual { background-position:100% 100%; }
+.house-plant.is-watered > .plant-visual,.room-potted-plant.is-watered > .plant-visual { transform:translateX(-50%) scale(1.025); }
 .room-potted-plant.is-watering::before { content:"💧"; position:absolute; z-index:6; right:4px; top:-2px; animation:waterDrop .85s ease both; }
 .room-potted-plant:focus-visible { outline:3px solid var(--together-wine); outline-offset:2px; border-radius:14px; }
 .room-cactus { right:41px; top:22px; }
