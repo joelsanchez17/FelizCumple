@@ -573,15 +573,11 @@ body.together-active #presence-indicator { display: none !important; }
 .house-table::before { content:""; position:absolute; z-index:2; left:0; top:31px; width:60px; height:11px; border-radius:50%; background:linear-gradient(180deg,#c18d76,#9d6d5f); box-shadow:0 3px 0 #80594f,0 6px 10px rgba(71,44,51,.16); }
 .house-table::after { content:""; position:absolute; z-index:1; left:15px; top:38px; width:30px; height:37px; background:linear-gradient(90deg,#8b6257,#ad7968 48%,#80594f); clip-path:polygon(40% 0,60% 0,60% 74%,94% 88%,94% 100%,6% 100%,6% 88%,40% 74%); }
 .house-plant { position:absolute; z-index:3; left:50%; bottom:45px; width:44px; height:52px; padding:0; border:0; color:inherit; background:transparent; cursor:pointer; transform:translateX(-50%); }
-.house-plant > span { position:absolute; z-index:2; left:50%; bottom:13px; font-size:1.65rem; filter:drop-shadow(0 2px 1px rgba(39,89,47,.16)); transform:translateX(-50%); transition:transform .3s ease; }
+.house-plant > .plant-visual { position:absolute; z-index:2; left:50%; bottom:15px; width:42px; height:43px; transform:translateX(-50%); }
 .house-plant > i { position:absolute; z-index:3; left:9px; right:9px; bottom:0; height:19px; border-radius:2px 2px 7px 7px; background:linear-gradient(90deg,#a95e45,#d88967 48%,#a85f48); box-shadow:inset 4px 0 rgba(255,255,255,.1),0 3px 5px rgba(73,43,45,.18); clip-path:polygon(7% 0,93% 0,79% 100%,21% 100%); }
 .house-plant > i::before { content:""; position:absolute; left:-2px; right:-2px; top:0; height:6px; border-radius:4px; background:#d48767; box-shadow:inset 0 -2px #a95e45; }
 .house-plant > i::after { content:""; position:absolute; left:7px; top:7px; width:3px; height:7px; border-radius:3px; background:rgba(255,224,204,.25); }
-.house-plant.is-watered > span { transform:translateX(-50%) scale(1.08); }
-.house-plant.plant-stage-grown > span { font-size:1.9rem; }
-.house-plant.plant-stage-flower > span { bottom:8px; font-size:2rem; filter:drop-shadow(0 3px 3px rgba(159,65,98,.25)); }
-.house-plant.plant-stage-thirsty > span { filter:sepia(.7) saturate(.7); transform:translateX(-50%) rotate(9deg) scale(.94); }
-.house-plant.plant-stage-wilted > span { bottom:9px; filter:grayscale(.25) sepia(.55) saturate(.72); transform:translateX(-50%) rotate(15deg) scale(.88); }
+.house-plant.is-watered > .plant-visual { transform:translateX(-50%) scale(1.04); }
 .house-plant.is-watering::before { content:"💧"; position:absolute; z-index:3; right:-2px; top:2px; animation:waterDrop .85s ease both; }
 .house-table-note { position:absolute; z-index:5; right:-8px; top:21px; width:27px; height:21px; display:grid; place-items:center; padding:0; border:1px solid rgba(124,71,92,.18); border-radius:3px 3px 6px 3px; color:inherit; background:#fff7dc; box-shadow:0 4px 8px rgba(72,40,53,.16); cursor:pointer; transform:rotate(5deg); animation:tableNoteArrives .5s cubic-bezier(.2,.8,.2,1) both; }
 .house-table-note[hidden] { display:none; }
@@ -777,7 +773,7 @@ body.together-active #presence-indicator { display: none !important; }
 .love-house[data-time="night"] .house-placeholder-interior > p { color:#e8dce1; }
 
 .empty-kitchen-window { position:absolute; left:18px; top:20px; width:58px; height:66px; border:6px solid #f7ebe6; border-radius:28px 28px 4px 4px; background:linear-gradient(180deg,#cde1ec,#f2d5c7); box-shadow:0 6px 14px rgba(80,46,60,.08); }
-.empty-kitchen-counter { position:absolute; z-index:2; right:17px; top:58px; width:132px; height:88px; border-radius:5px 5px 10px 10px; background:#d4b5a9; box-shadow:inset 0 8px #9e7070,0 8px 15px rgba(80,46,60,.09); }
+.empty-kitchen-counter { position:absolute; z-index:2; right:17px; top:76px; width:132px; height:70px; border-radius:5px 5px 10px 10px; background:#d4b5a9; box-shadow:inset 0 8px #9e7070,0 8px 15px rgba(80,46,60,.09); }
 .empty-kitchen-counter i { position:absolute; top:23px; bottom:8px; width:1px; background:rgba(102,68,75,.16); }
 .empty-kitchen-counter i:nth-child(1) { left:33%; }.empty-kitchen-counter i:nth-child(2) { left:66%; }.empty-kitchen-counter i:nth-child(3) { display:none; }
 .empty-kitchen-table { position:absolute; z-index:2; left:35%; top:136px; width:83px; height:12px; border-radius:50%; background:#b67e6c; box-shadow:0 5px #8e6258; }
@@ -787,19 +783,63 @@ body.together-active #presence-indicator { display: none !important; }
 .kitchen-couple-picture img { width:100%; height:100%; display:block; border-radius:1px; object-fit:cover; object-position:center 42%; }
 
 .room-potted-plant { position:absolute; z-index:4; width:76px; height:88px; padding:0; border:0; color:inherit; background:transparent; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
-.room-potted-plant > span { position:absolute; z-index:3; left:50%; top:0; font-size:2rem; line-height:1; filter:drop-shadow(0 2px 2px rgba(49,91,52,.14)); transform:translateX(-50%); transition:transform .3s ease,filter .3s ease; }
+.room-potted-plant > .plant-visual { position:absolute; z-index:3; left:50%; top:-5px; width:52px; height:41px; transform:translateX(-50%); transition:transform .35s ease,filter .35s ease; }
 .room-potted-plant > i { position:absolute; z-index:4; left:25px; bottom:34px; width:27px; height:22px; border-radius:2px 2px 7px 7px; background:linear-gradient(90deg,#a95e45,#d88967 48%,#a85f48); clip-path:polygon(7% 0,93% 0,79% 100%,21% 100%); box-shadow:0 3px 5px rgba(73,43,45,.18); }
 .room-potted-plant > small { position:absolute; left:50%; bottom:0; width:100px; color:#826d76; font:700 .38rem/1.15 'Quicksand',sans-serif; transform:translateX(-50%); }
-.room-potted-plant.is-watered > span { transform:translateX(-50%) scale(1.08); }
-.room-potted-plant.plant-stage-grown > span,.room-potted-plant.plant-stage-flower > span { font-size:2.18rem; }
-.room-potted-plant.plant-stage-flower > span { filter:drop-shadow(0 3px 3px rgba(159,65,98,.28)); }
-.room-orchid.plant-stage-flower > span::after { content:""; position:absolute; z-index:-1; left:50%; top:72%; width:4px; height:14px; border-radius:4px; background:#62a34f; transform:translateX(-50%); }
-.room-cactus.plant-stage-flower::before { content:"🌸"; position:absolute; z-index:6; left:26px; top:-8px; font-size:.9rem; filter:drop-shadow(0 2px 2px rgba(159,65,98,.22)); }
-.room-potted-plant.plant-stage-thirsty > span { filter:sepia(.65) saturate(.72); transform:translateX(-50%) rotate(8deg) scale(.94); }
-.room-potted-plant.plant-stage-wilted > span { top:13px; filter:grayscale(.25) sepia(.55) saturate(.72); transform:translateX(-50%) rotate(15deg) scale(.86); }
+.room-potted-plant.is-watered > .plant-visual { transform:translateX(-50%) scale(1.04); }
+
+/* Plantas dibujadas por partes: crecen hoja por hoja en vez de cambiar de emoji. */
+.plant-visual { --plant-green:#65aa50; --plant-light:#93cf61; display:block; filter:drop-shadow(0 2px 2px rgba(45,87,42,.14)); transform-origin:center bottom; transition:transform .4s ease,filter .4s ease; }
+.plant-visual > b { position:absolute; display:block; box-sizing:border-box; }
+.plant-stem { left:50%; bottom:0; width:3px; height:19px; border-radius:5px 5px 0 0; background:linear-gradient(90deg,#4f8d43,var(--plant-green)); transform:translateX(-50%); transform-origin:center bottom; transition:height .55s cubic-bezier(.2,.8,.2,1),transform .45s ease,background .35s ease; }
+.plant-leaf { left:calc(50% + 1px); bottom:10px; width:12px; height:7px; border-radius:90% 12% 90% 12%; background:linear-gradient(145deg,var(--plant-light),var(--plant-green)); box-shadow:inset 2px 1px rgba(255,255,255,.2); opacity:0; transform-origin:left bottom; transition:opacity .4s ease,transform .55s cubic-bezier(.2,.8,.2,1),background .35s ease; }
+.plant-leaf-1 { opacity:1; transform:rotate(-29deg) scale(.74); }
+.plant-leaf-2 { left:auto; right:calc(50% + 1px); bottom:15px; border-radius:12% 90% 12% 90%; opacity:1; transform-origin:right bottom; transform:rotate(29deg) scale(.7); }
+.plant-leaf-3 { bottom:20px; transform:rotate(-27deg) scale(.84); }
+.plant-leaf-4 { left:auto; right:calc(50% + 1px); bottom:25px; border-radius:12% 90% 12% 90%; transform-origin:right bottom; transform:rotate(27deg) scale(.8); }
+.plant-leaf-5 { bottom:31px; transform:rotate(-54deg) scale(.72); }
+.plant-bloom { z-index:3; left:50%; bottom:34px; width:8px; height:8px; border:2px solid #f3a9bd; border-radius:50%; background:#f8d1da; box-shadow:0 -5px 0 -1px #dd7798,5px 0 0 -1px #e68aa6,0 5px 0 -1px #d96c90,-5px 0 0 -1px #ed9bb2; opacity:0; transform:translateX(-50%) scale(.3); transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.2,1); }
+.plant-growth-0 .plant-stem { height:15px; }
+.plant-growth-0 .plant-leaf-1 { transform:rotate(-27deg) scale(.58); }
+.plant-growth-0 .plant-leaf-2 { opacity:.42; transform:rotate(27deg) scale(.48); }
+.plant-growth-1 .plant-stem { height:23px; }
+.plant-growth-1 .plant-leaf-3 { opacity:1; }
+.plant-growth-2 .plant-stem { height:28px; }
+.plant-growth-2 .plant-leaf-3,.plant-growth-2 .plant-leaf-4 { opacity:1; }
+.plant-growth-3 .plant-stem { height:34px; }
+.plant-growth-3 .plant-leaf-3,.plant-growth-3 .plant-leaf-4,.plant-growth-3 .plant-leaf-5 { opacity:1; }
+.plant-growth-4 .plant-stem { height:37px; }
+.plant-growth-4 .plant-leaf-3,.plant-growth-4 .plant-leaf-4,.plant-growth-4 .plant-leaf-5 { opacity:1; }
+.plant-stage-flower .plant-bloom { opacity:1; transform:translateX(-50%) scale(1); }
+.plant-stage-thirsty .plant-visual { --plant-green:#8b9452; --plant-light:#b7b76b; transform:translateX(-50%) rotate(7deg) scale(.94); filter:saturate(.7); }
+.plant-stage-wilted .plant-visual { --plant-green:#8b7651; --plant-light:#b39560; transform:translateX(-50%) translateY(8px) rotate(14deg) scale(.88); filter:saturate(.58); }
+.plant-stage-wilted .plant-stem { height:26px; transform:translateX(-50%) rotate(10deg); }
+.plant-stage-wilted .plant-leaf { opacity:.78; transform:translateX(-1px) rotate(28deg) scale(.72); }
+
+/* El cactus conserva su silueta propia y también agrega brazos y flor al crecer. */
+.room-cactus .plant-stem { width:9px; height:15px; border-radius:7px 7px 3px 3px; background:linear-gradient(90deg,#4b9a5d,#79c96f 45%,#459556); box-shadow:inset 2px 0 rgba(255,255,255,.16); transition:width .5s ease,height .55s cubic-bezier(.2,.8,.2,1); }
+.room-cactus .plant-leaf { width:17px; height:18px; bottom:5px; border:0 solid #5daf61; border-bottom-width:6px; background:transparent; box-shadow:none; }
+.room-cactus .plant-leaf-1 { left:10px; border-left-width:5px; border-radius:0 0 0 8px; opacity:0; transform:scale(.45); transform-origin:right bottom; }
+.room-cactus .plant-leaf-1::after,.room-cactus .plant-leaf-2::after { content:""; position:absolute; top:-7px; width:6px; height:13px; border-radius:6px 6px 2px 2px; background:linear-gradient(90deg,#4b9a5d,#76c66d); }
+.room-cactus .plant-leaf-1::after { left:-6px; }
+.room-cactus .plant-leaf-2 { left:auto; right:10px; bottom:9px; border-right-width:5px; border-radius:0 0 8px 0; opacity:0; transform:scale(.45); transform-origin:left bottom; }
+.room-cactus .plant-leaf-2::after { right:-6px; }
+.room-cactus .plant-leaf-3,.room-cactus .plant-leaf-4,.room-cactus .plant-leaf-5 { display:none; }
+.room-cactus.plant-growth-1 .plant-stem { width:10px; height:20px; }
+.room-cactus.plant-growth-1 .plant-leaf-1,.room-cactus.plant-growth-2 .plant-leaf-1,.room-cactus.plant-growth-3 .plant-leaf-1,.room-cactus.plant-growth-4 .plant-leaf-1 { opacity:1; transform:scale(.68); }
+.room-cactus.plant-growth-2 .plant-stem { width:11px; height:25px; }
+.room-cactus.plant-growth-2 .plant-leaf-1 { height:19px; transform:scale(.86); }
+.room-cactus.plant-growth-3 .plant-stem { width:12px; height:30px; }
+.room-cactus.plant-growth-3 .plant-leaf-1 { height:21px; transform:scale(1); }
+.room-cactus.plant-growth-3 .plant-leaf-2,.room-cactus.plant-growth-4 .plant-leaf-2 { opacity:1; transform:scale(.72); }
+.room-cactus.plant-growth-4 .plant-stem { width:13px; height:34px; }
+.room-cactus.plant-growth-4 .plant-leaf-1 { height:22px; transform:scale(1); }
+.room-cactus.plant-growth-4 .plant-leaf-2 { height:23px; transform:scale(1); }
+.room-cactus .plant-bloom { bottom:34px; }
+.room-cactus.plant-stage-wilted .plant-stem { height:27px; transform:translateX(-50%) rotate(5deg); }
 .room-potted-plant.is-watering::before { content:"💧"; position:absolute; z-index:6; right:4px; top:-2px; animation:waterDrop .85s ease both; }
 .room-potted-plant:focus-visible { outline:3px solid var(--together-wine); outline-offset:2px; border-radius:14px; }
-.room-cactus { right:41px; top:4px; }
+.room-cactus { right:41px; top:22px; }
 
 .empty-bathroom-mirror { position:absolute; left:24px; top:22px; width:75px; height:85px; border:7px solid #ead9dc; border-radius:40px 40px 8px 8px; background:linear-gradient(145deg,#d9edf2,#f7e9ed); box-shadow:0 7px 16px rgba(80,46,60,.08); }
 .empty-bathroom-sink { position:absolute; z-index:2; left:17px; top:118px; width:91px; height:31px; border-radius:5px 5px 40px 40px; background:#f4e9e5; box-shadow:0 5px #c7aeb2; }

@@ -94,7 +94,8 @@ try:
     result["orchid_synced"] = wait_for(joel, "bathroomPlant.classList.contains('is-watered') && bathroomPlantStatus.textContent.includes('Princesa')")
     joel.execute_script(
         "['sprout','grown','thirsty','wilted'].forEach(x=>bathroomPlant.classList.remove('plant-stage-'+x));"
-        "bathroomPlant.classList.add('plant-stage-flower'); bathroomPlant.querySelector('span').textContent='🌸'; bathroomPlantStatus.textContent='¡A la orquídea le salió una flor!'"
+        "[0,1,2,3].forEach(x=>bathroomPlant.classList.remove('plant-growth-'+x));"
+        "bathroomPlant.classList.add('plant-stage-flower','plant-growth-4'); bathroomPlantStatus.textContent='¡A la orquídea le salió una flor!'"
     )
     flower_screenshot = Path(tempfile.gettempdir()) / "loveapp-orchid-flower.png"
     joel.save_screenshot(str(flower_screenshot))

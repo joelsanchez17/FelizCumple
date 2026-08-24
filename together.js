@@ -461,20 +461,13 @@
     plantStates[roomId] = next;
     const plant = $(config.element);
     const status = $(config.status);
-    const sprout = plant?.querySelector('span');
     const reference = next.watered_at || next.reference_at;
     const dryHours = reference ? (Date.now() - new Date(reference).getTime()) / 3600000 : 0;
     const stage = dryHours >= 72 ? 'wilted' : dryHours >= 36 ? 'thirsty' : next.growth >= 4 ? 'flower' : next.growth >= 2 ? 'grown' : 'sprout';
     const wateredToday = next.watered_day === localDayKey();
     ['sprout', 'grown', 'flower', 'thirsty', 'wilted'].forEach(name => plant?.classList.toggle(`plant-stage-${name}`, name === stage));
+    [0, 1, 2, 3, 4].forEach(level => plant?.classList.toggle(`plant-growth-${level}`, level === next.growth));
     plant?.classList.toggle('is-watered', wateredToday);
-    if (sprout) {
-      if (stage === 'wilted') sprout.textContent = '🥀';
-      else if (stage === 'thirsty') sprout.textContent = roomId === 'kitchen' ? '🌵' : '🍂';
-      else if (stage === 'flower') sprout.textContent = roomId === 'kitchen' ? '🌵' : roomId === 'bathroom' ? '🌸' : '🌷';
-      else if (stage === 'grown') sprout.textContent = roomId === 'kitchen' ? '🌵' : '🌿';
-      else sprout.textContent = roomId === 'kitchen' ? '🌵' : '🌱';
-    }
     if (status) {
       if (stage === 'flower') status.textContent = `¡A ${config.article} ${config.name} le salió una flor!`;
       else if (wateredToday) status.textContent = `${PEOPLE[next.watered_by] || 'Alguien'} ${config.article} regó hoy`;
