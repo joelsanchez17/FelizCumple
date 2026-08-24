@@ -41,6 +41,9 @@
   let acOn = false;
   let heaterOn = false;
   let diningTableSet = false;
+  let diningBreakfastDay = null;
+  let diningBreakfastBy = null;
+  let diningTvOn = false;
   const lampStates = { joel: false, princesa: false };
   let activityStates = {};
   const ROOM_PLANTS = {
@@ -531,7 +534,8 @@
     }
     const roomPlant = Object.entries(ROOM_PLANTS).find(([candidate, config]) => candidate === roomId && config.device === device);
     if (roomPlant) setRoomPlantState(roomId, state, announce);
-    if (roomId === 'dining' && device === 'dining_table') setDiningTableState(state?.set ?? state, announce);
+    if (roomId === 'dining' && device === 'dining_table') setDiningTableState(state, announce);
+    if (roomId === 'dining' && device === 'dining_tv') setDiningTvState(state?.on ?? state, announce);
     if (roomId !== 'bedroom') return;
     if (device === 'window') setWindowState(state?.open ?? state, announce);
     if (device === 'ac') setAcState(state?.on ?? state, announce);
@@ -570,21 +574,64 @@
     if (error) console.warn('No se pudo guardar el respaldo breve de la acción', error);
   }
 
-  function setDiningTableState(isSet, announce = false) {
-    diningTableSet = Boolean(isSet);
+  function setDiningTableState(state, announce = false) {
+    const normalized = typeof state === 'object' && state !== null ? state : { set:Boolean(state) };
+    diningTableSet = Boolean(normalized.set);
+    diningBreakfastDay = normalized.breakfast_day || null;
+    diningBreakfastBy = normalized.breakfast_by || null;
+    const breakfastToday = diningBreakfastDay === localDayKey();
     const table = $('#diningTable');
     table?.classList.toggle('is-set', diningTableSet);
+    table?.classList.toggle('is-breakfast', breakfastToday && diningTableSet);
     table?.setAttribute('aria-pressed', String(diningTableSet));
-    table?.setAttribute('aria-label', diningTableSet ? 'Levantar la mesa del comedor' : 'Poner la mesa del comedor');
+    const morning = new Date().getHours() < 12;
+    table?.setAttribute('aria-label', diningTableSet
+      ? 'Levantar la mesa del comedor'
+      : morning && !breakfastToday ? 'Preparar el desayuno de hoy' : 'Poner la mesa del comedor');
     const label = $('#diningTableLabel');
-    if (label) label.textContent = diningTableSet ? 'Levantar la mesa' : 'Poner la mesa';
-    if (announce) showRoomMotionMessage('dining', diningTableSet ? 'Mesa puesta. Ahora falta decidir quién cocina 👀' : 'Mesa levantada. Milagro: nadie dejó el plato ahí.', diningTableSet ? '🍽️' : '✨');
+    if (label) label.textContent = diningTableSet
+      ? breakfastToday ? 'Desayuno listo' : 'Levantar la mesa'
+      : morning && !breakfastToday ? 'Preparar desayuno' : breakfastToday ? `Desayuno por ${PEOPLE[diningBreakfastBy] || 'los dos'} ✓` : 'Poner la mesa';
+    if (announce) showRoomMotionMessage('dining', diningTableSet
+      ? breakfastToday
+        ? `${PEOPLE[diningBreakfastBy] || 'Alguien'} preparó el desayuno. Ahora falta sentarnos juntos.`
+        : 'Mesa puesta. Ahora falta decidir quién cocina 👀'
+      : 'Mesa levantada. Milagro: nadie dejó el plato ahí.', breakfastToday && diningTableSet ? '☕' : diningTableSet ? '🍽️' : '✨');
   }
 
   async function toggleDiningTable() {
     if (currentRoom !== 'dining') return;
-    setDiningTableState(!diningTableSet, true);
-    await saveHouseDevice('dining_table', { set:diningTableSet }, 'dining');
+    const breakfastToday = diningBreakfastDay === localDayKey();
+    const prepareBreakfast = new Date().getHours() < 12 && !breakfastToday;
+    const state = {
+      set:prepareBreakfast ? true : !diningTableSet,
+      breakfast_day:prepareBreakfast ? localDayKey() : diningBreakfastDay,
+      breakfast_by:prepareBreakfast ? identity : diningBreakfastBy
+    };
+    setDiningTableState(state, true);
+    await saveHouseDevice('dining_table', state, 'dining');
+  }
+
+  function setDiningTvState(isOn, announce = false) {
+    diningTvOn = Boolean(isOn);
+    const tv = $('#diningTv');
+    const sofa = $('#diningSofa');
+    tv?.classList.toggle('is-on', diningTvOn);
+    tv?.setAttribute('aria-label', diningTvOn ? 'Televisión encendida' : 'Televisión apagada');
+    sofa?.classList.toggle('is-watching', diningTvOn);
+    sofa?.setAttribute('aria-pressed', String(diningTvOn));
+    sofa?.setAttribute('aria-label', diningTvOn ? 'Apagar la televisión' : 'Encender la televisión');
+    const label = $('#diningSofaLabel');
+    if (label) label.textContent = diningTvOn ? 'Apagar la tele' : 'Ver televisión';
+    if (announce) showRoomMotionMessage('dining', diningTvOn
+      ? 'Tele prendida. Este sillón tiene lugar para dos y cero distancia.'
+      : 'Tele apagada. Ahora sí, a conversar o hacer cariñitos.', diningTvOn ? '📺' : '♡');
+  }
+
+  async function toggleDiningTv() {
+    if (currentRoom !== 'dining') return;
+    setDiningTvState(!diningTvOn, true);
+    await saveHouseDevice('dining_tv', { on:diningTvOn }, 'dining');
   }
 
   async function loadHouseDevices() {
@@ -1723,6 +1770,7 @@
     $('#kitchenCoffee')?.addEventListener('click', () => sendRoomObjectMotion('coffee', 'kitchen'));
     $('#bathroomToothbrush')?.addEventListener('click', () => sendRoomObjectMotion('brush', 'bathroom'));
     $('#diningTable')?.addEventListener('click', toggleDiningTable);
+    $('#diningSofa')?.addEventListener('click', toggleDiningTv);
     $('#diningToast')?.addEventListener('click', () => sendRoomObjectMotion('toast', 'dining'));
     $('#houseAvatarActionsClose')?.addEventListener('click', closeAvatarActions);
     $('#houseSelfActions')?.addEventListener('click', event => {

@@ -331,6 +331,9 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Base transitable implementada aunque la habitación siga en construcción.
 - La mesa se puede poner y levantar; su estado queda compartido y persistente.
 - Cuando ambos coinciden en el comedor pueden brindar juntos y la casa reacciona.
+- La habitación ahora tiene una ventana ancha con cortinas, una mesa lateral y un sillón doble frente a la televisión.
+- Tocar el sillón enciende o apaga la televisión y ambos ven el mismo estado.
+- Cada mañana la mesa propone preparar el desayuno; guarda quién lo preparó durante ese día.
 - Agregar lámpara, cuadro, aparador y los recuerdos de futuras sobremesas.
 
 ### Parte 7 — Vida de toda la casa

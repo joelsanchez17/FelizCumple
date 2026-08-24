@@ -113,6 +113,10 @@ try:
     result["orchid_synced"] = wait_for(joel, "bathroomPlant.classList.contains('is-watered') && bathroomPlantStatus.textContent.includes('Princesa')")
     princesa.execute_script("bathroomToothbrush.click()")
     result["toothbrush_shared"] = wait_for(joel, "document.querySelector('[data-room-motion-message=bathroom] [data-room-motion-copy]').textContent.includes('cepillando')")
+    result["bathroom_object_proportions"] = joel.execute_script(
+        "const b=bathroomToothbrush.getBoundingClientRect(),s=document.querySelector('.empty-bathroom-sink').getBoundingClientRect(),m=document.querySelector('.empty-bathroom-mirror').getBoundingClientRect();"
+        "return {brush:[b.width,b.height],brushCompact:b.width<35&&b.height<65,brushAtSink:b.left>=s.left&&b.right<=s.right+4&&b.top<s.bottom,mirrorRound:Math.abs(m.width-m.height)<2&&parseFloat(getComputedStyle(document.querySelector('.empty-bathroom-mirror')).borderRadius)>25}"
+    )
     joel.execute_script(
         "['sprout','grown','thirsty','wilted'].forEach(x=>bathroomPlant.classList.remove('plant-stage-'+x));"
         "[0,1,2,3].forEach(x=>bathroomPlant.classList.remove('plant-growth-'+x));"
@@ -175,18 +179,34 @@ try:
         wait_for(princesa, "!diningTable.classList.contains('is-set')")
     joel.execute_script("diningTable.click()")
     result["dining_table_shared"] = wait_for(princesa, "diningTable.classList.contains('is-set') && diningTable.getAttribute('aria-pressed')==='true'")
+    if joel.execute_script("return diningSofa.classList.contains('is-watching')"):
+        joel.execute_script("diningSofa.click()")
+        wait_for(princesa, "!diningTv.classList.contains('is-on')")
+    joel.execute_script("diningSofa.click()")
+    result["dining_tv_shared"] = wait_for(princesa, "diningTv.classList.contains('is-on') && diningSofa.getAttribute('aria-pressed')==='true'")
     result["toast_enabled_together"] = wait_for(joel, "!diningToast.disabled") and wait_for(princesa, "!diningToast.disabled")
     joel.execute_script("diningToast.click()")
     result["toast_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-message=dining] [data-room-motion-copy]').textContent.includes('brindis')")
     joel.execute_script("diningTable.click()")
     result["dining_table_clears"] = wait_for(princesa, "!diningTable.classList.contains('is-set')")
+    # Fuerza una mañana local sólo durante esta interacción para validar el ritual diario.
+    for driver in (joel, princesa):
+        driver.execute_script(
+            "window.__RealDate=window.Date;const R=window.__RealDate,base=new R();"
+            "window.Date=class extends R{constructor(...a){if(a.length){super(...a)}else{super(base.getFullYear(),base.getMonth(),base.getDate(),9,0,0)}}static now(){return new R(base.getFullYear(),base.getMonth(),base.getDate(),9,0,0).getTime()}static parse(v){return R.parse(v)}static UTC(...a){return R.UTC(...a)}}"
+        )
+    joel.execute_script("diningTable.click()")
+    result["daily_breakfast_shared"] = wait_for(princesa, "diningTable.classList.contains('is-breakfast') && diningTableLabel.textContent.includes('Desayuno')")
     dining_screenshot = Path(tempfile.gettempdir()) / "loveapp-dining.png"
     joel.save_screenshot(str(dining_screenshot))
     result["dining_screenshot"] = str(dining_screenshot)
     result["dining_layout"] = joel.execute_script(
-        "const s=document.querySelector('[data-room-surface=dining]').getBoundingClientRect(),t=diningTable.getBoundingClientRect();"
-        "return {viewport:[innerWidth,innerHeight],tableInside:t.left>=s.left&&t.right<=s.right&&t.top>=s.top&&t.bottom<=s.bottom,overflow:document.documentElement.scrollWidth>innerWidth}"
+        "const hit=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;"
+        "const s=document.querySelector('[data-room-surface=dining]').getBoundingClientRect(),t=diningTable.getBoundingClientRect(),so=diningSofa.getBoundingClientRect(),tv=diningTv.getBoundingClientRect(),w=document.querySelector('.dining-window').getBoundingClientRect();"
+        "return {viewport:[innerWidth,innerHeight],tableInside:t.left>=s.left&&t.right<=s.right&&t.top>=s.top&&t.bottom<=s.bottom,sofaInside:so.left>=s.left&&so.right<=s.right&&so.top>=s.top&&so.bottom<=s.bottom,tvInside:tv.left>=s.left&&tv.right<=s.right&&tv.top>=s.top&&tv.bottom<=s.bottom,furnitureOverlap:hit(t,so)||hit(t,tv)||hit(w,tv),wideCurtainWindow:w.width>w.height*1.5,overflow:document.documentElement.scrollWidth>innerWidth}"
     )
+    for driver in (joel, princesa):
+        driver.execute_script("window.Date=window.__RealDate")
     joel.execute_script("document.querySelector('#houseDining [data-open-house-map]').click()")
     map_screenshot = Path(tempfile.gettempdir()) / "loveapp-house-map-four-rooms.png"
     joel.save_screenshot(str(map_screenshot))
@@ -195,6 +215,14 @@ try:
         "const m=document.querySelector('.house-map').getBoundingClientRect(),rooms=[...document.querySelectorAll('.house-map-room')].map(x=>x.getBoundingClientRect());"
         "const overlap=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;"
         "return {rooms:rooms.length,inside:rooms.every(r=>r.left>=m.left&&r.right<=m.right&&r.top>=m.top&&r.bottom<=m.bottom),overlap:rooms.some((a,i)=>rooms.slice(i+1).some(b=>overlap(a,b))),overflow:document.documentElement.scrollWidth>innerWidth}"
+    )
+    # No dejar el desayuno simulado ni la televisión prendida en la casa real.
+    joel.execute_async_script(
+        "const done=arguments[0],now=new Date().toISOString();"
+        "Promise.all(["
+        "_loveClient.from('house_device_states').upsert({room_id:'dining',device_id:'dining_table',state:{set:false,breakfast_day:null,breakfast_by:null},updated_by:'joel',updated_at:now},{onConflict:'room_id,device_id'}),"
+        "_loveClient.from('house_device_states').upsert({room_id:'dining',device_id:'dining_tv',state:{on:false},updated_by:'joel',updated_at:now},{onConflict:'room_id,device_id'})"
+        "]).then(x=>done(x.every(r=>!r.error))).catch(()=>done(false))"
     )
 
     errors = []

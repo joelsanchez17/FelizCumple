@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=35">
+  <link rel="stylesheet" href="./together.css?v=36">
   <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -610,17 +610,19 @@
           <button class="house-map-button" type="button" data-open-house-map aria-label="Ver el mapa de la casa"><span aria-hidden="true">🏠</span><small>Mapa</small></button>
         </div>
         <div class="house-placeholder-interior house-room-surface dining-room" data-room-surface="dining" aria-label="El comedor compartido, todavía en construcción">
-          <div class="dining-window" aria-hidden="true"></div>
-          <div class="dining-boxes" aria-hidden="true"><i></i><i></i></div>
+          <div class="dining-window" aria-hidden="true"><i></i></div>
+          <div id="diningTv" class="dining-tv" aria-label="Televisión apagada"><span aria-hidden="true">♡</span></div>
           <button id="diningTable" class="dining-table" type="button" aria-label="Poner la mesa del comedor" aria-pressed="false">
             <span class="dining-place dining-place-one" aria-hidden="true"><i></i><b></b></span>
             <span class="dining-place dining-place-two" aria-hidden="true"><i></i><b></b></span>
+            <span class="dining-breakfast" aria-hidden="true"><i></i><i></i></span>
             <small id="diningTableLabel">Poner la mesa</small>
           </button>
-          <span class="dining-chair dining-chair-left" aria-hidden="true"></span>
-          <span class="dining-chair dining-chair-right" aria-hidden="true"></span>
+          <button id="diningSofa" class="dining-sofa" type="button" aria-label="Encender la televisión" aria-pressed="false">
+            <span aria-hidden="true"><i></i><i></i></span><small id="diningSofaLabel">Ver televisión</small>
+          </button>
           <button id="diningToast" class="dining-toast" type="button" disabled>Dejar un brindis 🥂</button>
-          <p>El comedor ya existe. Todavía le faltan muebles y recuerdos.</p>
+          <p>Por la mañana, la mesa espera un desayuno para dos.</p>
         </div>
         <aside class="house-condition-messages room-motion-message" data-room-motion-message="dining" hidden aria-live="polite">
           <strong>La casita tiene algo que decir</strong>
@@ -5173,7 +5175,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=26"></script>
+<script src="./together.js?v=27"></script>
 </body>
 
 </html>
