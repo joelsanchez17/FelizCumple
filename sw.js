@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v48-plant-alignment';
-const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=6', './together.js?v=23', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=32', './app_refresh.css?v=5', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
+const CACHE_NAME = 'love-app-v49-plant-proportions';
+const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=6', './together.js?v=23', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=33', './app_refresh.css?v=5', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE)));

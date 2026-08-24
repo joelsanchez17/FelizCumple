@@ -840,12 +840,12 @@ body.together-active #presence-indicator { display: none !important; }
 
 /* Sprites botánicos: cada especie y cada estado conserva su propia ilustración. */
 .plant-visual { display:block; background-repeat:no-repeat; background-size:400% 200%; filter:drop-shadow(0 2px 2px rgba(52,70,43,.16)); transform-origin:center bottom; transition:transform .3s ease,filter .3s ease; }
-.house-plant > .plant-visual { bottom:13px; width:48px; height:48px; }
-.room-potted-plant > .plant-visual { top:auto; bottom:52px; width:58px; height:58px; }
+.house-plant > .plant-visual { bottom:13px; width:40px; height:40px; }
+.room-potted-plant > .plant-visual { top:auto; bottom:52px; width:48px; height:48px; }
 .house-plant .plant-visual { background-image:url('./assets/plants/bedroom-calathea-states.webp'); }
 .room-orchid .plant-visual { background-image:url('./assets/plants/bathroom-orchid-states.webp'); }
 .room-cactus .plant-visual { background-image:url('./assets/plants/kitchen-cactus-states.webp'); }
-.room-cactus > .plant-visual { bottom:54px; width:48px; height:48px; }
+.room-cactus > .plant-visual { bottom:54px; width:40px; height:40px; }
 .plant-growth-0 > .plant-visual { background-position:0 0; }
 .plant-growth-1 > .plant-visual { background-position:33.333% 0; }
 .plant-growth-2 > .plant-visual { background-position:66.666% 0; }

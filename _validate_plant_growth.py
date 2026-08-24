@@ -73,7 +73,11 @@ try:
             "const s=document.querySelector('[data-room-surface=\"'+arguments[0]+'\"]')?.getBoundingClientRect();"
             "const p=document.getElementById(arguments[1])?.querySelector('.plant-visual')?.getBoundingClientRect();"
             "const pot=document.getElementById(arguments[1])?.querySelector(':scope > i')?.getBoundingClientRect();"
-            "return {insideTop:p.top>=s.top-0.5,insideSides:p.left>=s.left-0.5&&p.right<=s.right+0.5,contactGap:Math.round((pot.top-p.bottom)*10)/10};",
+            "const heater=arguments[0]==='bedroom'?document.querySelector('.house-heater')?.getBoundingClientRect():null;"
+            "return {insideTop:p.top>=s.top-0.5,insideSides:p.left>=s.left-0.5&&p.right<=s.right+0.5,"
+            "centerDelta:Math.round(Math.abs((p.left+p.width/2)-(pot.left+pot.width/2))*10)/10,"
+            "contactGap:Math.round((pot.top-p.bottom)*10)/10,"
+            "heaterGap:heater?Math.round((p.top-heater.bottom)*10)/10:null};",
             room, plant_id,
         )
         for stage in ("thirsty", "wilted"):
