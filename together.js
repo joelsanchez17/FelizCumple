@@ -618,6 +618,8 @@
     const sofa = $('#diningSofa');
     tv?.classList.toggle('is-on', diningTvOn);
     tv?.setAttribute('aria-label', diningTvOn ? 'Televisión encendida' : 'Televisión apagada');
+    const screen = tv?.querySelector('span');
+    if (screen) screen.textContent = diningTvOn ? 'NETFLIX' : '';
     sofa?.classList.toggle('is-watching', diningTvOn);
     sofa?.setAttribute('aria-pressed', String(diningTvOn));
     sofa?.setAttribute('aria-label', diningTvOn ? 'Apagar la televisión' : 'Encender la televisión');

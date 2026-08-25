@@ -183,7 +183,10 @@ try:
         joel.execute_script("diningSofa.click()")
         wait_for(princesa, "!diningTv.classList.contains('is-on')")
     joel.execute_script("diningSofa.click()")
-    result["dining_tv_shared"] = wait_for(princesa, "diningTv.classList.contains('is-on') && diningSofa.getAttribute('aria-pressed')==='true'")
+    result["dining_tv_shared"] = wait_for(princesa, "diningTv.classList.contains('is-on') && diningSofa.getAttribute('aria-pressed')==='true' && diningTv.querySelector('span').textContent==='NETFLIX'")
+    result["dining_tv_visual"] = joel.execute_script(
+        "return {text:diningTv.querySelector('span').textContent,color:getComputedStyle(diningTv).color,background:getComputedStyle(diningTv).backgroundColor}"
+    )
     result["toast_enabled_together"] = wait_for(joel, "!diningToast.disabled") and wait_for(princesa, "!diningToast.disabled")
     joel.execute_script("diningToast.click()")
     result["toast_shared"] = wait_for(princesa, "document.querySelector('[data-room-motion-message=dining] [data-room-motion-copy]').textContent.includes('brindis')")
