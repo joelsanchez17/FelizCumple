@@ -15,7 +15,9 @@ service_worker_source = (ROOT / "sw.js").read_text(encoding="utf-8")
 results["presence_uses_per_session_key"] = "key: `${identity}:${sessionId}`" in realtime_source and "tracked_at:new Date().toISOString()" in realtime_source
 results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_source and "event_key: `mimo:" not in realtime_source
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
-results["cache_version"] = "love-app-v54-netflix-tv" in service_worker_source
+results["cache_version"] = "love-app-v55-reliable-updates" in service_worker_source
+results["navigation_refreshes_offline_copy"] = "cache:'no-store'" in service_worker_source and "cache.put(cacheKey, response.clone())" in service_worker_source
+results["old_caches_removed_before_claim"] = "await Promise.all(keys.filter(key => key !== CACHE_NAME)" in service_worker_source and "await self.clients.claim()" in service_worker_source
 
 opts = Options()
 opts.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"

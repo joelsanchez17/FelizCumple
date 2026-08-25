@@ -4240,12 +4240,22 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=29', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=30', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
           })
           .catch(err => console.log('Error SW:', err));
+      });
+
+      // iOS puede mantener la PWA abierta en segundo plano durante horas. Al volver,
+      // comprobamos el worker otra vez para no regresar a una versión anterior.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') return;
+        navigator.serviceWorker.getRegistration().then(reg => reg?.update()).catch(() => {});
+      });
+      window.addEventListener('pageshow', () => {
+        navigator.serviceWorker.getRegistration().then(reg => reg?.update()).catch(() => {});
       });
 
       let reloadingForNewServiceWorker = false;

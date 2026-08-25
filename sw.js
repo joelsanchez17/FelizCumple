@@ -1,16 +1,64 @@
-const CACHE_NAME = 'love-app-v54-netflix-tv';
+const CACHE_NAME = 'love-app-v55-reliable-updates';
 const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=6', './together.js?v=28', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=37', './app_refresh.css?v=5', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE)));
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await Promise.all(ASSETS_TO_CACHE.map(async asset => {
+      try {
+        const request = new Request(asset, { cache:'reload' });
+        const response = await fetch(request);
+        if (response.ok) await cache.put(request, response);
+      } catch (error) {
+        console.warn('No se pudo precargar', asset, error);
+      }
+    }));
+    await self.skipWaiting();
+  })());
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))));
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 self.addEventListener('fetch', event => {
-  if (event.request.method === 'GET') event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+  if (event.request.method !== 'GET') return;
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
+
+  const isNavigation = event.request.mode === 'navigate';
+  const isCode = /\.(?:html|js|css|json)$/.test(requestUrl.pathname);
+  if (isNavigation || isCode) {
+    event.respondWith((async () => {
+      try {
+        const freshRequest = new Request(event.request, { cache:'no-store' });
+        const response = await fetch(freshRequest);
+        if (response.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          const cacheKey = isNavigation ? new Request('./index.html') : event.request;
+          await cache.put(cacheKey, response.clone());
+        }
+        return response;
+      } catch {
+        const cached = await (isNavigation ? caches.match('./index.html') : caches.match(event.request));
+        return cached || Response.error();
+      }
+    })());
+    return;
+  }
+
+  event.respondWith((async () => {
+    const cached = await caches.match(event.request);
+    if (cached) return cached;
+    const response = await fetch(event.request);
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(event.request, response.clone());
+    }
+    return response;
+  })());
 });
 self.addEventListener('push', event => {
   let payload = {};
