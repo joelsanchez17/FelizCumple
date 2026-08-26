@@ -39,12 +39,14 @@ results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_sou
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
 results["ios_haptic_fallback"] = "window.loveHaptic" in index_source and ".love-haptic-flash" in refresh_css_source
 results["ios_push_sound_enabled"] = "silent:false" in service_worker_source
-results["cache_version"] = "love-app-v59-shared-invitations" in service_worker_source
+results["cache_version"] = "love-app-v60-bedroom-lamps-dining-plant" in service_worker_source
 results["house_status_outside_scene"] = "house-status-board" in index_source and "ningún mueble los tape" in together_css_source
 results["shared_invitations_persist"] = "saveHouseDevice('shared_invitation'" in together_source and "5 * 60 * 1000" in together_source
 results["shared_invitations_require_acceptance"] = "answerSharedInvitation(true)" in together_source and "status:accept ? 'accepted' : 'declined'" in together_source
 results["shared_activities_update_both_people"] = "async function saveCoupleActivity" in together_source and "['joel', 'princesa'].map" in together_source
 results["shared_invitation_push_opens_house"] = together_source.count("'house-invitation'") >= 2
+results["dining_plant_uses_growth_engine"] = "dining: { device:'jasmine'" in together_source and "dining-jasmine-states.webp" in together_css_source
+results["bedroom_lamps_have_distinct_shades"] = ".house-person-princesa .house-lamp b" in together_css_source and ".house-lamp.is-lit::before" in together_css_source
 results["navigation_refreshes_offline_copy"] = "cache:'no-store'" in service_worker_source and "cache.put(cacheKey, response.clone())" in service_worker_source
 results["old_caches_removed_before_claim"] = "await Promise.all(keys.filter(key => key !== CACHE_NAME)" in service_worker_source and "await self.clients.claim()" in service_worker_source
 
@@ -103,6 +105,21 @@ try:
         "document.getElementById('houseSharedInvitationTitle').textContent='Princesa te está invitando';"
         "document.getElementById('houseSharedInvitationText').textContent='Princesa quiere cerrar la puerta y bajar las luces con vos.';"
         "const r=panel.getBoundingClientRect(),ok=r.width>0&&r.left>=0&&r.right<=innerWidth;panel.hidden=true;return ok;"
+    )
+    driver.execute_script("document.querySelector('.house-lamp').classList.add('is-lit')")
+    time.sleep(.4)
+    results["bedroom_lamps_render_and_glow"] = driver.execute_script(
+        "const lamps=[...document.querySelectorAll('.house-lamp')],shades=lamps.map(l=>getComputedStyle(l.querySelector('b')).backgroundImage),glow=getComputedStyle(lamps[0],'::before').opacity;"
+        "lamps[0].classList.remove('is-lit');return lamps.length===2&&shades[0]!==shades[1]&&Number(glow)>.9;"
+    )
+    driver.execute_script(
+        "document.querySelector('#houseBedroom [data-open-house-map]').click();"
+        "document.querySelector('[data-enter-room=\"dining\"]').click();"
+    )
+    time.sleep(.2)
+    results["dining_plant_fits_iphone"] = driver.execute_script(
+        "const plant=document.getElementById('diningPlant').getBoundingClientRect(),room=document.querySelector('.dining-room').getBoundingClientRect();"
+        "return plant.width>0&&plant.left>=room.left&&plant.right<=room.right&&plant.top>=room.top&&plant.bottom<=room.bottom;"
     )
 
     memories = driver.find_element(By.CSS_SELECTOR, ".bottom-nav button[onclick*=\"memories\"]")

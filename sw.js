@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v59-shared-invitations';
-const ASSETS_TO_CACHE = ['./index.html', './assets/vendor/supabase.js?v=2.112.4', './realtime.js?v=7', './together.js?v=31', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=39', './app_refresh.css?v=6', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './notification-icon.png', './notification-badge.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
+const CACHE_NAME = 'love-app-v60-bedroom-lamps-dining-plant';
+const ASSETS_TO_CACHE = ['./index.html', './assets/vendor/supabase.js?v=2.112.4', './realtime.js?v=7', './together.js?v=32', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=40', './app_refresh.css?v=6', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './notification-icon.png', './notification-badge.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp', './assets/plants/dining-jasmine-states.webp'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {

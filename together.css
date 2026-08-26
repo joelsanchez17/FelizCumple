@@ -411,15 +411,20 @@ body.together-active #presence-indicator { display: none !important; }
 @keyframes housePupitoCaught { 0%,100% { transform:translate(-50%,-50%); } 35% { transform:translate(calc(-50% + var(--action-x)),calc(-50% + 1px)) scale(1.05); } 58% { transform:translate(-50%,calc(-50% - 7px)) rotate(-6deg); } }
 @keyframes housePupitoGuard { 0%,100% { transform:translate(-50%,-50%); } 25%,65% { transform:translate(calc(-50% - 3px),-50%) rotate(-4deg); } 45%,82% { transform:translate(calc(-50% + 3px),-50%) rotate(4deg); } }
 
-.house-lamp { position:absolute; z-index:2; bottom:0; width:58px; height:96px; margin:0; padding:0; border:0; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.house-lamp { position:absolute; z-index:2; bottom:0; width:58px; height:96px; margin:0; padding:0; border:0; background:transparent; cursor:pointer; isolation:isolate; -webkit-tap-highlight-color:transparent; }
 .house-person-joel .house-lamp { left:0; }
 .house-person-princesa .house-lamp { right:0; }
-.house-lamp b { position:absolute; left:10px; top:0; width:38px; height:34px; border:0; border-radius:19px 19px 7px 7px; background:#b9a5ae; box-shadow:none; }
-.house-lamp b::before { display:none; }
-.house-lamp b::after { left:15px; right:auto; top:32px; width:8px; height:48px; transform:none; border-radius:5px; background:#836a76; }
-.house-lamp i { left:6px; right:auto; bottom:4px; width:46px; height:8px; border-radius:50%; background:#836a76; }
+.house-lamp::before { content:""; position:absolute; z-index:-1; left:50%; top:-11px; width:82px; height:77px; border-radius:50%; opacity:0; background:radial-gradient(circle,rgba(255,221,151,.58) 0,rgba(255,216,132,.22) 42%,transparent 72%); transform:translateX(-50%) scale(.72); transition:opacity .3s ease,transform .35s ease; }
+.house-lamp::after { content:""; position:absolute; z-index:4; right:5px; top:27px; width:2px; height:23px; border-radius:2px; background:#8d737d; box-shadow:0 20px 0 1px #a87a87; opacity:.8; }
+.house-lamp b { position:absolute; z-index:3; left:8px; top:0; width:42px; height:36px; overflow:hidden; border:1px solid rgba(93,61,72,.13); border-radius:17px 17px 7px 7px; background:linear-gradient(135deg,#a8bcb3,#839c92); box-shadow:inset 5px 3px rgba(255,255,255,.16),0 5px 9px rgba(68,43,52,.13); clip-path:polygon(19% 0,81% 0,100% 100%,0 100%); transition:background .3s ease,box-shadow .3s ease,filter .3s ease; }
+.house-person-princesa .house-lamp b { background:linear-gradient(135deg,#d9aab8,#b87e91); }
+.house-lamp b::before { content:"♡"; position:absolute; inset:0; display:grid; place-items:center; color:rgba(255,247,241,.7); background:linear-gradient(90deg,transparent 45%,rgba(255,255,255,.12) 46% 53%,transparent 54%); font:700 .72rem/1 'Cormorant Garamond',serif; }
+.house-lamp b::after { content:""; position:absolute; left:2px; right:2px; top:auto; bottom:2px; width:auto; height:3px; border-radius:999px; background:rgba(100,63,76,.22); transform:none; }
+.house-lamp i { position:absolute; z-index:2; left:6px; right:auto; bottom:4px; width:46px; height:9px; border-radius:50%; background:linear-gradient(180deg,#aa8994,#715a65); box-shadow:inset 0 2px rgba(255,255,255,.2),0 4px 7px rgba(64,42,50,.18); }
+.house-lamp i::before { content:""; position:absolute; left:19px; bottom:6px; width:8px; height:51px; border-radius:5px; background:linear-gradient(90deg,#765f69,#b1929c 50%,#705963); box-shadow:inset 2px 0 rgba(255,255,255,.14); }
+.house-lamp i::after { content:""; position:absolute; left:15px; bottom:53px; width:16px; height:7px; border-radius:50%; background:#8a707a; box-shadow:0 2px 3px rgba(64,42,50,.14); }
 .house-lamp:focus-visible { outline:3px solid var(--together-wine); outline-offset:3px; border-radius:18px; }
-.house-lamp.light-sent b { background:#ffd38b; animation:houseLightPulse .75s ease 2; box-shadow:0 0 18px #ffdba0,0 0 52px rgba(255,211,139,.95); }
+.house-lamp.light-sent b { animation:houseLightPulse .75s ease 2; }
 @keyframes houseLightPulse { 50% { transform:scale(1.12); } }
 .house-table { width:46px; height:31px; margin:62px auto 0; border:0; border-radius:50% 50% 7px 7px; color:#a56378; background:#ae7b6d; box-shadow:0 6px 0 #876057; }
 .house-table span { transform:none; }
@@ -458,9 +463,10 @@ body.together-active #presence-indicator { display: none !important; }
   .house-person-scene { height:95px; }
   .house-avatar { width:49px; height:49px; border-width:3px; }
   .house-lamp { width:52px; height:90px; }
-  .house-lamp b { left:9px; width:34px; height:31px; }
-  .house-lamp b::after { left:13px; top:29px; height:45px; }
+  .house-lamp b { left:7px; width:38px; height:32px; }
   .house-lamp i { left:5px; width:42px; }
+  .house-lamp i::before { left:17px; height:46px; }
+  .house-lamp i::after { left:13px; bottom:48px; }
   .house-table { width:42px; height:29px; margin-top:57px; }
   .house-presence-message { width:auto; margin-top:10px; }
 }
@@ -607,10 +613,11 @@ body.together-active #presence-indicator { display: none !important; }
 .love-house[data-time="night"] .house-avatar-actions-head strong { color:#fff4f7; }
 
 /* Las luces ya no dependen de la presencia: ambos comparten su estado. */
-.house-person .house-lamp:not(.is-lit) b { background:#bdaab2; box-shadow:none; }
+.house-person .house-lamp:not(.is-lit) b { filter:saturate(.72) brightness(.9); }
 .house-lamp.is-lit b,
-.house-person.is-online .house-lamp.is-lit b { background:#ffd178; box-shadow:0 0 17px #ffda96,0 0 48px rgba(255,205,111,.88); }
-.house-lamp.is-lit b::before { content:""; position:absolute; inset:-9px; border-radius:50%; background:radial-gradient(circle,rgba(255,219,148,.34),transparent 68%); }
+.house-person.is-online .house-lamp.is-lit b { background:linear-gradient(135deg,#ffe3a1,#eab56c); box-shadow:inset 5px 3px rgba(255,255,255,.24),0 0 15px rgba(255,210,126,.84); filter:saturate(1.08); }
+.house-lamp.is-lit::before { opacity:1; transform:translateX(-50%) scale(1); }
+.house-lamp.is-lit b::before { color:rgba(129,75,77,.62); }
 .house-light-notify-row { display:flex; align-items:center; justify-content:space-between; gap:9px; margin-top:10px; padding:8px 9px 8px 12px; border:1px solid rgba(127,66,89,.13); border-radius:15px; color:var(--together-muted); background:rgba(255,250,248,.55); font:600 .5rem/1.25 'Quicksand',sans-serif; }
 .house-light-notify-row button { flex:0 0 auto; min-height:29px; padding:6px 10px; border:0; border-radius:999px; color:#fff; background:var(--together-wine); cursor:pointer; font:700 .53rem/1 'Quicksand',sans-serif; }
 .love-house[data-time="night"] .house-light-notify-row { color:#eadde2; border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.07); }
@@ -922,6 +929,7 @@ body.together-active #presence-indicator { display: none !important; }
 .house-plant .plant-visual { background-image:url('./assets/plants/bedroom-calathea-states.webp'); }
 .room-orchid .plant-visual { background-image:url('./assets/plants/bathroom-orchid-states.webp'); }
 .room-cactus .plant-visual { background-image:url('./assets/plants/kitchen-cactus-states.webp'); }
+.room-jasmine .plant-visual { background-image:url('./assets/plants/dining-jasmine-states.webp'); }
 .room-cactus > .plant-visual { bottom:54px; width:40px; height:40px; }
 .plant-growth-0 > .plant-visual { background-position:0 0; }
 .plant-growth-1 > .plant-visual { background-position:33.333% 0; }
@@ -935,6 +943,9 @@ body.together-active #presence-indicator { display: none !important; }
 .room-potted-plant.is-watering::before { content:"💧"; position:absolute; z-index:6; right:4px; top:-2px; animation:waterDrop .85s ease both; }
 .room-potted-plant:focus-visible { outline:3px solid var(--together-wine); outline-offset:2px; border-radius:14px; }
 .room-cactus { right:41px; top:22px; }
+.room-jasmine { z-index:5; left:139px; top:13px; transform:scale(.9); transform-origin:top center; }
+.room-jasmine > .plant-visual { width:48px; height:48px; }
+.room-jasmine > small { z-index:6; bottom:-4px; width:118px; padding:3px 5px; border:1px solid rgba(126,69,91,.1); border-radius:999px; background:rgba(255,250,247,.86); }
 
 .empty-bathroom-mirror { position:absolute; left:25px; top:22px; width:70px; height:70px; border:7px solid #ead9dc; border-radius:50%; background:linear-gradient(145deg,#d9edf2 0 45%,#f7e9ed 46% 100%); box-shadow:0 7px 16px rgba(80,46,60,.08),inset 5px 5px 0 rgba(255,255,255,.45); }
 .empty-bathroom-mirror::after { content:""; position:absolute; left:14px; top:10px; width:9px; height:28px; border-radius:999px; background:rgba(255,255,255,.5); transform:rotate(38deg); }
@@ -1060,4 +1071,5 @@ body.together-active #presence-indicator { display: none !important; }
   .dining-table::after { left:44px; }
   .dining-sofa { right:8px; width:143px; }
   .dining-toast { left:67px; min-width:100px; }
+  .room-jasmine { left:128px; transform:scale(.84); }
 }

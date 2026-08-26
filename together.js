@@ -54,13 +54,15 @@
   const ROOM_PLANTS = {
     bedroom: { device:'plant', element:'#housePlant', status:'#housePlantStatus', name:'plantita', article:'la' },
     kitchen: { device:'cactus', element:'#kitchenPlant', status:'#kitchenPlantStatus', name:'cactus', article:'el' },
-    bathroom: { device:'orchid', element:'#bathroomPlant', status:'#bathroomPlantStatus', name:'orquídea', article:'la' }
+    bathroom: { device:'orchid', element:'#bathroomPlant', status:'#bathroomPlantStatus', name:'orquídea', article:'la' },
+    dining: { device:'jasmine', element:'#diningPlant', status:'#diningPlantStatus', name:'jazmín', article:'el' }
   };
   const emptyPlantState = () => ({ watered_at:null, watered_by:null, watered_day:null, reference_at:null, growth:0 });
   const plantStates = {
     bedroom:emptyPlantState(),
     kitchen:emptyPlantState(),
-    bathroom:emptyPlantState()
+    bathroom:emptyPlantState(),
+    dining:emptyPlantState()
   };
   const avatarStates = {
     bedroom: { joel:{ rx:0.31, ry:0.58 }, princesa:{ rx:0.69, ry:0.58 } },
@@ -142,6 +144,7 @@
       else if (roomId === 'bedroom' && dryHours >= 36) conditions.push(['plant_hours', '💧', 'Che, la plantita está pidiendo agüita hace rato. ¿Querés que termine como tu orquídea?']);
       else if (roomId === 'bathroom' && dryHours >= 36) conditions.push(['orchid_thirsty', '🌸', 'La orquídea del baño está esperando su recorrida de agüita.']);
       else if (roomId === 'kitchen' && dryHours >= 72) conditions.push(['cactus_thirsty', '🌵', 'Hasta el cactus de la cocina tiene sed… eso ya es mucho.']);
+      else if (roomId === 'dining' && dryHours >= 36) conditions.push(['jasmine_thirsty', '🌼', 'El jazmín del comedor pide agüita antes de la próxima sobremesa.']);
     });
 
     const panel = $('#houseConditionMessages');

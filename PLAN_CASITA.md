@@ -334,6 +334,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - La habitación ahora tiene una ventana ancha con cortinas, una mesa lateral y un sillón doble frente a la televisión.
 - Tocar el sillón enciende o apaga la televisión y ambos ven el mismo estado.
 - Cada mañana la mesa propone preparar el desayuno; guarda quién lo preparó durante ese día.
+- El comedor tiene un jazmín propio con cuidado diario, crecimiento, sed, marchitez y floración compartidos.
 - Agregar lámpara, cuadro, aparador y los recuerdos de futuras sobremesas.
 
 ### Parte 7 — Vida de toda la casa
