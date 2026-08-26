@@ -39,14 +39,18 @@ results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_sou
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
 results["ios_haptic_fallback"] = "window.loveHaptic" in index_source and ".love-haptic-flash" in refresh_css_source
 results["ios_push_sound_enabled"] = "silent:false" in service_worker_source
-results["cache_version"] = "love-app-v60-bedroom-lamps-dining-plant" in service_worker_source
+results["cache_version"] = "love-app-v63-bed-actions" in service_worker_source
 results["house_status_outside_scene"] = "house-status-board" in index_source and "ningún mueble los tape" in together_css_source
 results["shared_invitations_persist"] = "saveHouseDevice('shared_invitation'" in together_source and "5 * 60 * 1000" in together_source
 results["shared_invitations_require_acceptance"] = "answerSharedInvitation(true)" in together_source and "status:accept ? 'accepted' : 'declined'" in together_source
 results["shared_activities_update_both_people"] = "async function saveCoupleActivity" in together_source and "['joel', 'princesa'].map" in together_source
 results["shared_invitation_push_opens_house"] = together_source.count("'house-invitation'") >= 2
+results["bed_has_synced_affection_actions"] = all(token in together_source for token in ["type:'bed_together'", "animateBedTogetherMotion", "sendBedTogetherMotion"])
+results["bed_actions_have_visible_effects"] = all(token in together_css_source for token in [".is-bed-cuddle", ".is-bed-kiss", ".is-bed-caress", ".house-bed-action-effect"])
 results["dining_plant_uses_growth_engine"] = "dining: { device:'jasmine'" in together_source and "dining-jasmine-states.webp" in together_css_source
 results["bedroom_lamps_have_distinct_shades"] = ".house-person-princesa .house-lamp b" in together_css_source and ".house-lamp.is-lit::before" in together_css_source
+results["startup_does_not_restore_last_tab"] = "localStorage.getItem('love_active_tab')" not in index_source
+results["dining_objects_have_furniture"] = "dining-sideboard" in index_source and ".dining-sideboard" in together_css_source
 results["navigation_refreshes_offline_copy"] = "cache:'no-store'" in service_worker_source and "cache.put(cacheKey, response.clone())" in service_worker_source
 results["old_caches_removed_before_claim"] = "await Promise.all(keys.filter(key => key !== CACHE_NAME)" in service_worker_source and "await self.clients.claim()" in service_worker_source
 
@@ -63,11 +67,12 @@ opts.page_load_strategy = "eager"
 driver = open_chrome(opts)
 try:
     driver.get("http://127.0.0.1:8765/index.html?validation=stability")
-    driver.execute_script("localStorage.setItem('love_identity','joel'); localStorage.setItem('koala_phase_2_1_surprise_seen','1'); localStorage.setItem('birthday_2026_celebrated','1');")
+    driver.execute_script("localStorage.setItem('love_identity','joel'); localStorage.setItem('koala_phase_2_1_surprise_seen','1'); localStorage.setItem('birthday_2026_celebrated','1'); localStorage.setItem('love_active_tab','together');")
     driver.refresh()
     time.sleep(5)
 
     results["viewport"] = driver.execute_script("return [innerWidth, innerHeight]")
+    results["normal_start_stays_on_home"] = driver.execute_script("return document.getElementById('home').classList.contains('active')&&!document.getElementById('together').classList.contains('active')")
     results["startup_confetti_nodes"] = driver.execute_script("return document.querySelectorAll('.confetti-piece,.heart-fall').length")
     results["background_particle_animation"] = driver.execute_script(
         "return getComputedStyle(document.body,'::after').animationName"
@@ -100,6 +105,9 @@ try:
         "const box=document.getElementById('houseSharedActivities').getBoundingClientRect(),buttons=document.querySelectorAll('[data-shared-invite]');"
         "return buttons.length===3&&box.width>0&&box.left>=0&&box.right<=innerWidth;"
     )
+    results["bed_affection_controls_exist"] = driver.execute_script(
+        "const buttons=document.querySelectorAll('[data-bed-together]');return buttons.length===3&&[...buttons].every(b=>b.closest('#houseBedActions'));"
+    )
     results["shared_invitation_prompt_fits_iphone"] = driver.execute_script(
         "const panel=document.getElementById('houseSharedInvitation');panel.hidden=false;"
         "document.getElementById('houseSharedInvitationTitle').textContent='Princesa te está invitando';"
@@ -120,6 +128,10 @@ try:
     results["dining_plant_fits_iphone"] = driver.execute_script(
         "const plant=document.getElementById('diningPlant').getBoundingClientRect(),room=document.querySelector('.dining-room').getBoundingClientRect();"
         "return plant.width>0&&plant.left>=room.left&&plant.right<=room.right&&plant.top>=room.top&&plant.bottom<=room.bottom;"
+    )
+    results["dining_plant_and_tv_are_grounded"] = driver.execute_script(
+        "const shelf=document.querySelector('.dining-sideboard').getBoundingClientRect(),pot=document.querySelector('#diningPlant>i').getBoundingClientRect(),tv=document.getElementById('diningTv').getBoundingClientRect();"
+        "return Math.abs(pot.bottom-shelf.top)<=6&&Math.abs(tv.bottom+18-shelf.top)<=6;"
     )
 
     memories = driver.find_element(By.CSS_SELECTOR, ".bottom-nav button[onclick*=\"memories\"]")

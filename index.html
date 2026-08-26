@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=40">
+  <link rel="stylesheet" href="./together.css?v=43">
   <link rel="stylesheet" href="./app_refresh.css?v=6">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -571,16 +571,24 @@
         </div>
         <div id="houseBedActions" class="house-bed-actions" hidden aria-live="polite">
           <span id="houseBedActionText">Ya estás en la cama.</span>
-          <div>
+          <div class="house-bed-primary-actions">
             <button id="houseBedSleep" type="button">Dormir a lo 🐨</button>
             <button id="houseBedIntimate" type="button" disabled>Escondernos bajo la sábana 😏</button>
             <button id="houseBedLeave" type="button">Levantarse</button>
           </div>
+          <div id="houseBedTogetherActions" class="house-bed-together-actions" hidden>
+            <strong>Ahora que están juntos en la cama…</strong>
+            <div>
+              <button type="button" data-bed-together="cuddle"><span aria-hidden="true">🫂</span> Acurrucarnos</button>
+              <button type="button" data-bed-together="kiss"><span aria-hidden="true">💋</span> Besito</button>
+              <button type="button" data-bed-together="caress"><span aria-hidden="true">🤍</span> Cariñitos</button>
+            </div>
+          </div>
         </div>
         <section id="houseSharedActivities" class="house-shared-activities" aria-labelledby="houseSharedActivitiesTitle">
           <div class="house-shared-activities-head">
-            <div><span aria-hidden="true">♡</span><strong id="houseSharedActivitiesTitle">Hacer algo juntos</strong></div>
-            <small>Las invitaciones esperan una respuesta.</small>
+            <div><span aria-hidden="true">♡</span><strong id="houseSharedActivitiesTitle">Invitaciones para la cama</strong></div>
+            <small id="houseSharedActivitiesHint">Las invitaciones esperan una respuesta.</small>
           </div>
           <div id="houseSharedActivityChoices" class="house-shared-activity-choices">
             <button type="button" data-shared-invite="lie_together"><span aria-hidden="true">🛏️</span>Acostarnos juntos</button>
@@ -682,6 +690,7 @@
         </div>
         <div class="house-placeholder-interior house-room-surface dining-room" data-room-surface="dining" aria-label="El comedor compartido, todavía en construcción">
           <div class="dining-window" aria-hidden="true"><i></i></div>
+          <div class="dining-sideboard" aria-hidden="true"><i></i><i></i></div>
           <button id="diningPlant" class="room-potted-plant room-jasmine" type="button" data-room-plant="dining" aria-label="Regar el jazmín del comedor">
             <span class="plant-visual" aria-hidden="true"></span><i aria-hidden="true"></i><small id="diningPlantStatus">El jazmín espera agüita</small>
           </button>
@@ -1946,7 +1955,6 @@
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
       document.body.classList.toggle('together-active', tabId === 'together');
-      if (options.persist !== false) localStorage.setItem('love_active_tab', tabId);
       window.dispatchEvent(new CustomEvent('lovetabchange', { detail:{ tabId } }));
       if (options.vibrate !== false) navigator.vibrate?.(10);
       window.scrollTo(0, 0);
@@ -1956,14 +1964,6 @@
     }
     document.addEventListener('visibilitychange', syncAppVisibility);
     syncAppVisibility();
-    window.addEventListener('load', () => {
-      const savedTab = localStorage.getItem('love_active_tab');
-      const validTabs = ['home', 'together', 'games', 'memories', 'anniversary'];
-      if (!validTabs.includes(savedTab) || savedTab === 'home') return;
-      const button = [...document.querySelectorAll('.bottom-nav button')]
-        .find(item => item.getAttribute('onclick')?.includes(`'${savedTab}'`));
-      if (button) showTab(button, savedTab, { persist:false, vibrate:false });
-    }, { once:true });
     // --- Contadores up/down ---
     const startBerlin = new Date("2026-08-18T18:00:00+02:00");
     const meetingBerlin = new Date("2026-12-23T13:00:00+01:00");
@@ -4314,7 +4314,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=35', { updateViaCache: 'none' })
+          navigator.serviceWorker.register('./sw.js?v=38', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -5259,7 +5259,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=32"></script>
+<script src="./together.js?v=35"></script>
 </body>
 
 </html>

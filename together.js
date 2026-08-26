@@ -80,6 +80,7 @@
   let houseMotionMessage = null;
   let houseMotionTimer;
   let bedMomentTimer;
+  let bedTogetherTimer;
   let bedMomentActive = false;
   let bedMomentCount = 0;
   let sharedInvitation = null;
@@ -722,11 +723,16 @@
     const actions = $('#houseBedActions');
     if (actions) actions.hidden = currentRoom !== 'bedroom' || !mineInBed;
     const actionText = $('#houseBedActionText');
-    if (actionText) actionText.textContent = mineSleeping ? 'Estás durmiendo a lo koala.' : 'Ya estás en la cama.';
+    const bothAwakeInBed = occupants.length === 2 && sleepers.length === 0;
+    if (actionText) actionText.textContent = mineSleeping
+      ? 'Estás durmiendo a lo koala.'
+      : bothAwakeInBed ? `Estás en la cama con ${PEOPLE[target]}. Elegí qué hacer.`
+      : `${PEOPLE[target]} todavía no está en la cama. Podés invitar${target === 'princesa' ? 'la' : 'lo'}.`;
     const sleepButton = $('#houseBedSleep');
     if (sleepButton) sleepButton.textContent = mineSleeping ? 'Despertarme' : 'Dormir a lo 🐨';
     const intimateButton = $('#houseBedIntimate');
-    const bothAwakeInBed = occupants.length === 2 && sleepers.length === 0;
+    const togetherActions = $('#houseBedTogetherActions');
+    if (togetherActions) togetherActions.hidden = !bothAwakeInBed;
     if (intimateButton) {
       intimateButton.disabled = !bothAwakeInBed || (invitationIsPending() && !bedMomentActive);
       intimateButton.textContent = bothAwakeInBed
@@ -888,12 +894,28 @@
         : `Le propusiste ${meta?.label || 'hacer algo juntos'}.`;
       const accept = $('#houseSharedInvitationAccept');
       const decline = $('#houseSharedInvitationDecline');
-      if (accept) accept.hidden = !incoming;
+      if (accept) {
+        accept.hidden = !incoming;
+        accept.disabled = incoming && !partnerIsHereInBedroom();
+        accept.title = accept.disabled ? `Esperando que ${PEOPLE[invitation.from]} vuelva a conectarse acá` : '';
+      }
       if (decline) decline.textContent = incoming ? 'Ahora no' : 'Cancelar';
     }
+    const bothInBed = isInBed('joel') && isInBed('princesa');
     $$('[data-shared-invite]').forEach(button => {
       button.disabled = !canStartSharedActivity(button.dataset.sharedInvite);
+      button.hidden = button.dataset.sharedInvite === 'private_moment' ||
+        (button.dataset.sharedInvite === 'lie_together' ? bothInBed : !bothInBed);
     });
+    const choices = $('#houseSharedActivityChoices');
+    if (choices) choices.style.gridTemplateColumns = '1fr';
+    const hint = $('#houseSharedActivitiesHint');
+    if (hint) hint.textContent = invitation
+      ? 'Hay una invitación esperando respuesta.'
+      : !partnerIsHereInBedroom() ? `${PEOPLE[target]} tiene que estar en el dormitorio.`
+      : isInBed('joel') && isInBed('princesa')
+        ? 'Los planes especiales esperan una respuesta.'
+        : `Invitá a ${PEOPLE[target]} a acostarse; no sucede hasta que acepte.`;
   }
 
   function setSharedInvitation(invitation, announce = false) {
@@ -1022,6 +1044,7 @@
     if (await saveActivity(identity, 'lying', { style:'koala' })) {
       toast('Te acostaste un ratito.');
       window.loveHaptic?.([12, 30, 12]);
+      setTimeout(() => $('#houseBedActions')?.scrollIntoView({ behavior:'smooth', block:'nearest' }), 60);
     }
   }
 
@@ -1040,6 +1063,47 @@
 
   async function leaveBed() {
     if (isInBed(identity)) await clearActivity(identity);
+  }
+
+  const BED_TOGETHER_META = {
+    cuddle: { emoji:'🫂', message:'Modo cucharita activado. La cama aprueba este plan.' },
+    kiss: { emoji:'💋', message:'Besito entre almohadas 💕' },
+    caress: { emoji:'🤍', message:'Cariñitos bajo las mantas. Así sí.' }
+  };
+
+  function stopBedTogetherMotion() {
+    clearTimeout(bedTogetherTimer);
+    const bed = $('#houseBed');
+    bed?.classList.remove('is-bed-cuddle', 'is-bed-kiss', 'is-bed-caress');
+    bed?.querySelectorAll('.house-bed-action-effect').forEach(effect => effect.remove());
+  }
+
+  function animateBedTogetherMotion(person, motion, roomId = currentRoom) {
+    const meta = BED_TOGETHER_META[motion?.kind];
+    if (!meta || roomId !== 'bedroom' || currentRoom !== 'bedroom' ||
+        !isInBed('joel') || !isInBed('princesa') || isSleeping('joel') || isSleeping('princesa')) return;
+    const bed = $('#houseBed');
+    if (!bed) return;
+    stopBedTogetherMotion();
+    bed.classList.add(`is-bed-${motion.kind}`);
+    const effect = document.createElement('b');
+    effect.className = 'house-bed-action-effect';
+    effect.textContent = meta.emoji;
+    bed.appendChild(effect);
+    showHouseMotionMessage(`${PEOPLE[person]}: ${meta.message}`, meta.emoji);
+    window.loveHaptic?.([12, 28, 12]);
+    bedTogetherTimer = setTimeout(stopBedTogetherMotion, 1900);
+  }
+
+  async function sendBedTogetherMotion(kind) {
+    if (!BED_TOGETHER_META[kind] || currentRoom !== 'bedroom' || !partnerIsHereInBedroom() ||
+        !isInBed('joel') || !isInBed('princesa') || isSleeping('joel') || isSleeping('princesa')) {
+      toast('Para hacer eso tienen que estar los dos despiertos en la cama.');
+      return;
+    }
+    const motion = { type:'bed_together', kind, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
+    animateAvatarMotion(identity, motion, 'bedroom');
+    await sendHouseMotion('bedroom', motion);
   }
 
   function stopBedMoment() {
@@ -1378,6 +1442,7 @@
       setTimeout(() => seenMotionIds.delete(motion.id), 45000);
     }
     if (motion.type === 'bed_moment') return animateBedMoment(roomId, motion);
+    if (motion.type === 'bed_together') return animateBedTogetherMotion(person, motion, roomId);
     if (motion.type === 'shower') return animateShowerMotion(person, motion, roomId);
     if (motion.type === 'room_object') return animateRoomObjectMotion(person, motion, roomId);
     if (hasFixedActivity(person)) return;
@@ -1970,6 +2035,10 @@
     $('#houseBedSleep')?.addEventListener('click', toggleBedSleep);
     $('#houseBedIntimate')?.addEventListener('click', handleBedIntimateAction);
     $('#houseBedLeave')?.addEventListener('click', leaveBed);
+    $('#houseBedTogetherActions')?.addEventListener('click', event => {
+      const button = event.target.closest('[data-bed-together]');
+      if (button) sendBedTogetherMotion(button.dataset.bedTogether);
+    });
     $('#houseSharedActivityChoices')?.addEventListener('click', event => {
       const button = event.target.closest('[data-shared-invite]');
       if (button && !button.disabled) inviteSharedActivity(button.dataset.sharedInvite);
@@ -2086,16 +2155,17 @@
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
     if ($('#houseLightNotify')) $('#houseLightNotify').textContent = `Avisarle a ${PEOPLE[target]} 🔔`;
+    const requestedHouse = location.hash === '#together';
+    if (requestedHouse) {
+      history.replaceState(null, '', location.pathname + location.search);
+      setTimeout(() => openTogether('bedroom'), 120);
+    }
     await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices(), loadAvatarPositions(), loadHouseActivities()]);
     queueHouseConditionCheck(true);
     subscribeToChanges();
     if ($('#together')?.classList.contains('active')) {
       const lastRoom = localStorage.getItem('love_last_house_room');
       enterHouseRoom(ROOMS[lastRoom] ? lastRoom : 'bedroom');
-    }
-    if (location.hash === '#together') {
-      history.replaceState(null, '', location.pathname + location.search);
-      setTimeout(openTogether, 120);
     }
   }
 

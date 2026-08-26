@@ -547,10 +547,18 @@ body.together-active #presence-indicator { display: none !important; }
 .house-bed.is-private-moment { z-index:10; animation:bedSecretRock 1.05s ease-in-out 7; }
 .house-bed.is-private-moment .house-bed-blanket { z-index:12; animation:bedBlanketBreathe 1.05s ease-in-out 7; }
 .house-bed.is-private-moment .house-bed-blanket::after { content:"♡"; font-size:1.25rem; animation:bedSecretHeart 1.4s ease-in-out infinite; }
+.house-bed.is-bed-cuddle .house-bed-blanket { animation:bedCuddle 1.7s ease-in-out both; }
+.house-bed.is-bed-kiss .house-bed-blanket { animation:bedKiss .72s ease-in-out 2; }
+.house-bed.is-bed-caress .house-bed-blanket { animation:bedCaress 1.6s ease-in-out both; }
+.house-bed-action-effect { position:absolute; z-index:15; left:50%; top:-4px; pointer-events:none; font:700 1.18rem/1 sans-serif; transform:translateX(-50%); animation:bedActionEffect 1.8s ease-out both; }
 .house-avatar.is-under-blanket { opacity:.18 !important; z-index:7 !important; pointer-events:none !important; }
 @keyframes bedSecretRock { 0%,100% { transform:translateX(0) rotate(0); } 30% { transform:translateX(-1px) rotate(-.5deg); } 70% { transform:translateX(1px) rotate(.5deg); } }
 @keyframes bedBlanketBreathe { 0%,100% { transform:scaleY(1); filter:saturate(1.06); } 50% { transform:scaleY(1.06); filter:saturate(1.18); } }
 @keyframes bedSecretHeart { 0%,100% { transform:translateY(0) scale(.9); opacity:.55; } 50% { transform:translateY(-5px) scale(1.15); opacity:.9; } }
+@keyframes bedCuddle { 35%,72% { transform:scaleX(.97) scaleY(1.08); filter:saturate(1.2); } 55% { transform:scaleX(1.02) scaleY(1.03); } }
+@keyframes bedKiss { 45% { transform:translateY(-3px) scale(1.025); filter:saturate(1.28); } }
+@keyframes bedCaress { 25%,70% { filter:saturate(1.2) brightness(1.06); box-shadow:inset 0 1px rgba(255,255,255,.45),0 0 14px rgba(218,144,169,.45); } }
+@keyframes bedActionEffect { 0% { opacity:0; transform:translate(-50%,8px) scale(.65); } 25%,65% { opacity:1; transform:translate(-50%,-9px) scale(1.08); } 100% { opacity:0; transform:translate(-50%,-25px) scale(1.28); } }
 
 /* Al acostarse, las fotos descansan sobre las almohadas; zzz aparece solo al dormir. */
 .house-avatar.is-in-bed { z-index:8; top:calc(100% - 56px) !important; width:42px; height:42px; overflow:visible; border-width:3px; cursor:default !important; transition:left .45s ease,top .45s ease,transform .45s ease,opacity .3s ease; }
@@ -563,12 +571,18 @@ body.together-active #presence-indicator { display: none !important; }
 .house-avatar.can-wake[data-avatar-for="princesa"]::before { transform:translateX(-50%) rotate(7deg); }
 @keyframes houseSleepZ { 50% { opacity:.45; transform:translate(5px,-5px) scale(1.08); } }
 
-.house-bed-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:9px 10px 9px 13px; border:1px solid rgba(127,66,89,.13); border-radius:15px; color:var(--together-muted); background:rgba(255,250,248,.66); font:600 .5rem/1.25 'Quicksand',sans-serif; }
+.house-bed-actions { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; margin-top:10px; padding:10px 11px; border:1px solid rgba(127,66,89,.13); border-radius:15px; color:var(--together-muted); background:rgba(255,250,248,.66); font:600 .5rem/1.25 'Quicksand',sans-serif; }
 .house-bed-actions[hidden] { display:none; }
-.house-bed-actions > div { display:flex; flex:0 0 auto; gap:7px; }
+.house-bed-primary-actions { display:flex; flex:0 0 auto; gap:7px; }
 .house-bed-actions button { min-height:31px; padding:7px 11px; border:1px solid rgba(127,66,89,.18); border-radius:999px; color:var(--together-wine); background:#fffaf8; cursor:pointer; font:700 .5rem/1 'Quicksand',sans-serif; }
-.house-bed-actions button:first-child { color:#fff; border-color:var(--together-wine); background:var(--together-wine); }
+.house-bed-primary-actions button:first-child { color:#fff; border-color:var(--together-wine); background:var(--together-wine); }
+.house-bed-together-actions { grid-column:1/-1; padding-top:9px; border-top:1px dashed rgba(127,66,89,.18); }
+.house-bed-together-actions[hidden] { display:none; }
+.house-bed-together-actions > strong { display:block; margin-bottom:7px; color:var(--together-ink); font:700 .52rem/1.2 'Quicksand',sans-serif; }
+.house-bed-together-actions > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+.house-bed-together-actions button { border-radius:12px; }
 .love-house[data-time="night"] .house-bed-actions { color:#eadde2; border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.07); }
+.love-house[data-time="night"] .house-bed-together-actions > strong { color:#fff4f7; }
 .house-shared-activities { margin-top:10px; padding:11px; border:1px solid rgba(127,66,89,.14); border-radius:17px; background:rgba(255,250,248,.7); box-shadow:0 8px 20px rgba(79,43,57,.06); }
 .house-shared-activities-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
 .house-shared-activities-head > div { display:flex; align-items:center; gap:6px; color:var(--together-wine); }
@@ -587,6 +601,7 @@ body.together-active #presence-indicator { display: none !important; }
 .house-shared-invitation-actions { display:flex; gap:5px; }
 .house-shared-invitation-actions button { min-height:30px; padding:6px 9px; border:1px solid rgba(127,66,89,.17); border-radius:999px; color:var(--together-wine); background:#fff; cursor:pointer; font:700 .43rem/1 'Quicksand',sans-serif; }
 .house-shared-invitation-actions button:last-child { color:#fff; border-color:var(--together-wine); background:var(--together-wine); }
+.house-shared-invitation-actions button:disabled { cursor:not-allowed; opacity:.48; }
 .love-house[data-time="night"] .house-shared-activities { border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.07); }
 .love-house[data-time="night"] .house-shared-activities-head strong,.love-house[data-time="night"] .house-shared-invitation strong { color:#fff4f7; }
 .love-house[data-time="night"] .house-shared-activities-head small,.love-house[data-time="night"] .house-shared-invitation small { color:#ddcbd3; }
@@ -658,9 +673,10 @@ body.together-active #presence-indicator { display: none !important; }
   .house-avatar.is-in-bed { top:calc(100% - 53px) !important; width:39px; height:39px; }
   .house-avatar-joel.is-in-bed { left:34px !important; }
   .house-avatar-princesa.is-in-bed { left:78px !important; }
-  .house-bed-actions { align-items:flex-start; flex-direction:column; }
-  .house-bed-actions > div { width:100%; }
-  .house-bed-actions button { flex:1; }
+  .house-bed-actions { grid-template-columns:1fr; align-items:flex-start; }
+  .house-bed-primary-actions { width:100%; }
+  .house-bed-primary-actions button { flex:1; }
+  .house-bed-together-actions { width:100%; }
   .house-shared-activities-head { flex-direction:column; gap:3px; }
   .house-shared-activities-head small { max-width:none; text-align:left; }
   .house-shared-activity-choices { grid-template-columns:1fr; }
@@ -943,7 +959,7 @@ body.together-active #presence-indicator { display: none !important; }
 .room-potted-plant.is-watering::before { content:"💧"; position:absolute; z-index:6; right:4px; top:-2px; animation:waterDrop .85s ease both; }
 .room-potted-plant:focus-visible { outline:3px solid var(--together-wine); outline-offset:2px; border-radius:14px; }
 .room-cactus { right:41px; top:22px; }
-.room-jasmine { z-index:5; left:139px; top:13px; transform:scale(.9); transform-origin:top center; }
+.room-jasmine { z-index:5; left:139px; top:43px; transform:scale(.9); transform-origin:top center; }
 .room-jasmine > .plant-visual { width:48px; height:48px; }
 .room-jasmine > small { z-index:6; bottom:-4px; width:118px; padding:3px 5px; border:1px solid rgba(126,69,91,.1); border-radius:999px; background:rgba(255,250,247,.86); }
 
@@ -998,6 +1014,11 @@ body.together-active #presence-indicator { display: none !important; }
 .dining-window::before { left:-14px; transform:skewY(-3deg); }.dining-window::after { right:-14px; background:linear-gradient(90deg,#efc7cb,#d99da9); transform:skewY(3deg); }
 .dining-window > i { position:absolute; left:calc(50% - 2px); top:0; bottom:0; width:4px; background:#f1dfe2; }
 .dining-window > i::after { content:""; position:absolute; left:-54px; right:-54px; top:calc(50% - 2px); height:4px; background:#f1dfe2; }
+.dining-sideboard { position:absolute; z-index:2; left:126px; right:12px; top:91px; height:34px; border-radius:4px 4px 8px 8px; background:linear-gradient(180deg,#b98472,#946359); box-shadow:inset 0 3px rgba(255,255,255,.14),0 6px 0 #795149,0 10px 14px rgba(68,42,48,.16); }
+.dining-sideboard::before { content:""; position:absolute; inset:7px 9px 5px; border:1px solid rgba(92,55,58,.24); border-radius:3px; background:linear-gradient(90deg,transparent calc(50% - 1px),rgba(91,55,59,.24) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px)); }
+.dining-sideboard::after { content:""; position:absolute; left:13px; right:13px; bottom:-12px; height:12px; background:linear-gradient(90deg,#765047 0 7px,transparent 7px calc(100% - 7px),#765047 calc(100% - 7px)); }
+.dining-sideboard i { position:absolute; z-index:2; top:17px; width:4px; height:4px; border-radius:50%; background:#e6bf88; box-shadow:0 1px rgba(73,45,49,.25); }
+.dining-sideboard i:first-child { left:calc(50% - 13px); }.dining-sideboard i:last-child { right:calc(50% - 13px); }
 .dining-tv { position:absolute; z-index:3; right:21px; top:21px; width:87px; height:57px; border:6px solid #775c68; border-radius:8px; display:grid; place-items:center; color:transparent; background:#050506; box-shadow:0 7px 13px rgba(65,39,49,.18),inset 0 0 9px rgba(255,255,255,.025); transition:background .25s ease,box-shadow .25s ease; }
 .dining-tv::before { content:""; position:absolute; left:calc(50% - 3px); bottom:-16px; width:6px; height:12px; background:#775c68; }
 .dining-tv::after { content:""; position:absolute; left:calc(50% - 22px); bottom:-18px; width:44px; height:6px; border-radius:50%; background:#775c68; }
@@ -1071,5 +1092,6 @@ body.together-active #presence-indicator { display: none !important; }
   .dining-table::after { left:44px; }
   .dining-sofa { right:8px; width:143px; }
   .dining-toast { left:67px; min-width:100px; }
-  .room-jasmine { left:128px; transform:scale(.84); }
+  .dining-sideboard { left:116px; right:8px; }
+  .room-jasmine { left:128px; top:46px; transform:scale(.84); }
 }

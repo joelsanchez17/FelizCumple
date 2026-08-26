@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v60-bedroom-lamps-dining-plant';
-const ASSETS_TO_CACHE = ['./index.html', './assets/vendor/supabase.js?v=2.112.4', './realtime.js?v=7', './together.js?v=32', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=40', './app_refresh.css?v=6', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './notification-icon.png', './notification-badge.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp', './assets/plants/dining-jasmine-states.webp'];
+const CACHE_NAME = 'love-app-v63-bed-actions';
+const ASSETS_TO_CACHE = ['./index.html', './assets/vendor/supabase.js?v=2.112.4', './realtime.js?v=7', './together.js?v=35', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=43', './app_refresh.css?v=6', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './notification-icon.png', './notification-badge.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp', './assets/plants/dining-jasmine-states.webp'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -76,7 +76,7 @@ self.addEventListener('notificationclick', event => {
   event.waitUntil((async () => {
     const type = event.notification.data?.type;
     const destination = type === 'drawing' ? './index.html#drawing'
-      : (type === 'house-note' || type === 'heart' || type === 'house-light' || type === 'house-wake') ? './index.html#together'
+      : (type === 'house-note' || type === 'heart' || type === 'house-light' || type === 'house-wake' || type === 'house-invitation') ? './index.html#together'
       : './index.html';
     const windows = await clients.matchAll({ type: 'window', includeUncontrolled: true });
     const existing = windows.find(item => new URL(item.url).origin === self.location.origin);
