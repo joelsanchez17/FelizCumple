@@ -426,6 +426,22 @@ body.together-active #presence-indicator { display: none !important; }
 .house-presence-message { width:auto; margin:12px 0 0; }
 .love-house[data-time="night"] .house-presence-message { color:#f6e9ed; border-color:rgba(255,255,255,.12); background:rgba(255,255,255,.1); }
 
+/* La presencia y el ánimo viven fuera del escenario para que ningún mueble los tape. */
+.house-status-board { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:10px; }
+.house-status-card { min-width:0; display:grid; grid-template-columns:9px minmax(0,1fr); align-items:start; gap:8px; padding:10px 11px; border:1px solid rgba(127,66,89,.13); border-radius:15px; background:rgba(255,250,248,.72); box-shadow:0 7px 18px rgba(79,43,57,.06); }
+.house-status-dot { width:8px; height:8px; margin-top:5px; border-radius:50%; background:#b8a9af; box-shadow:0 0 0 3px rgba(184,169,175,.14); }
+.house-status-card.is-online { border-color:rgba(83,123,97,.23); background:rgba(246,255,248,.82); }
+.house-status-card.is-online .house-status-dot { background:#5d9b70; box-shadow:0 0 0 3px rgba(93,155,112,.15),0 0 10px rgba(93,155,112,.25); }
+.house-status-card strong,.house-status-card > div > span,.house-status-card small { display:block; overflow-wrap:anywhere; }
+.house-status-card strong { color:var(--together-ink); font:700 .82rem/1.1 'Cormorant Garamond',serif; }
+.house-status-card > div > span { margin-top:2px; color:#806b73; font:700 .48rem/1.25 'Quicksand',sans-serif; }
+.house-status-card.is-online > div > span { color:#537b61; }
+.house-status-card small { min-height:2.5em; margin-top:4px; color:#654d58; font:600 .5rem/1.25 'Quicksand',sans-serif; }
+.love-house[data-time="night"] .house-status-card { border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.08); }
+.love-house[data-time="night"] .house-status-card strong,.love-house[data-time="night"] .house-status-card small { color:#f6e9ed; }
+.love-house[data-time="night"] .house-status-card > div > span { color:#ddcbd3; }
+.love-house[data-time="night"] .house-status-card.is-online > div > span { color:#a9d6b7; }
+
 @media (max-width:430px) {
   .love-house { min-height:500px; }
   .house-room { padding:20px 14px 17px; }
@@ -599,6 +615,11 @@ body.together-active #presence-indicator { display: none !important; }
   .house-heater { top:102px; width:47px; height:27px; }
   .house-table { width:56px; margin-top:43px; transform:scale(.92); transform-origin:top center; }
   .house-table > small { width:74px; font-size:.38rem; }
+  .house-status-board { gap:6px; margin-top:8px; }
+  .house-status-card { grid-template-columns:8px minmax(0,1fr); gap:6px; padding:9px 8px; }
+  .house-status-card strong { font-size:.75rem; }
+  .house-status-card > div > span { font-size:.44rem; }
+  .house-status-card small { font-size:.46rem; }
   .house-light-notify-row { font-size:.46rem; }
   .house-bed { left:7px; bottom:9px; width:120px; height:68px; }
   .house-bed small { top:-29px; font-size:.4rem; }

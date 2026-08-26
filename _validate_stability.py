@@ -5,15 +5,29 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 
 ROOT = Path(__file__).resolve().parent
+CACHED_CHROME_DRIVERS = sorted(
+    (Path.home() / ".cache" / "selenium" / "chromedriver" / "win64").glob("*/chromedriver.exe"),
+    reverse=True,
+)
+
+
+def open_chrome(options):
+    if CACHED_CHROME_DRIVERS:
+        return webdriver.Chrome(service=Service(str(CACHED_CHROME_DRIVERS[0])), options=options)
+    return webdriver.Chrome(options=options)
+
+
 results = {}
 realtime_source = (ROOT / "realtime.js").read_text(encoding="utf-8")
 together_source = (ROOT / "together.js").read_text(encoding="utf-8")
 service_worker_source = (ROOT / "sw.js").read_text(encoding="utf-8")
 index_source = (ROOT / "index.html").read_text(encoding="utf-8")
 refresh_css_source = (ROOT / "app_refresh.css").read_text(encoding="utf-8")
+together_css_source = (ROOT / "together.css").read_text(encoding="utf-8")
 results["presence_uses_per_session_key"] = "key: `${identity}:${sessionId}`" in realtime_source and "const sessionId = crypto.randomUUID?.()" in realtime_source
 results["presence_prefers_latest_activity"] = "b.last_activity_at || b.tracked_at" in realtime_source and "last_activity_at:lastActivityAt" in realtime_source
 results["presence_recovers_connection"] = all(status in realtime_source for status in ["CHANNEL_ERROR", "TIMED_OUT", "CLOSED", "OFFLINE"])
@@ -25,7 +39,8 @@ results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_sou
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
 results["ios_haptic_fallback"] = "window.loveHaptic" in index_source and ".love-haptic-flash" in refresh_css_source
 results["ios_push_sound_enabled"] = "silent:false" in service_worker_source
-results["cache_version"] = "love-app-v57-ios-feedback" in service_worker_source
+results["cache_version"] = "love-app-v58-visible-status" in service_worker_source
+results["house_status_outside_scene"] = "house-status-board" in index_source and "ningún mueble los tape" in together_css_source
 results["navigation_refreshes_offline_copy"] = "cache:'no-store'" in service_worker_source and "cache.put(cacheKey, response.clone())" in service_worker_source
 results["old_caches_removed_before_claim"] = "await Promise.all(keys.filter(key => key !== CACHE_NAME)" in service_worker_source and "await self.clients.claim()" in service_worker_source
 
@@ -39,7 +54,7 @@ opts.add_experimental_option("mobileEmulation", {"deviceMetrics": {"width": 393,
 opts.set_capability("goog:loggingPrefs", {"browser": "ALL"})
 opts.page_load_strategy = "eager"
 
-driver = webdriver.Chrome(options=opts)
+driver = open_chrome(opts)
 try:
     driver.get("http://127.0.0.1:8765/index.html?validation=stability")
     driver.execute_script("localStorage.setItem('love_identity','joel'); localStorage.setItem('koala_phase_2_1_surprise_seen','1'); localStorage.setItem('birthday_2026_celebrated','1');")
@@ -65,6 +80,15 @@ try:
     driver.execute_script("window.loveHaptic(10,{forceVisual:true})")
     results["haptic_visual_feedback_runs"] = driver.execute_script(
         "return document.getElementById('loveHapticFlash')?.classList.contains('show')"
+    )
+    driver.execute_script(
+        "window.showTab(document.querySelector('.bottom-nav button[onclick*=\"together\"]'),'together');"
+        "document.querySelector('[data-enter-room=\"bedroom\"]').click();"
+    )
+    time.sleep(.3)
+    results["house_status_cards_visible"] = driver.execute_script(
+        "const cards=[...document.querySelectorAll('.house-status-card')],room=document.querySelector('.house-interior').getBoundingClientRect();"
+        "return cards.length===2&&cards.every(card=>{const r=card.getBoundingClientRect();return r.width>0&&r.height>0&&r.top>=room.bottom-1});"
     )
 
     memories = driver.find_element(By.CSS_SELECTOR, ".bottom-nav button[onclick*=\"memories\"]")
@@ -102,12 +126,14 @@ def smoke_platform(label, width, height, mobile=None):
     platform_opts = Options()
     platform_opts.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
     platform_opts.add_argument("--headless=new")
+    platform_opts.add_argument("--disable-gpu")
+    platform_opts.add_argument("--no-sandbox")
     platform_opts.add_argument(f"--window-size={width},{height}")
     platform_opts.page_load_strategy = "eager"
     platform_opts.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     if mobile:
         platform_opts.add_experimental_option("mobileEmulation", mobile)
-    browser = webdriver.Chrome(options=platform_opts)
+    browser = open_chrome(platform_opts)
     try:
         browser.get(f"http://127.0.0.1:8765/index.html?validation={label}")
         browser.execute_script("localStorage.setItem('love_identity','joel'); localStorage.setItem('birthday_2026_celebrated','1'); localStorage.setItem('love_active_tab','home')")

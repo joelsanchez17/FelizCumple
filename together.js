@@ -314,6 +314,8 @@
 
     $('#houseJoel')?.classList.toggle('is-online', joelVisible);
     $('#housePrincesa')?.classList.toggle('is-online', princesaVisible);
+    $('[data-house-status-for="joel"]')?.classList.toggle('is-online', Boolean(detail.joel || locations.joel));
+    $('[data-house-status-for="princesa"]')?.classList.toggle('is-online', Boolean(detail.princesa || locations.princesa));
     const personStatus = person => {
       if (visibleInRoom(person)) return 'Está acá';
       if (locations[person]?.area === 'house') return 'Está en casa';
