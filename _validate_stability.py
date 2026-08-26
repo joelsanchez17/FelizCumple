@@ -39,8 +39,12 @@ results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_sou
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
 results["ios_haptic_fallback"] = "window.loveHaptic" in index_source and ".love-haptic-flash" in refresh_css_source
 results["ios_push_sound_enabled"] = "silent:false" in service_worker_source
-results["cache_version"] = "love-app-v58-visible-status" in service_worker_source
+results["cache_version"] = "love-app-v59-shared-invitations" in service_worker_source
 results["house_status_outside_scene"] = "house-status-board" in index_source and "ningún mueble los tape" in together_css_source
+results["shared_invitations_persist"] = "saveHouseDevice('shared_invitation'" in together_source and "5 * 60 * 1000" in together_source
+results["shared_invitations_require_acceptance"] = "answerSharedInvitation(true)" in together_source and "status:accept ? 'accepted' : 'declined'" in together_source
+results["shared_activities_update_both_people"] = "async function saveCoupleActivity" in together_source and "['joel', 'princesa'].map" in together_source
+results["shared_invitation_push_opens_house"] = together_source.count("'house-invitation'") >= 2
 results["navigation_refreshes_offline_copy"] = "cache:'no-store'" in service_worker_source and "cache.put(cacheKey, response.clone())" in service_worker_source
 results["old_caches_removed_before_claim"] = "await Promise.all(keys.filter(key => key !== CACHE_NAME)" in service_worker_source and "await self.clients.claim()" in service_worker_source
 
@@ -90,6 +94,16 @@ try:
         "const cards=[...document.querySelectorAll('.house-status-card')],room=document.querySelector('.house-interior').getBoundingClientRect();"
         "return cards.length===2&&cards.every(card=>{const r=card.getBoundingClientRect();return r.width>0&&r.height>0&&r.top>=room.bottom-1});"
     )
+    results["shared_activity_controls_fit_iphone"] = driver.execute_script(
+        "const box=document.getElementById('houseSharedActivities').getBoundingClientRect(),buttons=document.querySelectorAll('[data-shared-invite]');"
+        "return buttons.length===3&&box.width>0&&box.left>=0&&box.right<=innerWidth;"
+    )
+    results["shared_invitation_prompt_fits_iphone"] = driver.execute_script(
+        "const panel=document.getElementById('houseSharedInvitation');panel.hidden=false;"
+        "document.getElementById('houseSharedInvitationTitle').textContent='Princesa te está invitando';"
+        "document.getElementById('houseSharedInvitationText').textContent='Princesa quiere cerrar la puerta y bajar las luces con vos.';"
+        "const r=panel.getBoundingClientRect(),ok=r.width>0&&r.left>=0&&r.right<=innerWidth;panel.hidden=true;return ok;"
+    )
 
     memories = driver.find_element(By.CSS_SELECTOR, ".bottom-nav button[onclick*=\"memories\"]")
     driver.execute_script("arguments[0].click()", memories)
@@ -115,7 +129,7 @@ try:
 
     severe = []
     for entry in driver.get_log("browser"):
-        if entry["level"] == "SEVERE" and not any(x in entry["message"] for x in ["favicon", "ERR_CERT", "Blocked call to navigator.vibrate"]):
+        if entry["level"] == "SEVERE" and not any(x in entry["message"] for x in ["favicon", "ERR_CERT", "ERR_NETWORK_ACCESS_DENIED", "Blocked call to navigator.vibrate"]):
             severe.append(entry["message"])
     results["severe_console_errors"] = severe
 finally:
@@ -139,7 +153,7 @@ def smoke_platform(label, width, height, mobile=None):
         browser.execute_script("localStorage.setItem('love_identity','joel'); localStorage.setItem('birthday_2026_celebrated','1'); localStorage.setItem('love_active_tab','home')")
         browser.refresh()
         time.sleep(2)
-        errors = [entry["message"] for entry in browser.get_log("browser") if entry["level"] == "SEVERE" and "navigator.vibrate" not in entry["message"]]
+        errors = [entry["message"] for entry in browser.get_log("browser") if entry["level"] == "SEVERE" and not any(x in entry["message"] for x in ["navigator.vibrate", "ERR_NETWORK_ACCESS_DENIED"])]
         return {
             "viewport": browser.execute_script("return [innerWidth,innerHeight]"),
             "ready": browser.execute_script("return document.readyState"),

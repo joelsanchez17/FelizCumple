@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=38">
+  <link rel="stylesheet" href="./together.css?v=39">
   <link rel="stylesheet" href="./app_refresh.css?v=6">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -577,6 +577,25 @@
             <button id="houseBedLeave" type="button">Levantarse</button>
           </div>
         </div>
+        <section id="houseSharedActivities" class="house-shared-activities" aria-labelledby="houseSharedActivitiesTitle">
+          <div class="house-shared-activities-head">
+            <div><span aria-hidden="true">♡</span><strong id="houseSharedActivitiesTitle">Hacer algo juntos</strong></div>
+            <small>Las invitaciones esperan una respuesta.</small>
+          </div>
+          <div id="houseSharedActivityChoices" class="house-shared-activity-choices">
+            <button type="button" data-shared-invite="lie_together"><span aria-hidden="true">🛏️</span>Acostarnos juntos</button>
+            <button type="button" data-shared-invite="sleep_cuddle"><span aria-hidden="true">🐨</span>Dormir abrazados</button>
+            <button type="button" data-shared-invite="private_moment"><span aria-hidden="true">🫣</span>Un momento juntos</button>
+          </div>
+          <div id="houseSharedInvitation" class="house-shared-invitation" hidden aria-live="assertive">
+            <span id="houseSharedInvitationEmoji" aria-hidden="true">♡</span>
+            <div><strong id="houseSharedInvitationTitle"></strong><small id="houseSharedInvitationText"></small></div>
+            <div class="house-shared-invitation-actions">
+              <button id="houseSharedInvitationDecline" type="button">Ahora no</button>
+              <button id="houseSharedInvitationAccept" type="button">Aceptar</button>
+            </div>
+          </div>
+        </section>
         <aside id="houseConditionMessages" class="house-condition-messages" hidden aria-live="polite">
           <strong>La casita tiene algo que decir</strong>
           <div id="houseConditionList"></div>
@@ -4292,7 +4311,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=33', { updateViaCache: 'none' })
+          navigator.serviceWorker.register('./sw.js?v=34', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -5237,7 +5256,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=30"></script>
+<script src="./together.js?v=31"></script>
 </body>
 
 </html>
