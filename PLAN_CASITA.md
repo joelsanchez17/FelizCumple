@@ -378,3 +378,12 @@ Cada parte se probará con:
 ## Estado actual
 
 La **Parte 1 — Cimientos y búsqueda**, la **Parte 2A — Cama**, la **Parte 2B — Movimiento vivo** y la **Parte 2C — Cercanía** ya fueron implementadas. El próximo paso es la **Parte 2D — Actividades compartidas**, comenzando por invitaciones que el otro debe aceptar.
+
+## Trabajo futuro: autenticación
+
+La aplicación es una web personal para Joel y su novia. Por decisión del propietario, la autenticación real de Supabase queda fuera del parche actual. Antes de compartir la URL fuera de ese círculo o almacenar contenido más sensible se deberá:
+
+- Crear una cuenta de Supabase Auth para cada persona.
+- Vincular cada identidad a `auth.uid()` y dejar de confiar en el nombre enviado por el navegador.
+- Restringir las políticas RLS y la función `send-push` a esas dos cuentas.
+- Revisar y revocar las suscripciones push que no pertenezcan a ellas.

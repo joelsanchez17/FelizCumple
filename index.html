@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" sizes="180x180" href="icono-app.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <!-- Favicon (emoji corazón) -->
   <link rel="icon"
     href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
@@ -4179,7 +4179,7 @@
     })();
 
   </script>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="./assets/vendor/supabase.js?v=2.112.4"></script>
   <script>
     (() => {
       const KEY = 'love_identity';
@@ -4225,7 +4225,7 @@
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
       const s = document.createElement('script');
-      s.src = 'realtime.js?v=6';
+      s.src = 'realtime.js?v=7';
       document.head.appendChild(s);
     } else {
       // En file:// simulamos las funciones para que no rompa nada
@@ -4240,7 +4240,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=30', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=31', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -5185,7 +5185,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=28"></script>
+<script src="./together.js?v=29"></script>
 </body>
 
 </html>

@@ -56,7 +56,7 @@ def tap_avatar(driver, person, pointer_id):
     )
 
 
-joel = princesa = None
+joel = princesa = joel_phone = None
 try:
     joel = browser()
     setup(joel, "joel")
@@ -72,6 +72,44 @@ try:
             "princesa:housePrincesa.classList.contains('is-online'),"
             "message:housePresenceMessage.textContent}"
         )
+
+    # Si la misma persona abre otro dispositivo, manda la sesión con la actividad
+    # más reciente. Se prueba el cambio teléfono -> PC -> teléfono -> PC.
+    desktop_session = joel.execute_script("return window.loveSessionId")
+    joel_phone = browser()
+    setup(joel_phone, "joel")
+    phone_session = joel_phone.execute_script("return window.loveSessionId")
+    result["phone_takes_priority_when_opened"] = wait_for(
+        princesa, f"window.lovePresenceState.locations.joel?.session_id==='{phone_session}'"
+    )
+    joel.execute_script("window.markLoveActivity(true)")
+    result["desktop_retakes_priority_on_activity"] = wait_for(
+        princesa, f"window.lovePresenceState.locations.joel?.session_id==='{desktop_session}'"
+    )
+    joel_phone.execute_script("window.markLoveActivity(true)")
+    result["phone_retakes_priority_on_activity"] = wait_for(
+        princesa, f"window.lovePresenceState.locations.joel?.session_id==='{phone_session}'"
+    )
+    joel.execute_script("window.markLoveActivity(true)")
+    result["desktop_ready_for_remaining_tests"] = wait_for(
+        princesa, f"window.lovePresenceState.locations.joel?.session_id==='{desktop_session}'"
+    )
+    joel_phone.quit()
+    joel_phone = None
+
+    # Una pérdida real de red debe mostrar el estado y recuperar el canal/presencia.
+    joel.execute_cdp_cmd("Network.enable", {})
+    joel.execute_cdp_cmd("Network.emulateNetworkConditions", {
+        "offline": True, "latency": 0, "downloadThroughput": 0, "uploadThroughput": 0,
+    })
+    result["offline_state_visible"] = wait_for(joel, "document.getElementById('status-text').textContent.includes('Sin conexión')")
+    joel.execute_cdp_cmd("Network.emulateNetworkConditions", {
+        "offline": False, "latency": 20, "downloadThroughput": 5_000_000, "uploadThroughput": 2_000_000,
+    })
+    result["reconnects_after_network_returns"] = wait_for(joel, "window.isLoveRealtimeConnected?.()", 15)
+    result["presence_returns_after_network"] = wait_for(
+        princesa, f"window.lovePresenceState.locations.joel?.session_id==='{desktop_session}'", 15
+    )
 
     # La cama no debe invadir los objetos centrales antes de usarla.
     result["layout"] = princesa.execute_script(
@@ -208,3 +246,5 @@ finally:
         joel.quit()
     if princesa:
         princesa.quit()
+    if joel_phone:
+        joel_phone.quit()

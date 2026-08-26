@@ -12,10 +12,16 @@ results = {}
 realtime_source = (ROOT / "realtime.js").read_text(encoding="utf-8")
 together_source = (ROOT / "together.js").read_text(encoding="utf-8")
 service_worker_source = (ROOT / "sw.js").read_text(encoding="utf-8")
-results["presence_uses_per_session_key"] = "key: `${identity}:${sessionId}`" in realtime_source and "tracked_at:new Date().toISOString()" in realtime_source
+results["presence_uses_per_session_key"] = "key: `${identity}:${sessionId}`" in realtime_source and "const sessionId = crypto.randomUUID?.()" in realtime_source
+results["presence_prefers_latest_activity"] = "b.last_activity_at || b.tracked_at" in realtime_source and "last_activity_at:lastActivityAt" in realtime_source
+results["presence_recovers_connection"] = all(status in realtime_source for status in ["CHANNEL_ERROR", "TIMED_OUT", "CLOSED", "OFFLINE"])
+save_device_source = together_source[together_source.index("async function saveHouseDevice"):together_source.index("async function sendHouseMotion")]
+results["house_persists_before_broadcast"] = save_device_source.index("house_device_states") < save_device_source.index("sendLoveRealtime")
+results["supabase_is_local_and_pinned"] = "assets/vendor/supabase.js?v=2.112.4" in (ROOT / "index.html").read_text(encoding="utf-8")
+results["notification_has_dedicated_assets"] = all(asset in service_worker_source for asset in ["notification-icon.png", "notification-badge.png", "notification_id"])
 results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_source and "event_key: `mimo:" not in realtime_source
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
-results["cache_version"] = "love-app-v55-reliable-updates" in service_worker_source
+results["cache_version"] = "love-app-v56-realtime-recovery" in service_worker_source
 results["navigation_refreshes_offline_copy"] = "cache:'no-store'" in service_worker_source and "cache.put(cacheKey, response.clone())" in service_worker_source
 results["old_caches_removed_before_claim"] = "await Promise.all(keys.filter(key => key !== CACHE_NAME)" in service_worker_source and "await self.clients.claim()" in service_worker_source
 

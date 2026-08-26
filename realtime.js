@@ -89,8 +89,13 @@ async function subscribeToPush(identity, fromUserGesture = false) {
 
 async function sendPush(to, title, body, data = {}, drawing = null) {
   try {
-    const { error } = await client.functions.invoke('send-push', { body: { action: 'send', to, title, body, data, drawing } });
+    const notificationId = data.notification_id || crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const { data:result, error } = await client.functions.invoke('send-push', {
+      body: { action: 'send', to, title, body, data:{ ...data, notification_id:notificationId }, drawing }
+    });
     if (error) throw error;
+    if (result?.delivered === false) throw new Error(result.reason || 'La notificación no llegó a ningún dispositivo');
+    return result;
   } catch (error) {
     console.warn('No se pudo enviar la notificación:', error);
     throw error;
@@ -104,47 +109,80 @@ async function startLoveRoom() {
   const targetName = target === 'joel' ? 'Joel' : 'Princesa';
   window.loveIdentity = identity;
   window.loveTargetIdentity = target;
-  const sessionId = sessionStorage.getItem('love_session_id') || crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  sessionStorage.setItem('love_session_id', sessionId);
+  // Debe ser único por pestaña y carga. sessionStorage puede clonarse al abrir
+  // otra pestaña y provocar que dos sesiones compartan la misma clave.
+  const sessionId = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   window.loveSessionId = sessionId;
   const onlineAt = new Date().toISOString();
   let roomSubscribed = false;
+  let room = null;
+  let reconnectTimer = null;
+  let reconnectAttempt = 0;
+  let lastActivityAt = onlineAt;
+  let lastActivityTrackedAt = 0;
   let presenceLocation = { area:'app', room:null, room_changed_at:onlineAt };
-  // Cada pestaña/dispositivo necesita su propia presencia. Si ambos usan la misma
-  // identidad como key, una reconexión puede dejar visible un estado viejo.
-  const room = client.channel('room_amor', { config: { presence: { key: `${identity}:${sessionId}` } } });
-  window._loveRoom = room;
-  window.updateLoveLocation = async (area = 'app', roomId = null) => {
+
+  const presencePayload = () => ({
+    identity,
+    label:LABEL[identity],
+    session_id:sessionId,
+    online_at:onlineAt,
+    tracked_at:new Date().toISOString(),
+    last_activity_at:lastActivityAt,
+    ...presenceLocation
+  });
+
+  async function trackPresence() {
+    if (!roomSubscribed || !room) return false;
+    try {
+      return await room.track(presencePayload()) === 'ok';
+    } catch (error) {
+      console.warn('No se pudo actualizar la presencia', error);
+      return false;
+    }
+  }
+
+  window.markLoveActivity = (force = false) => {
+    const now = Date.now();
+    if (!force && now - lastActivityTrackedAt < 5000) return;
+    lastActivityTrackedAt = now;
+    lastActivityAt = new Date(now).toISOString();
+    void trackPresence();
+  };
+
+  window.updateLoveLocation = async (area = 'app', roomId = null, markActive = false) => {
     const nextArea = area === 'house' ? 'house' : 'app';
     const nextRoom = nextArea === 'house' && typeof roomId === 'string' ? roomId : null;
     if (presenceLocation.area !== nextArea || presenceLocation.room !== nextRoom) {
       presenceLocation = { area:nextArea, room:nextRoom, room_changed_at:new Date().toISOString() };
     }
-    if (!roomSubscribed) return false;
-    await room.track({
-      identity,
-      label:LABEL[identity],
-      session_id:sessionId,
-      online_at:onlineAt,
-      tracked_at:new Date().toISOString(),
-      ...presenceLocation
-    });
-    return true;
+    if (markActive) {
+      lastActivityTrackedAt = Date.now();
+      lastActivityAt = new Date(lastActivityTrackedAt).toISOString();
+    }
+    return trackPresence();
   };
   window.getLoveLocation = () => ({ ...presenceLocation });
+  window.isLoveRealtimeConnected = () => roomSubscribed;
+  window.sendLoveRealtime = async (event, payload) => {
+    if (!roomSubscribed || !room) return false;
+    try {
+      return await room.send({ type:'broadcast', event, payload }) === 'ok';
+    } catch (error) {
+      console.warn(`No se pudo emitir ${event} por Realtime`, error);
+      return false;
+    }
+  };
   window.dispatchEvent(new CustomEvent('loveidentityready', { detail: { identity, target } }));
   window.activarNotificaciones = () => subscribeToPush(identity, true);
   subscribeToPush(identity);
 
-  room
-    .on('presence', { event: 'sync' }, () => {
+  function applyPresenceState() {
       const state = room.presenceState();
       const metas = Object.values(state).flat().filter(Boolean);
       const latestFor = person => {
-        const personMetas = metas.filter(item => item?.identity === person);
-        const inHouse = personMetas.filter(item => item.area === 'house' && item.room);
-        return (inHouse.length ? inHouse : personMetas)
-          .sort((a, b) => new Date(b.tracked_at || b.room_changed_at || b.online_at || 0) - new Date(a.tracked_at || a.room_changed_at || a.online_at || 0))[0] || null;
+        return metas.filter(item => item?.identity === person)
+          .sort((a, b) => new Date(b.last_activity_at || b.tracked_at || b.online_at || 0) - new Date(a.last_activity_at || a.tracked_at || a.online_at || 0))[0] || null;
       };
       const locations = { joel:latestFor('joel'), princesa:latestFor('princesa') };
       const presence = { joel:Boolean(locations.joel), princesa:Boolean(locations.princesa), locations };
@@ -152,8 +190,46 @@ async function startLoveRoom() {
       const online = presence[target];
       updateInterface(online);
       window.dispatchEvent(new CustomEvent('lovepresencechange', { detail: presence }));
-    })
-    .on('broadcast', { event: 'mimo' }, ({ payload }) => recibirMimo(payload.type))
+  }
+
+  function scheduleReconnect(immediate = false) {
+    if (!navigator.onLine) return;
+    clearTimeout(reconnectTimer);
+    const delay = immediate ? 0 : Math.min(30000, 1500 * (2 ** reconnectAttempt++));
+    reconnectTimer = setTimeout(() => void connectRoom(), delay);
+  }
+
+  function showConnectionStatus(status) {
+    if (status === 'SUBSCRIBED') return;
+    window.partnerOnline = false;
+    const dot = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    if (dot) {
+      dot.style.background = status === 'OFFLINE' ? '#aaa' : '#f0a34a';
+      dot.style.boxShadow = 'none';
+    }
+    if (text) {
+      text.innerText = status === 'OFFLINE' ? 'Sin conexión' : 'Reconectando…';
+      text.style.color = '#8a6b45';
+      text.style.fontWeight = '600';
+    }
+  }
+
+  async function connectRoom() {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+    roomSubscribed = false;
+    const previousRoom = room;
+    room = null;
+    if (previousRoom) {
+      try { await client.removeChannel(previousRoom); } catch (error) { console.warn('No se pudo limpiar el canal anterior', error); }
+    }
+    const channel = client.channel('room_amor', { config: { presence: { key: `${identity}:${sessionId}` } } });
+    room = channel;
+    window._loveRoom = channel;
+    channel
+      .on('presence', { event: 'sync' }, applyPresenceState)
+      .on('broadcast', { event: 'mimo' }, ({ payload }) => recibirMimo(payload.type))
     .on('broadcast', { event: 'mensaje' }, ({ payload }) => mostrarMensaje(payload.text))
     .on('broadcast', { event: 'house-action' }, ({ payload }) => {
       window.dispatchEvent(new CustomEvent('lovehouseaction', { detail: payload }));
@@ -161,13 +237,42 @@ async function startLoveRoom() {
     .on('broadcast', { event: 'drawing' }, ({ payload }) => {
       window.dispatchEvent(new CustomEvent('lovedrawingreceived', { detail: payload }));
     })
-    .subscribe(async status => {
-      roomSubscribed = status === 'SUBSCRIBED';
-      if (roomSubscribed) {
-        await window.updateLoveLocation(presenceLocation.area, presenceLocation.room);
-        window.dispatchEvent(new CustomEvent('loverealtimeconnected'));
-      }
-    });
+      .subscribe(async status => {
+        if (room !== channel) return;
+        roomSubscribed = status === 'SUBSCRIBED';
+        window.dispatchEvent(new CustomEvent('loverealtimestatus', { detail:{ status } }));
+        if (roomSubscribed) {
+          reconnectAttempt = 0;
+          await trackPresence();
+          window.dispatchEvent(new CustomEvent('loverealtimeconnected'));
+        } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
+          showConnectionStatus(status);
+          scheduleReconnect();
+        }
+      });
+  }
+
+  ['pointerdown', 'pointermove', 'keydown', 'touchstart'].forEach(type => {
+    window.addEventListener(type, () => window.markLoveActivity(), { capture:true, passive:true });
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      window.markLoveActivity(true);
+      if (!roomSubscribed) scheduleReconnect(true);
+    }
+  });
+  window.addEventListener('online', () => scheduleReconnect(true));
+  window.addEventListener('pageshow', () => {
+    window.markLoveActivity(true);
+    if (!roomSubscribed) scheduleReconnect(true);
+  });
+  window.addEventListener('offline', () => {
+    roomSubscribed = false;
+    showConnectionStatus('OFFLINE');
+    window.dispatchEvent(new CustomEvent('loverealtimestatus', { detail:{ status:'OFFLINE' } }));
+  });
+
+  await connectRoom();
 
   function updateInterface(online) {
     window.partnerOnline = online;
@@ -196,7 +301,8 @@ async function startLoveRoom() {
   };
 
   window.enviarMimo = async type => {
-    await room.send({ type: 'broadcast', event: 'mimo', payload: { type, from: identity } });
+    window.markLoveActivity(true);
+    void window.sendLoveRealtime('mimo', { type, from: identity });
     mostrarEfecto(type, true);
     const emoji = type === 'beso' ? '💋' : type === 'ojos' ? '👀' : '👆';
     try {
@@ -205,7 +311,8 @@ async function startLoveRoom() {
   };
 
   window.enviarMensaje = async text => {
-    await room.send({ type:'broadcast', event:'mensaje', payload:{ text, from:identity } });
+    window.markLoveActivity(true);
+    void window.sendLoveRealtime('mensaje', { text, from:identity });
     mostrarMensaje(text, true);
     try {
       await sendPush(target, `Un mensajito de ${identity === 'joel' ? 'Joel' : 'Princesa'} 💌`, text, { type:'mensaje', text });

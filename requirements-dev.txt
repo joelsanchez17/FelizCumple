@@ -1,0 +1,2 @@
+# Dependencias para las validaciones locales con Chrome.
+selenium==4.47.0

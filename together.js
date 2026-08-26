@@ -84,6 +84,8 @@
   const roomMotionTimers = new Map();
   const seenMotionIds = new Set();
   const refreshTables = new Set();
+  let changesChannel = null;
+  let changesReconnectTimer = null;
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -376,7 +378,7 @@
     if (layer && surface) surface.appendChild(layer);
     renderAvatarPositions(roomId);
     localStorage.setItem('love_last_house_room', roomId);
-    await window.updateLoveLocation?.('house', roomId);
+    await window.updateLoveLocation?.('house', roomId, true);
     renderPresence(latestPresence);
     $('#loveHouse')?.scrollIntoView({ behavior:'smooth', block:'start' });
   }
@@ -386,7 +388,7 @@
     closeAvatarActions();
     $$('.house-room-view').forEach(view => { view.hidden = true; });
     if ($('#houseEntrance')) $('#houseEntrance').hidden = false;
-    await window.updateLoveLocation?.('house', null);
+    await window.updateLoveLocation?.('house', null, true);
     renderPresence(latestPresence);
     $('#loveHouse')?.scrollIntoView({ behavior:'smooth', block:'start' });
   }
@@ -396,7 +398,7 @@
     closeAvatarActions();
     $$('.house-room-view').forEach(view => { view.hidden = true; });
     if ($('#houseEntrance')) $('#houseEntrance').hidden = false;
-    await window.updateLoveLocation?.('app', null);
+    await window.updateLoveLocation?.('app', null, true);
     renderPresence(latestPresence);
   }
 
@@ -424,7 +426,7 @@
     if (send) { send.disabled = true; send.textContent = 'Enviando…'; }
     try {
       await window.sendLovePush(target, 'Te dejaron una luz encendida 💡', `${PEOPLE[identity]} dejó una luz esperándote en la casita`, { type: 'house-light' });
-      await window._loveRoom?.send({ type:'broadcast', event:'mensaje', payload:{ text:'Dejé una luz encendida para vos 💡', from:identity } });
+      void window.sendLoveRealtime?.('mensaje', { text:'Dejé una luz encendida para vos 💡', from:identity });
       toast(`Le avisaste a ${PEOPLE[target]} 🔔`);
       navigator.vibrate?.([12, 35, 12]);
     } catch (error) {
@@ -547,7 +549,7 @@
 
   async function saveHouseDevice(device, state, roomId = 'bedroom') {
     const updatedAt = new Date().toISOString();
-    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ room:roomId, action:device, value:state, from:identity, updated_at:updatedAt } });
+    window.markLoveActivity?.(true);
     const { error } = await client.from('house_device_states').upsert({
       room_id:roomId,
       device_id:device,
@@ -555,23 +557,30 @@
       updated_by: identity,
       updated_at: updatedAt
     }, { onConflict:'room_id,device_id' });
-    if (error) reportError(error, 'No se pudo guardar el estado de la casita');
+    if (error) {
+      await loadHouseDevices();
+      reportError(error, 'No se pudo guardar el estado de la casita');
+      toast('No se pudo guardar. Revisá la conexión e intentá otra vez.');
+      return false;
+    }
+    void window.sendLoveRealtime?.('house-action', { room:roomId, action:device, value:state, from:identity, updated_at:updatedAt });
+    return true;
   }
 
   async function sendHouseMotion(roomId, motion) {
     const updatedAt = new Date().toISOString();
     const expiresAt = new Date(Date.now() + 30000).toISOString();
     const payload = { room:roomId, action:`motion_${identity}`, value:motion, from:identity, updated_at:updatedAt };
-    const broadcast = window._loveRoom?.send({ type:'broadcast', event:'house-action', payload });
-    const fallback = client.from('house_device_states').upsert({
+    window.markLoveActivity?.(true);
+    const { error } = await client.from('house_device_states').upsert({
       room_id:roomId,
       device_id:`motion_${identity}`,
       state:{ motion, expires_at:expiresAt },
       updated_by:identity,
       updated_at:updatedAt
     }, { onConflict:'room_id,device_id' });
-    const [, { error }] = await Promise.all([broadcast, fallback]);
     if (error) console.warn('No se pudo guardar el respaldo breve de la acción', error);
+    void window.sendLoveRealtime?.('house-action', payload);
   }
 
   function setDiningTableState(state, announce = false) {
@@ -781,20 +790,19 @@
     if (!PEOPLE[person] || !activityStates[person]) return;
     const previous = activityStates[person];
     setActivityState(person, null);
-    await window._loveRoom?.send({
-      type:'broadcast', event:'house-action',
-      payload:{ room:previous.room_id || 'bedroom', action:`activity_${person}`, value:null, from:identity, updated_at:new Date().toISOString() }
-    });
+    window.markLoveActivity?.(true);
+    const payload = { room:previous.room_id || 'bedroom', action:`activity_${person}`, value:null, from:identity, updated_at:new Date().toISOString() };
     const { error } = await client.from('house_activities').delete().eq('identity', person);
     if (error) {
       loadHouseActivities();
       return reportError(error, 'No se pudo terminar la actividad');
     }
+    void window.sendLoveRealtime?.('house-action', payload);
     if (announce) toast(previous.activity === 'showering'
       ? (person === identity ? 'Saliste de la ducha.' : `${PEOPLE[person]} salió de la ducha.`)
       : (person === identity ? 'Ya te levantaste' : `Arriba, ${gendered(person, 'dormilón', 'dormilona')}.`));
     if (notify && person === target) {
-      await window._loveRoom?.send({ type:'broadcast', event:'mensaje', payload:{ text:`${PEOPLE[identity]} te despertó. Parece que quería atención o cariñitos.`, from:identity } });
+      void window.sendLoveRealtime?.('mensaje', { text:`${PEOPLE[identity]} te despertó. Parece que quería atención o cariñitos.`, from:identity });
       try {
         await window.sendLovePush(target, `${PEOPLE[identity]} te despertó ☀️`, 'Parece que quería atención o cariñitos.', { type:'house-wake', room:'bedroom' });
       } catch (error) {
@@ -816,16 +824,14 @@
       updated_at:now
     };
     setActivityState(person, activity);
-    await window._loveRoom?.send({
-      type:'broadcast', event:'house-action',
-      payload:{ room:roomId, action:`activity_${person}`, value:activity, from:identity, updated_at:now }
-    });
+    window.markLoveActivity?.(true);
     const { error } = await client.from('house_activities').upsert(activity, { onConflict:'identity' });
     if (error) {
       await loadHouseActivities();
       reportError(error, 'No se pudo guardar la actividad en la casa');
       return false;
     }
+    void window.sendLoveRealtime?.('house-action', { room:roomId, action:`activity_${person}`, value:activity, from:identity, updated_at:now });
     return true;
   }
 
@@ -1043,7 +1049,7 @@
     if (!avatar?.classList.contains('is-online')) return;
     if (!await saveActivity(target, 'lying', { style:'koala', woken_by:identity })) return;
     toast(`Arriba, ${gendered(target, 'dormilón', 'dormilona')}.`);
-    await window._loveRoom?.send({ type:'broadcast', event:'mensaje', payload:{ text:`${PEOPLE[identity]} te despertó. Parece que quería atención o cariñitos.`, from:identity } });
+    void window.sendLoveRealtime?.('mensaje', { text:`${PEOPLE[identity]} te despertó. Parece que quería atención o cariñitos.`, from:identity });
     try {
       await window.sendLovePush(target, `${PEOPLE[identity]} te despertó ☀️`, 'Parece que quería atención o cariñitos.', { type:'house-wake', room:'bedroom' });
     } catch (error) {
@@ -1055,7 +1061,7 @@
     if (!ROOMS[roomId] || !PEOPLE[person]) return;
     const position = avatarStates[roomId][person];
     const updatedAt = new Date().toISOString();
-    await window._loveRoom?.send({ type:'broadcast', event:'house-action', payload:{ room:roomId, action:`avatar_${person}`, value:position, from:identity, updated_at:updatedAt } });
+    window.markLoveActivity?.(true);
     const { error } = await client.from('house_avatar_positions').upsert({
       identity:person,
       room_id:roomId,
@@ -1064,6 +1070,7 @@
       updated_at:updatedAt
     }, { onConflict:'identity,room_id' });
     if (error) reportError(error, 'No se pudo guardar tu lugar en la habitación');
+    else void window.sendLoveRealtime?.('house-action', { room:roomId, action:`avatar_${person}`, value:position, from:identity, updated_at:updatedAt });
   }
 
   function avatarsAreClose(roomId = currentRoom) {
@@ -1725,7 +1732,13 @@
   }
 
   function subscribeToChanges() {
-    client.channel(`together_${identity}_${Math.random().toString(36).slice(2)}`)
+    clearTimeout(changesReconnectTimer);
+    const previousChannel = changesChannel;
+    changesChannel = null;
+    if (previousChannel) void client.removeChannel(previousChannel);
+    const channel = client.channel(`together_${identity}_${Math.random().toString(36).slice(2)}`);
+    changesChannel = channel;
+    channel
       .on('postgres_changes', { event: '*', schema: 'public', table: 'heart_states' }, () => scheduleRefresh('heart_states'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_notes' }, () => scheduleRefresh('house_notes'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'love_journal' }, () => scheduleRefresh('love_journal'))
@@ -1733,10 +1746,14 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_avatar_positions' }, () => scheduleRefresh('house_avatar_positions'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_activities' }, () => scheduleRefresh('house_activities'))
       .subscribe(status => {
+        if (changesChannel !== channel) return;
         if (status === 'SUBSCRIBED') {
           loadHouseDevices();
           loadAvatarPositions();
           loadHouseActivities();
+        } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status) && navigator.onLine) {
+          clearTimeout(changesReconnectTimer);
+          changesReconnectTimer = setTimeout(subscribeToChanges, 2500);
         }
       });
   }
@@ -1817,11 +1834,17 @@
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) window.updateLoveLocation?.('app', null);
       else if (document.body.classList.contains('together-active')) {
-        window.updateLoveLocation?.('house', currentRoom);
+        window.updateLoveLocation?.('house', currentRoom, true);
         loadHouseDevices();
         loadAvatarPositions();
         loadHouseActivities();
       }
+    });
+    window.addEventListener('online', () => {
+      subscribeToChanges();
+      loadHouseDevices();
+      loadAvatarPositions();
+      loadHouseActivities();
     });
     window.addEventListener('loverealtimeconnected', () => {
       loadHouseDevices();

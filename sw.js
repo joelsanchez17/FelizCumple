@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v55-reliable-updates';
-const ASSETS_TO_CACHE = ['./index.html', './realtime.js?v=6', './together.js?v=28', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=37', './app_refresh.css?v=5', './icono-app.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
+const CACHE_NAME = 'love-app-v56-realtime-recovery';
+const ASSETS_TO_CACHE = ['./index.html', './assets/vendor/supabase.js?v=2.112.4', './realtime.js?v=7', './together.js?v=29', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=37', './app_refresh.css?v=5', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './notification-icon.png', './notification-badge.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -63,22 +63,29 @@ self.addEventListener('fetch', event => {
 self.addEventListener('push', event => {
   let payload = {};
   try { payload = event.data?.json() || {}; } catch { payload = { body: event.data?.text() }; }
+  const notificationData = payload.data || {};
+  const notificationId = notificationData.notification_id || Date.now();
   event.waitUntil(self.registration.showNotification(payload.title || 'KoalaApp 💌', {
-    body: payload.body || 'Tenés un mensaje nuevo', icon: './icono-app.png', badge: './icono-app.png',
-    tag: payload.tag || 'love-message', renotify: true, data: payload.data || {}
+    body: payload.body || 'Tenés un mensaje nuevo', icon: './notification-icon.png', badge: './notification-badge.png',
+    tag: payload.tag || `${notificationData.type || 'love'}-${notificationId}`, renotify: true,
+    timestamp:Date.now(), data:notificationData
   }));
 });
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil((async () => {
+    const type = event.notification.data?.type;
+    const destination = type === 'drawing' ? './index.html#drawing'
+      : (type === 'house-note' || type === 'heart' || type === 'house-light' || type === 'house-wake') ? './index.html#together'
+      : './index.html';
     const windows = await clients.matchAll({ type: 'window', includeUncontrolled: true });
     const existing = windows.find(item => new URL(item.url).origin === self.location.origin);
-    if (existing) { await existing.focus(); existing.postMessage({ type: 'notification-click', data: event.notification.data }); }
+    if (existing) {
+      const navigated = 'navigate' in existing ? await existing.navigate(destination) : existing;
+      await navigated.focus();
+      navigated.postMessage({ type: 'notification-click', data: event.notification.data });
+    }
     else {
-      const type = event.notification.data?.type;
-      const destination = type === 'drawing' ? './index.html#drawing'
-        : (type === 'house-note' || type === 'heart' || type === 'house-light' || type === 'house-wake') ? './index.html#together'
-        : './index.html';
       await clients.openWindow(destination);
     }
   })());
