@@ -14,11 +14,51 @@
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
   <link rel="stylesheet" href="./together.css?v=37">
-  <link rel="stylesheet" href="./app_refresh.css?v=5">
+  <link rel="stylesheet" href="./app_refresh.css?v=6">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <script>
+    // iOS/WebKit no expone la Vibration API. Todas las llamadas existentes reciben
+    // un pulso visual equivalente; Android conserva la vibración nativa.
+    (() => {
+      const nativeVibrate = typeof navigator.vibrate === 'function' ? navigator.vibrate.bind(navigator) : null;
+      let visualTimer = null;
+      function showVisualFeedback() {
+        if (!document.body) return;
+        let flash = document.getElementById('loveHapticFlash');
+        if (!flash) {
+          flash = document.createElement('div');
+          flash.id = 'loveHapticFlash';
+          flash.className = 'love-haptic-flash';
+          flash.setAttribute('aria-hidden', 'true');
+          document.body.appendChild(flash);
+        }
+        clearTimeout(visualTimer);
+        flash.classList.remove('show');
+        void flash.offsetWidth;
+        flash.classList.add('show');
+        visualTimer = setTimeout(() => flash.classList.remove('show'), 360);
+      }
+      window.loveHaptic = (pattern = 10, options = {}) => {
+        let vibrated = false;
+        if (nativeVibrate && !options.forceVisual) {
+          try { vibrated = nativeVibrate(pattern) !== false; } catch { vibrated = false; }
+        }
+        if (!vibrated || options.forceVisual) showVisualFeedback();
+        return vibrated;
+      };
+      window.loveHapticsSupported = Boolean(nativeVibrate);
+      if (!nativeVibrate) {
+        try {
+          Object.defineProperty(navigator, 'vibrate', { configurable:true, value:window.loveHaptic });
+        } catch {
+          try { Object.defineProperty(Object.getPrototypeOf(navigator), 'vibrate', { configurable:true, value:window.loveHaptic }); } catch {}
+        }
+      }
+    })();
+  </script>
   <!-- Favicon (emoji corazón) -->
   <link rel="icon"
     href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
@@ -4240,7 +4280,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=31', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./sw.js?v=32', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});

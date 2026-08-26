@@ -428,7 +428,7 @@
       await window.sendLovePush(target, 'Te dejaron una luz encendida 💡', `${PEOPLE[identity]} dejó una luz esperándote en la casita`, { type: 'house-light' });
       void window.sendLoveRealtime?.('mensaje', { text:'Dejé una luz encendida para vos 💡', from:identity });
       toast(`Le avisaste a ${PEOPLE[target]} 🔔`);
-      navigator.vibrate?.([12, 35, 12]);
+      window.loveHaptic?.([12, 35, 12]);
     } catch (error) {
       toast('No pudimos avisarle, probá otra vez');
     } finally {
@@ -840,7 +840,7 @@
     if (isInBed(identity)) return $('#houseBedActions')?.scrollIntoView({ behavior:'smooth', block:'nearest' });
     if (await saveActivity(identity, 'lying', { style:'koala' })) {
       toast('Te acostaste un ratito.');
-      navigator.vibrate?.([12, 30, 12]);
+      window.loveHaptic?.([12, 30, 12]);
     }
   }
 
@@ -853,7 +853,7 @@
     }
     if (await saveActivity(identity, 'sleeping', { style:'koala' })) {
       toast('Te acomodaste en la cama. A mimir 😴 o qué 😏?');
-      navigator.vibrate?.([12, 30, 12]);
+      window.loveHaptic?.([12, 30, 12]);
     }
   }
 
@@ -888,7 +888,7 @@
       'Shhh… parece que abajo de esa sábana está pasando algo.'
     ];
     showHouseMotionMessage(messages[Math.abs(Number(motion.sequence) || 0) % messages.length], '🫣');
-    navigator.vibrate?.([15, 40, 15]);
+    window.loveHaptic?.([15, 40, 15]);
     const button = $('#houseBedIntimate');
     if (button) button.textContent = 'Asomarnos de la sábana 👀';
     bedMomentTimer = setTimeout(stopBedMoment, 20000);
@@ -975,7 +975,7 @@
     const motion = { type:'shower', kind, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
     if (kind === 'private') motion.active = !showerPrivateActive;
     animateShowerMotion(identity, motion, 'bathroom');
-    navigator.vibrate?.([10, 30, 10]);
+    window.loveHaptic?.([10, 30, 10]);
     await sendHouseMotion('bathroom', motion);
   }
 
@@ -1030,7 +1030,7 @@
     const motion = { type:'room_object', kind, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
     if (kind === 'toast') motion.together = bothPeopleAreHere('dining');
     animateRoomObjectMotion(identity, motion, roomId);
-    navigator.vibrate?.([10, 25, 10]);
+    window.loveHaptic?.([10, 25, 10]);
     await sendHouseMotion(roomId, motion);
   }
 
@@ -1039,7 +1039,7 @@
     if (isShowering(identity)) return clearActivity(identity);
     if (await saveActivity(identity, 'showering', { water:'warm' }, 'bathroom')) {
       toast('Entraste a la ducha 🚿');
-      navigator.vibrate?.([12, 30, 12]);
+      window.loveHaptic?.([12, 30, 12]);
     }
   }
 
@@ -1152,7 +1152,7 @@
   };
 
   const PUPITO_REACTIONS = [
-    { receiver:'', message:'Agus vio venir esa mano y activó defensa 😂' },
+    { receiver:'', message:'Agus vio venir esa mano y activó el modo defensa 😂' },
     { receiver:'pupito-almost', message:'Casi, Koalita. Ese pupito estuvo demasiado cerca 👀' },
     { receiver:'pupito-caught', message:'¡Lo tocó! Agus se distrajo un segundo 😳' },
     { receiver:'pupito-guard', message:'Ahora Agus está cuidando el pupito con las dos manos 😂' }
@@ -1221,7 +1221,7 @@
     if (!currentRoom || hasFixedActivity(identity)) return;
     const motion = { type:'jump', id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}` };
     animateAvatarMotion(identity, motion, currentRoom);
-    navigator.vibrate?.([10, 25, 10]);
+    window.loveHaptic?.([10, 25, 10]);
     await sendHouseMotion(currentRoom, motion);
   }
 
@@ -1232,7 +1232,7 @@
     const motion = { type, id:`${identity}-${Date.now()}-${Math.random().toString(16).slice(2)}`, ...extra };
     animateAvatarMotion(identity, motion, currentRoom);
     if (extra.kind !== 'pupito') closeAvatarActions();
-    navigator.vibrate?.(type === 'together' ? [10, 35, 10] : 10);
+    window.loveHaptic?.(type === 'together' ? [10, 35, 10] : 10);
     await sendHouseMotion(currentRoom, motion);
   }
 
@@ -1414,7 +1414,7 @@
     if (error) return reportError(error, 'No se pudo guardar tu señal');
     heartStates[identity] = data;
     renderHeartStates();
-    navigator.vibrate?.(15);
+    window.loveHaptic?.(15);
     toast('Tu señal quedó encendida');
   }
 
@@ -1505,7 +1505,7 @@
         if (error) return reportError(error, 'No se pudo abrir la nota');
         note.is_read = true;
         await loadNotes();
-        navigator.vibrate?.([20, 30, 20]);
+        window.loveHaptic?.([20, 30, 20]);
       });
       actions.appendChild(open);
     }

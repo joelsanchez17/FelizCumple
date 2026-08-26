@@ -12,6 +12,8 @@ results = {}
 realtime_source = (ROOT / "realtime.js").read_text(encoding="utf-8")
 together_source = (ROOT / "together.js").read_text(encoding="utf-8")
 service_worker_source = (ROOT / "sw.js").read_text(encoding="utf-8")
+index_source = (ROOT / "index.html").read_text(encoding="utf-8")
+refresh_css_source = (ROOT / "app_refresh.css").read_text(encoding="utf-8")
 results["presence_uses_per_session_key"] = "key: `${identity}:${sessionId}`" in realtime_source and "const sessionId = crypto.randomUUID?.()" in realtime_source
 results["presence_prefers_latest_activity"] = "b.last_activity_at || b.tracked_at" in realtime_source and "last_activity_at:lastActivityAt" in realtime_source
 results["presence_recovers_connection"] = all(status in realtime_source for status in ["CHANNEL_ERROR", "TIMED_OUT", "CLOSED", "OFFLINE"])
@@ -21,7 +23,9 @@ results["supabase_is_local_and_pinned"] = "assets/vendor/supabase.js?v=2.112.4" 
 results["notification_has_dedicated_assets"] = all(asset in service_worker_source for asset in ["notification-icon.png", "notification-badge.png", "notification_id"])
 results["journal_excludes_mimos"] = ".neq('event_type', 'mimo')" in together_source and "event_key: `mimo:" not in realtime_source
 results["message_title_not_redundant"] = "Un mensajito de ${identity" in realtime_source and "pensó en vos`, text" not in realtime_source
-results["cache_version"] = "love-app-v56-realtime-recovery" in service_worker_source
+results["ios_haptic_fallback"] = "window.loveHaptic" in index_source and ".love-haptic-flash" in refresh_css_source
+results["ios_push_sound_enabled"] = "silent:false" in service_worker_source
+results["cache_version"] = "love-app-v57-ios-feedback" in service_worker_source
 results["navigation_refreshes_offline_copy"] = "cache:'no-store'" in service_worker_source and "cache.put(cacheKey, response.clone())" in service_worker_source
 results["old_caches_removed_before_claim"] = "await Promise.all(keys.filter(key => key !== CACHE_NAME)" in service_worker_source and "await self.clients.claim()" in service_worker_source
 
@@ -58,6 +62,10 @@ try:
         "return [...document.querySelectorAll('.tab-content:not(.active) *')].every(el => getComputedStyle(el).animationPlayState !== 'running')"
     )
     results["inactive_tab_animations_paused"] = paused
+    driver.execute_script("window.loveHaptic(10,{forceVisual:true})")
+    results["haptic_visual_feedback_runs"] = driver.execute_script(
+        "return document.getElementById('loveHapticFlash')?.classList.contains('show')"
+    )
 
     memories = driver.find_element(By.CSS_SELECTOR, ".bottom-nav button[onclick*=\"memories\"]")
     driver.execute_script("arguments[0].click()", memories)

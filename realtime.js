@@ -288,7 +288,7 @@ async function startLoveRoom() {
     text.style.fontWeight = online ? 'bold' : 'normal';
     capsule.style.cursor = 'pointer';
     capsule.title = 'Tocá para enviarle algo. Mantené presionado para cambiar quién sos.';
-    if (online && window.lastState !== 'online') navigator.vibrate?.([50, 50, 50]);
+    if (online && window.lastState !== 'online') window.loveHaptic?.([50, 50, 50]);
     window.lastState = online ? 'online' : 'offline';
   }
 
@@ -297,7 +297,7 @@ async function startLoveRoom() {
     if (!toolbar) return;
     const visible = toolbar.style.display === 'flex';
     toolbar.style.display = visible ? 'none' : 'flex';
-    if (!visible) navigator.vibrate?.(10);
+    if (!visible) window.loveHaptic?.(10);
   };
 
   window.enviarMimo = async type => {
@@ -333,13 +333,13 @@ function mostrarMensaje(text, mine = false) {
   toast.textContent = mine ? `Enviado: ${text}` : text;
   document.body.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add('show'));
-  navigator.vibrate?.([25, 35, 25]);
+  window.loveHaptic?.([25, 35, 25]);
   setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 250); }, 2400);
 }
 
 function recibirMimo(type) {
   const patterns = { beso: [50, 50, 50], ojos: [200], toque: [30] };
-  navigator.vibrate?.(patterns[type] || [30]);
+  window.loveHaptic?.(patterns[type] || [30]);
   mostrarEfecto(type, false);
 }
 

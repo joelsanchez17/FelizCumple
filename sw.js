@@ -1,5 +1,5 @@
-const CACHE_NAME = 'love-app-v56-realtime-recovery';
-const ASSETS_TO_CACHE = ['./index.html', './assets/vendor/supabase.js?v=2.112.4', './realtime.js?v=7', './together.js?v=29', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=37', './app_refresh.css?v=5', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './notification-icon.png', './notification-badge.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
+const CACHE_NAME = 'love-app-v57-ios-feedback';
+const ASSETS_TO_CACHE = ['./index.html', './assets/vendor/supabase.js?v=2.112.4', './realtime.js?v=7', './together.js?v=29', './manifest.json', './styles_cleaned.css', './styles_elegant.css?v=9', './together.css?v=37', './app_refresh.css?v=6', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './notification-icon.png', './notification-badge.png', './perfil_yo.jpg', './princesa2.jpg', './besos.jpg', './assets/plants/bedroom-calathea-states.webp', './assets/plants/bathroom-orchid-states.webp', './assets/plants/kitchen-cactus-states.webp'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -68,7 +68,7 @@ self.addEventListener('push', event => {
   event.waitUntil(self.registration.showNotification(payload.title || 'KoalaApp 💌', {
     body: payload.body || 'Tenés un mensaje nuevo', icon: './notification-icon.png', badge: './notification-badge.png',
     tag: payload.tag || `${notificationData.type || 'love'}-${notificationId}`, renotify: true,
-    timestamp:Date.now(), data:notificationData
+    timestamp:Date.now(), silent:false, data:notificationData
   }));
 });
 self.addEventListener('notificationclick', event => {
