@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=37">
+  <link rel="stylesheet" href="./together.css?v=38">
   <link rel="stylesheet" href="./app_refresh.css?v=5">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -521,10 +521,22 @@
           <span id="houseBedActionText">Ya estás en la cama.</span>
           <div>
             <button id="houseBedSleep" type="button">Dormir a lo 🐨</button>
-            <button id="houseBedIntimate" type="button" disabled>Escondernos bajo la sábana 😏</button>
+            <button id="houseBedInviteLie" type="button">Invitar a acostarse 🪶</button>
+            <button id="houseBedInviteSleep" type="button">Dormir abrazados 💤</button>
+            <button id="houseBedIntimate" type="button" disabled>Momento bajo la sábana 😏</button>
             <button id="houseBedLeave" type="button">Levantarse</button>
           </div>
         </div>
+        <aside id="houseBedInvitation" class="house-bed-invitation" hidden aria-live="assertive">
+          <div>
+            <span aria-hidden="true">💌</span>
+            <p><strong id="houseBedInvitationTitle">Una invitación para vos</strong><small id="houseBedInvitationText"></small></p>
+          </div>
+          <div class="house-bed-invitation-actions">
+            <button id="houseBedInvitationAccept" type="button">Aceptar ♡</button>
+            <button id="houseBedInvitationDecline" type="button">Ahora no</button>
+          </div>
+        </aside>
         <aside id="houseConditionMessages" class="house-condition-messages" hidden aria-live="polite">
           <strong>La casita tiene algo que decir</strong>
           <div id="houseConditionList"></div>
@@ -5185,7 +5197,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=28"></script>
+<script src="./together.js?v=29"></script>
 </body>
 
 </html>

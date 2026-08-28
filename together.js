@@ -46,6 +46,8 @@
   let diningTvOn = false;
   const lampStates = { joel: false, princesa: false };
   let activityStates = {};
+  let activityInvitations = [];
+  let invitationExpiryTimer;
   const ROOM_PLANTS = {
     bedroom: { device:'plant', element:'#housePlant', status:'#housePlantStatus', name:'plantita', article:'la' },
     kitchen: { device:'cactus', element:'#kitchenPlant', status:'#kitchenPlantStatus', name:'cactus', article:'el' },
@@ -84,6 +86,11 @@
   const roomMotionTimers = new Map();
   const seenMotionIds = new Set();
   const refreshTables = new Set();
+  const BED_INVITATIONS = {
+    lie_together: { label:'acostarse juntos', received:name => `${name} quiere que te acuestes a su lado.` },
+    sleep_cuddled: { label:'dormir abrazados', received:name => `${name} quiere mimir abrazado con vos.` },
+    private_moment: { label:'un momento bajo la sábana', received:name => `${name} te invita a cerrar la puerta y bajar las luces.` }
+  };
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -703,10 +710,19 @@
     const bothAwakeInBed = occupants.length === 2 && sleepers.length === 0;
     if (intimateButton) {
       intimateButton.disabled = !bothAwakeInBed;
-      intimateButton.textContent = bothAwakeInBed
-        ? (bedMomentActive ? 'Asomarnos de la sábana 👀' : 'Meternos bajo la sábana 😏')
-        : 'Esperando al otro 😏';
+      intimateButton.textContent = bedMomentActive
+        ? 'Asomarnos de la sábana 👀'
+        : bothAwakeInBed ? 'Invitar bajo la sábana 😏' : 'Esperando al otro 😏';
     }
+    const togetherHere = currentRoom === 'bedroom' && bothPeopleAreHere('bedroom');
+    const lieInvite = $('#houseBedInviteLie');
+    const sleepInvite = $('#houseBedInviteSleep');
+    if (lieInvite) {
+      lieInvite.disabled = !mineInBed || !togetherHere || isInBed(target);
+      lieInvite.hidden = isInBed(target);
+    }
+    if (sleepInvite) sleepInvite.disabled = !bothAwakeInBed || !togetherHere;
+    renderBedInvitation();
     if (!bothAwakeInBed) stopBedMoment();
 
     const showering = ['joel', 'princesa'].filter(isShowering);
@@ -775,6 +791,112 @@
       .map(item => [item.identity, item]));
     renderHouseActivities();
     queueHouseConditionCheck();
+  }
+
+  function activeBedInvitations() {
+    const now = Date.now();
+    return activityInvitations.filter(invitation => invitation.status === 'pending'
+      && invitation.room_id === 'bedroom'
+      && BED_INVITATIONS[invitation.kind]
+      && new Date(invitation.expires_at).getTime() > now);
+  }
+
+  function renderBedInvitation() {
+    const panel = $('#houseBedInvitation');
+    if (!panel || !identity) return;
+    const invitation = activeBedInvitations()
+      .filter(item => item.to_identity === identity)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    panel.hidden = currentRoom !== 'bedroom' || !invitation;
+    panel.dataset.invitationId = invitation?.id || '';
+    if (!invitation) return;
+    const meta = BED_INVITATIONS[invitation.kind];
+    $('#houseBedInvitationTitle').textContent = `${PEOPLE[invitation.from_identity]} te invita a ${meta.label}`;
+    $('#houseBedInvitationText').textContent = meta.received(PEOPLE[invitation.from_identity]);
+  }
+
+  async function loadActivityInvitations() {
+    const { data, error } = await client.from('house_activity_invitations')
+      .select('*').eq('status', 'pending').gt('expires_at', new Date().toISOString());
+    if (error) return reportError(error, 'No se pudieron cargar las invitaciones de la cama');
+    activityInvitations = data || [];
+    clearTimeout(invitationExpiryTimer);
+    const nextExpiry = activeBedInvitations().reduce((next, item) => Math.min(next, new Date(item.expires_at).getTime()), Infinity);
+    if (Number.isFinite(nextExpiry)) invitationExpiryTimer = setTimeout(loadActivityInvitations, Math.max(250, nextExpiry - Date.now() + 100));
+    renderBedInvitation();
+  }
+
+  function createInvitationId() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, character => {
+      const random = Math.random() * 16 | 0;
+      return (character === 'x' ? random : (random & 3 | 8)).toString(16);
+    });
+  }
+
+  async function inviteToBedActivity(kind) {
+    const meta = BED_INVITATIONS[kind];
+    if (!meta || currentRoom !== 'bedroom' || !bothPeopleAreHere('bedroom') || !isInBed(identity)) return;
+    if (kind === 'lie_together' && isInBed(target)) return;
+    if (['sleep_cuddled', 'private_moment'].includes(kind)
+      && (!isInBed(target) || isSleeping(identity) || isSleeping(target))) return;
+    if (kind === 'private_moment' && bedMomentActive) return startBedMoment();
+
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+    await client.from('house_activity_invitations').delete()
+      .eq('from_identity', identity).eq('to_identity', target).eq('status', 'pending');
+    const invitation = {
+      id:createInvitationId(), room_id:'bedroom', kind,
+      from_identity:identity, to_identity:target, status:'pending',
+      created_at:new Date().toISOString(), expires_at:expiresAt
+    };
+    const { error } = await client.from('house_activity_invitations').insert(invitation);
+    if (error) return reportError(error, 'No se pudo enviar la invitación');
+    activityInvitations = [...activityInvitations.filter(item => item.from_identity !== identity), invitation];
+    toast(`Invitación para ${meta.label} enviada a ${PEOPLE[target]}.`);
+    showHouseMotionMessage(`${PEOPLE[identity]} dejó una invitación sobre la cama.`, '💌');
+    await sendHouseMotion('bedroom', { type:'bed_invitation', kind, id:`${identity}-${Date.now()}` });
+  }
+
+  async function answerBedInvitation(accepted) {
+    const id = $('#houseBedInvitation')?.dataset.invitationId;
+    const invitation = activeBedInvitations().find(item => item.id === id && item.to_identity === identity);
+    if (!invitation) return loadActivityInvitations();
+    if (currentRoom !== 'bedroom' || !bothPeopleAreHere('bedroom')) {
+      toast('Tienen que estar juntos en el dormitorio para aceptar.');
+      return;
+    }
+    const { error } = await client.from('house_activity_invitations').update({
+      status:accepted ? 'accepted' : 'declined', responded_at:new Date().toISOString()
+    }).eq('id', invitation.id).eq('status', 'pending');
+    if (error) return reportError(error, 'No se pudo responder la invitación');
+    activityInvitations = activityInvitations.filter(item => item.id !== invitation.id);
+    renderBedInvitation();
+    if (!accepted) {
+      toast('La invitación quedó para otro momento.');
+      return sendHouseMotion('bedroom', { type:'bed_invitation_answer', accepted:false, kind:invitation.kind, id:`${identity}-${Date.now()}` });
+    }
+
+    let completed = false;
+    if (invitation.kind === 'lie_together' && isInBed(invitation.from_identity)) {
+      completed = await saveActivity(identity, 'lying', { style:'koala', invited_by:invitation.from_identity });
+    } else if (invitation.kind === 'sleep_cuddled' && isInBed('joel') && isInBed('princesa') && !isSleeping('joel') && !isSleeping('princesa')) {
+      const mineSaved = await saveActivity(identity, 'sleeping', { style:'cuddled', invited_by:invitation.from_identity });
+      const theirsSaved = mineSaved && await saveActivity(invitation.from_identity, 'sleeping', { style:'cuddled', accepted_by:identity });
+      completed = Boolean(mineSaved && theirsSaved);
+      if (mineSaved && !theirsSaved) await saveActivity(identity, 'lying', { style:'koala', invitation_failed:true });
+    } else if (invitation.kind === 'private_moment' && isInBed('joel') && isInBed('princesa') && !isSleeping('joel') && !isSleeping('princesa')) {
+      completed = true;
+      await startBedMoment();
+    }
+    if (!completed) {
+      toast('La escena cambió antes de aceptar. Pueden volver a invitarse.');
+      return;
+    }
+    toast(`Aceptaste ${BED_INVITATIONS[invitation.kind].label} ♡`);
+    if (invitation.kind !== 'private_moment') {
+      await sendHouseMotion('bedroom', { type:'bed_invitation_answer', accepted:true, kind:invitation.kind, id:`${identity}-${Date.now()}` });
+    }
   }
 
   async function clearActivity(person, { announce = true, notify = false } = {}) {
@@ -861,7 +983,7 @@
     $('#houseBed')?.classList.remove('is-private-moment');
     $$('[data-avatar-for]').forEach(avatar => avatar.classList.remove('is-under-blanket'));
     const button = $('#houseBedIntimate');
-    if (button && !button.disabled) button.textContent = 'Meternos bajo la sábana 😏';
+    if (button && !button.disabled) button.textContent = 'Invitar bajo la sábana 😏';
   }
 
   function animateBedMoment(roomId = currentRoom, motion = {}) {
@@ -1183,6 +1305,17 @@
       setTimeout(() => seenMotionIds.delete(motion.id), 45000);
     }
     if (motion.type === 'bed_moment') return animateBedMoment(roomId, motion);
+    if (motion.type === 'bed_invitation') {
+      showHouseMotionMessage(`${PEOPLE[person]} dejó una invitación sobre la cama.`, '💌');
+      return;
+    }
+    if (motion.type === 'bed_invitation_answer') {
+      const message = motion.accepted
+        ? (motion.kind === 'sleep_cuddled' ? 'Invitación aceptada. Modo cucharita activado.' : 'Invitación aceptada. La cama hizo lugar para los dos ♡')
+        : 'Esta vez quedó para otro momento. La casa sabe guardar secretos.';
+      showHouseMotionMessage(message, motion.accepted ? '♡' : '💌');
+      return;
+    }
     if (motion.type === 'shower') return animateShowerMotion(person, motion, roomId);
     if (motion.type === 'room_object') return animateRoomObjectMotion(person, motion, roomId);
     if (hasFixedActivity(person)) return;
@@ -1721,6 +1854,7 @@
       if (pending.has('house_device_states')) loadHouseDevices();
       if (pending.has('house_avatar_positions')) loadAvatarPositions();
       if (pending.has('house_activities')) loadHouseActivities();
+      if (pending.has('house_activity_invitations')) loadActivityInvitations();
     }, 180);
   }
 
@@ -1732,11 +1866,13 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_device_states' }, () => scheduleRefresh('house_device_states'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_avatar_positions' }, () => scheduleRefresh('house_avatar_positions'))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'house_activities' }, () => scheduleRefresh('house_activities'))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'house_activity_invitations' }, () => scheduleRefresh('house_activity_invitations'))
       .subscribe(status => {
         if (status === 'SUBSCRIBED') {
           loadHouseDevices();
           loadAvatarPositions();
           loadHouseActivities();
+          loadActivityInvitations();
         }
       });
   }
@@ -1762,8 +1898,12 @@
     $('#houseHeater')?.addEventListener('click', toggleHouseHeater);
     $('#houseBed')?.addEventListener('click', useBed);
     $('#houseBedSleep')?.addEventListener('click', toggleBedSleep);
-    $('#houseBedIntimate')?.addEventListener('click', startBedMoment);
+    $('#houseBedInviteLie')?.addEventListener('click', () => inviteToBedActivity('lie_together'));
+    $('#houseBedInviteSleep')?.addEventListener('click', () => inviteToBedActivity('sleep_cuddled'));
+    $('#houseBedIntimate')?.addEventListener('click', () => inviteToBedActivity('private_moment'));
     $('#houseBedLeave')?.addEventListener('click', leaveBed);
+    $('#houseBedInvitationAccept')?.addEventListener('click', () => answerBedInvitation(true));
+    $('#houseBedInvitationDecline')?.addEventListener('click', () => answerBedInvitation(false));
     $('#bathroomShower')?.addEventListener('click', toggleShower);
     $('#bathroomShowerActions')?.addEventListener('click', event => {
       const button = event.target.closest('[data-shower-action]');
@@ -1821,12 +1961,14 @@
         loadHouseDevices();
         loadAvatarPositions();
         loadHouseActivities();
+        loadActivityInvitations();
       }
     });
     window.addEventListener('loverealtimeconnected', () => {
       loadHouseDevices();
       loadAvatarPositions();
       loadHouseActivities();
+      loadActivityInvitations();
     });
     window.addEventListener('lovehouseaction', event => {
       const roomId = event.detail?.room || 'bedroom';
@@ -1865,7 +2007,7 @@
     renderPresence();
     if ($('#heartNotify')) $('#heartNotify').textContent = `Avisarle a ${PEOPLE[target]}`;
     if ($('#houseLightNotify')) $('#houseLightNotify').textContent = `Avisarle a ${PEOPLE[target]} 🔔`;
-    await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices(), loadAvatarPositions(), loadHouseActivities()]);
+    await Promise.all([loadHearts(), loadNotes(), loadJournal(), loadHouseDevices(), loadAvatarPositions(), loadHouseActivities(), loadActivityInvitations()]);
     queueHouseConditionCheck(true);
     subscribeToChanges();
     if ($('#together')?.classList.contains('active')) {

@@ -547,6 +547,18 @@ body.together-active #presence-indicator { display: none !important; }
 .house-bed-actions button { min-height:31px; padding:7px 11px; border:1px solid rgba(127,66,89,.18); border-radius:999px; color:var(--together-wine); background:#fffaf8; cursor:pointer; font:700 .5rem/1 'Quicksand',sans-serif; }
 .house-bed-actions button:first-child { color:#fff; border-color:var(--together-wine); background:var(--together-wine); }
 .love-house[data-time="night"] .house-bed-actions { color:#eadde2; border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.07); }
+.house-bed-invitation { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; padding:12px 13px; border:1px solid rgba(127,66,89,.2); border-radius:16px; color:var(--together-ink); background:linear-gradient(135deg,rgba(255,250,248,.96),rgba(247,225,232,.92)); box-shadow:0 10px 24px rgba(91,49,65,.1); }
+.house-bed-invitation[hidden] { display:none; }
+.house-bed-invitation > div:first-child { display:flex; align-items:center; gap:10px; min-width:0; }
+.house-bed-invitation > div:first-child > span { font-size:1.35rem; }
+.house-bed-invitation p { display:grid; gap:2px; margin:0; }
+.house-bed-invitation strong { font:700 .62rem/1.2 'Quicksand',sans-serif; }
+.house-bed-invitation small { color:var(--together-muted); font:600 .5rem/1.35 'Quicksand',sans-serif; }
+.house-bed-invitation-actions { display:flex; flex:0 0 auto; gap:7px; }
+.house-bed-invitation-actions button { min-height:32px; padding:7px 11px; border:1px solid rgba(127,66,89,.2); border-radius:999px; color:var(--together-wine); background:#fffaf8; cursor:pointer; font:700 .5rem/1 'Quicksand',sans-serif; }
+.house-bed-invitation-actions button:first-child { color:#fff; border-color:var(--together-wine); background:var(--together-wine); }
+.love-house[data-time="night"] .house-bed-invitation { color:#f6e9ed; border-color:rgba(255,255,255,.14); background:linear-gradient(135deg,rgba(84,58,75,.95),rgba(98,61,77,.92)); }
+.love-house[data-time="night"] .house-bed-invitation small { color:#ddcbd2; }
 .house-movement-hint { display:flex; align-items:center; justify-content:center; gap:6px; margin:8px 0 0; color:var(--together-muted); font:700 .44rem/1.2 'Quicksand',sans-serif; }
 .house-movement-hint span { display:grid; width:18px; height:18px; place-items:center; border-radius:50%; color:var(--together-wine); background:rgba(255,255,255,.7); }
 .love-house[data-time="night"] .house-movement-hint { color:#eadde2; }
@@ -606,8 +618,10 @@ body.together-active #presence-indicator { display: none !important; }
   .house-avatar-joel.is-in-bed { left:34px !important; }
   .house-avatar-princesa.is-in-bed { left:78px !important; }
   .house-bed-actions { align-items:flex-start; flex-direction:column; }
-  .house-bed-actions > div { width:100%; }
-  .house-bed-actions button { flex:1; }
+  .house-bed-actions > div { width:100%; flex-wrap:wrap; }
+  .house-bed-actions button { flex:1 1 calc(50% - 7px); }
+  .house-bed-invitation { align-items:stretch; flex-direction:column; }
+  .house-bed-invitation-actions button { flex:1; }
   .house-movement-hint { font-size:.41rem; }
   .house-avatar-action-grid-together { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .house-avatar-action-grid button { min-height:38px; font-size:.45rem; }
