@@ -13,12 +13,52 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=38">
-  <link rel="stylesheet" href="./app_refresh.css?v=5">
+  <link rel="stylesheet" href="./together.css?v=43">
+  <link rel="stylesheet" href="./app_refresh.css?v=6">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" sizes="180x180" href="icono-app.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <script>
+    // iOS/WebKit no expone la Vibration API. Todas las llamadas existentes reciben
+    // un pulso visual equivalente; Android conserva la vibración nativa.
+    (() => {
+      const nativeVibrate = typeof navigator.vibrate === 'function' ? navigator.vibrate.bind(navigator) : null;
+      let visualTimer = null;
+      function showVisualFeedback() {
+        if (!document.body) return;
+        let flash = document.getElementById('loveHapticFlash');
+        if (!flash) {
+          flash = document.createElement('div');
+          flash.id = 'loveHapticFlash';
+          flash.className = 'love-haptic-flash';
+          flash.setAttribute('aria-hidden', 'true');
+          document.body.appendChild(flash);
+        }
+        clearTimeout(visualTimer);
+        flash.classList.remove('show');
+        void flash.offsetWidth;
+        flash.classList.add('show');
+        visualTimer = setTimeout(() => flash.classList.remove('show'), 360);
+      }
+      window.loveHaptic = (pattern = 10, options = {}) => {
+        let vibrated = false;
+        if (nativeVibrate && !options.forceVisual) {
+          try { vibrated = nativeVibrate(pattern) !== false; } catch { vibrated = false; }
+        }
+        if (!vibrated || options.forceVisual) showVisualFeedback();
+        return vibrated;
+      };
+      window.loveHapticsSupported = Boolean(nativeVibrate);
+      if (!nativeVibrate) {
+        try {
+          Object.defineProperty(navigator, 'vibrate', { configurable:true, value:window.loveHaptic });
+        } catch {
+          try { Object.defineProperty(Object.getPrototypeOf(navigator), 'vibrate', { configurable:true, value:window.loveHaptic }); } catch {}
+        }
+      }
+    })();
+  </script>
   <!-- Favicon (emoji corazón) -->
   <link rel="icon"
     href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💖</text></svg>'>
@@ -475,9 +515,6 @@
                 <div class="house-person-scene">
                 <button class="house-lamp" type="button" data-lamp-for="joel" aria-label="Encender la lámpara de Joel" aria-pressed="false"><b></b><i></i></button>
                 </div>
-                <strong>Joel</strong>
-                <span id="houseJoelPresence">No está ahora</span>
-                <small id="houseJoelHeart">Sin señal todavía</small>
               </article>
               <div class="house-table">
                 <button id="housePlant" class="house-plant" type="button" data-room-plant="bedroom" aria-label="Regar la plantita compartida">
@@ -490,15 +527,30 @@
                 <div class="house-person-scene">
                 <button class="house-lamp" type="button" data-lamp-for="princesa" aria-label="Encender la lámpara de Princesa" aria-pressed="false"><b></b><i></i></button>
                 </div>
-                <strong>Princesa</strong>
-                <span id="housePrincesaPresence">No está ahora</span>
-                <small id="housePrincesaHeart">Sin señal todavía</small>
               </article>
           </div>
           <div id="houseAvatarLayer" class="house-avatar-layer" aria-label="Personas dentro de la habitación">
             <div class="house-avatar house-avatar-joel" data-avatar-for="joel" role="button" aria-label="Mover a Joel por la habitación"><img src="perfil_yo.jpg" alt="" draggable="false"></div>
             <div class="house-avatar house-avatar-princesa" data-avatar-for="princesa" role="button" aria-label="Mover a Princesa por la habitación"><img src="princesa2.jpg" alt="" draggable="false"></div>
           </div>
+        </div>
+        <div class="house-status-board" aria-label="Actividad y estado de ánimo">
+          <article class="house-status-card" data-house-status-for="joel">
+            <span class="house-status-dot" aria-hidden="true"></span>
+            <div>
+              <strong>Joel</strong>
+              <span id="houseJoelPresence">No está ahora</span>
+              <small id="houseJoelHeart">Sin señal todavía</small>
+            </div>
+          </article>
+          <article class="house-status-card" data-house-status-for="princesa">
+            <span class="house-status-dot" aria-hidden="true"></span>
+            <div>
+              <strong>Princesa</strong>
+              <span id="housePrincesaPresence">No está ahora</span>
+              <small id="housePrincesaHeart">Sin señal todavía</small>
+            </div>
+          </article>
         </div>
         <p class="house-movement-hint"><span aria-hidden="true">↕</span> Arrastrá tu foto · doble toque para saltar</p>
         <div id="houseAvatarActions" class="house-avatar-actions" hidden aria-live="polite">
@@ -519,24 +571,39 @@
         </div>
         <div id="houseBedActions" class="house-bed-actions" hidden aria-live="polite">
           <span id="houseBedActionText">Ya estás en la cama.</span>
-          <div>
+          <div class="house-bed-primary-actions">
             <button id="houseBedSleep" type="button">Dormir a lo 🐨</button>
-            <button id="houseBedInviteLie" type="button">Invitar a acostarse 🪶</button>
-            <button id="houseBedInviteSleep" type="button">Dormir abrazados 💤</button>
-            <button id="houseBedIntimate" type="button" disabled>Momento bajo la sábana 😏</button>
+            <button id="houseBedIntimate" type="button" disabled>Escondernos bajo la sábana 😏</button>
             <button id="houseBedLeave" type="button">Levantarse</button>
           </div>
+          <div id="houseBedTogetherActions" class="house-bed-together-actions" hidden>
+            <strong>Ahora que están juntos en la cama…</strong>
+            <div>
+              <button type="button" data-bed-together="cuddle"><span aria-hidden="true">🫂</span> Acurrucarnos</button>
+              <button type="button" data-bed-together="kiss"><span aria-hidden="true">💋</span> Besito</button>
+              <button type="button" data-bed-together="caress"><span aria-hidden="true">🤍</span> Cariñitos</button>
+            </div>
+          </div>
         </div>
-        <aside id="houseBedInvitation" class="house-bed-invitation" hidden aria-live="assertive">
-          <div>
-            <span aria-hidden="true">💌</span>
-            <p><strong id="houseBedInvitationTitle">Una invitación para vos</strong><small id="houseBedInvitationText"></small></p>
+        <section id="houseSharedActivities" class="house-shared-activities" aria-labelledby="houseSharedActivitiesTitle">
+          <div class="house-shared-activities-head">
+            <div><span aria-hidden="true">♡</span><strong id="houseSharedActivitiesTitle">Invitaciones para la cama</strong></div>
+            <small id="houseSharedActivitiesHint">Las invitaciones esperan una respuesta.</small>
           </div>
-          <div class="house-bed-invitation-actions">
-            <button id="houseBedInvitationAccept" type="button">Aceptar ♡</button>
-            <button id="houseBedInvitationDecline" type="button">Ahora no</button>
+          <div id="houseSharedActivityChoices" class="house-shared-activity-choices">
+            <button type="button" data-shared-invite="lie_together"><span aria-hidden="true">🛏️</span>Acostarnos juntos</button>
+            <button type="button" data-shared-invite="sleep_cuddle"><span aria-hidden="true">🐨</span>Dormir abrazados</button>
+            <button type="button" data-shared-invite="private_moment"><span aria-hidden="true">🫣</span>Un momento juntos</button>
           </div>
-        </aside>
+          <div id="houseSharedInvitation" class="house-shared-invitation" hidden aria-live="assertive">
+            <span id="houseSharedInvitationEmoji" aria-hidden="true">♡</span>
+            <div><strong id="houseSharedInvitationTitle"></strong><small id="houseSharedInvitationText"></small></div>
+            <div class="house-shared-invitation-actions">
+              <button id="houseSharedInvitationDecline" type="button">Ahora no</button>
+              <button id="houseSharedInvitationAccept" type="button">Aceptar</button>
+            </div>
+          </div>
+        </section>
         <aside id="houseConditionMessages" class="house-condition-messages" hidden aria-live="polite">
           <strong>La casita tiene algo que decir</strong>
           <div id="houseConditionList"></div>
@@ -623,6 +690,10 @@
         </div>
         <div class="house-placeholder-interior house-room-surface dining-room" data-room-surface="dining" aria-label="El comedor compartido, todavía en construcción">
           <div class="dining-window" aria-hidden="true"><i></i></div>
+          <div class="dining-sideboard" aria-hidden="true"><i></i><i></i></div>
+          <button id="diningPlant" class="room-potted-plant room-jasmine" type="button" data-room-plant="dining" aria-label="Regar el jazmín del comedor">
+            <span class="plant-visual" aria-hidden="true"></span><i aria-hidden="true"></i><small id="diningPlantStatus">El jazmín espera agüita</small>
+          </button>
           <div id="diningTv" class="dining-tv" aria-label="Televisión apagada"><span aria-hidden="true"></span></div>
           <button id="diningTable" class="dining-table" type="button" aria-label="Poner la mesa del comedor" aria-pressed="false">
             <span class="dining-place dining-place-one" aria-hidden="true"><i></i><b></b></span>
@@ -1884,7 +1955,6 @@
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
       document.body.classList.toggle('together-active', tabId === 'together');
-      if (options.persist !== false) localStorage.setItem('love_active_tab', tabId);
       window.dispatchEvent(new CustomEvent('lovetabchange', { detail:{ tabId } }));
       if (options.vibrate !== false) navigator.vibrate?.(10);
       window.scrollTo(0, 0);
@@ -1894,14 +1964,6 @@
     }
     document.addEventListener('visibilitychange', syncAppVisibility);
     syncAppVisibility();
-    window.addEventListener('load', () => {
-      const savedTab = localStorage.getItem('love_active_tab');
-      const validTabs = ['home', 'together', 'games', 'memories', 'anniversary'];
-      if (!validTabs.includes(savedTab) || savedTab === 'home') return;
-      const button = [...document.querySelectorAll('.bottom-nav button')]
-        .find(item => item.getAttribute('onclick')?.includes(`'${savedTab}'`));
-      if (button) showTab(button, savedTab, { persist:false, vibrate:false });
-    }, { once:true });
     // --- Contadores up/down ---
     const startBerlin = new Date("2026-08-18T18:00:00+02:00");
     const meetingBerlin = new Date("2026-12-23T13:00:00+01:00");
@@ -4191,7 +4253,7 @@
     })();
 
   </script>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="./assets/vendor/supabase.js?v=2.112.4"></script>
   <script>
     (() => {
       const KEY = 'love_identity';
@@ -4237,7 +4299,7 @@
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
       const s = document.createElement('script');
-      s.src = 'realtime.js?v=6';
+      s.src = 'realtime.js?v=7';
       document.head.appendChild(s);
     } else {
       // En file:// simulamos las funciones para que no rompa nada
@@ -4252,7 +4314,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=30', { updateViaCache: 'none' })
+          navigator.serviceWorker.register('./sw.js?v=38', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -5197,7 +5259,7 @@
   renderGallery();
 })();
 </script>
-<script src="./together.js?v=29"></script>
+<script src="./together.js?v=35"></script>
 </body>
 
 </html>
