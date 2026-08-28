@@ -9,8 +9,9 @@ La casa comenzará con:
 - Dormitorio.
 - Cocina.
 - Baño.
+- Comedor.
 - Una entrada o vista general de la casa.
-- Espacios futuros que puedan agregarse sin reconstruir lo anterior.
+- Living y otros espacios futuros que puedan agregarse sin reconstruir lo anterior.
 
 Cada habitación tendrá su propio aspecto, objetos, estados compartidos, condiciones y actividades. La sensación buscada no es la de navegar entre pantallas, sino la de llegar a casa, recorrerla y encontrarse con el otro.
 
@@ -264,7 +265,7 @@ La tabla `house_notes` recibirá un campo `room_id`. Las notas actuales se asign
 
 ## Organización del código
 
-Antes de sumar varias habitaciones conviene separar la lógica actualmente concentrada en `together.js`:
+La separación de la lógica actualmente concentrada en `together.js` sigue pendiente y se tratará como deuda técnica antes de que la casa crezca demasiado:
 
 - `house.js`: entrada, mapa, navegación y presencia.
 - `house-state.js`: lectura, escritura y sincronización con Supabase.
@@ -275,9 +276,21 @@ Antes de sumar varias habitaciones conviene separar la lógica actualmente conce
 
 La app seguirá siendo HTML, CSS y JavaScript sin agregar un framework pesado.
 
+## Resumen verificable del estado actual
+
+| Área | Estado | Ya funciona | Siguiente trabajo |
+|---|---|---|---|
+| Cimientos y mapa | Completada | Entrada directa a la última habitación, mapa, privacidad de ubicación, búsqueda, Presence, reconexión y posiciones por cuarto | Mantener las pruebas de varias sesiones y dispositivos |
+| Dormitorio | Completada | Cama persistente, dormir/despertar, movimiento, cercanía, acciones compartidas e invitaciones consentidas | Sólo ajustes de voz, equilibrio visual y nuevos detalles menores |
+| Living | Pendiente | Todavía no existe como habitación independiente | Agregarlo al mapa y construir el sillón de dos lugares |
+| Cocina | En progreso | Cuadrito real, cafetera sincronizada y cactus con ciclo completo | Heladera, luces, cocinar, mesa y notas/imanes |
+| Baño | En progreso | Ducha sincronizada, cepillos, orquídea, jabón, propuesta del rabito y cortina privada | Invitación para entrar juntos, toallas, luz, espejo empañado, mensajes y salpicaduras |
+| Comedor | En progreso avanzado | Habitación transitable, mesa persistente, desayuno diario, brindis, sillón/televisión y jazmín con ciclo completo | Lámpara, cuadro, aparador y recuerdos de sobremesa |
+| Vida de la casa | Pendiente | La base Realtime, push, condiciones y voz de la casa ya existe | Unificar el motor de mensajes y sumar interacciones entre habitaciones |
+
 ## Ejecución por etapas
 
-### Parte 1 — Cimientos y búsqueda
+### Parte 1 — Cimientos y búsqueda (completada)
 
 - Crear las nuevas tablas y migrar los objetos existentes.
 - Convertir la habitación actual en `Dormitorio`.
@@ -290,16 +303,15 @@ La app seguirá siendo HTML, CSS y JavaScript sin agregar un framework pesado.
 
 Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 
-### Parte 2 — Dormitorio completo
+### Parte 2 — Dormitorio completo (completada)
 
 - **2A — Cama (completada):** tocar `Acostarse` lleva el avatar a la cama; desde ahí se puede `Dormir a lo 🐨`, despertarse o levantarse. El estado se conserva al cerrar la app, `zzz` aparece solamente al dormir, ambos pueden acostarse juntos y tocar al otro dormido lo despierta sin sacarlo de la cama. Si ambos están despiertos aparecen dentro del panel de la cama las acciones sincronizadas `Acurrucarnos`, `Besito` y `Cariñitos`; también pueden iniciar el momento bajo la sábana, que sigue requiriendo aceptación y se comparte en vivo.
 - **2B — Movimiento vivo (completada):** doble toque para saltar, reacciones compartidas al saltar junto al otro y una acción propia para bailar, todo visible en vivo sin persistir animaciones pasajeras. `Sentarse` queda reservado exclusivamente para el sillón del living.
 - **2C — Cercanía (completada):** al tocar al otro cuando está cerca aparecen beso, abrazo, cariñitos y cosquillas con animaciones breves por Realtime. Princesa tiene además el minijuego privado `Tocar el pupito`: puede insistir sin cerrar el panel y Agus reacciona con defensa, un casi, una distracción y guardia reforzada. Nada de esto llena el diario ni envía notificaciones.
 - **2D — Actividades compartidas (completada):** invitaciones persistentes de cinco minutos para acostarse juntos, dormir abrazados o comenzar un momento íntimo discreto. El otro debe aceptar antes de que cambie el estado de ambos; también puede rechazar y quien invita puede cancelar. Las invitaciones llegan por Realtime y notificación, sobreviven a un bloqueo breve del teléfono y el momento íntimo muestra la puerta cerrada y las luces bajas.
-- Adaptar las posiciones y objetos actuales al nuevo diseño.
-- Agregar mensajes y combinaciones del dormitorio usando la voz real de la pareja: cómplice, graciosa y breve.
+- **Integración visual y voz (completada):** las posiciones, objetos, mensajes y combinaciones del dormitorio ya usan el diseño actual y la voz cómplice de la casa.
 
-### Parte 3 — Living
+### Parte 3 — Living (pendiente; próximo desarrollo visible)
 
 - Agregar el living al mapa de la casa.
 - Diseñar el sillón con dos lugares independientes.
@@ -308,7 +320,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Permitir sentarse juntos, hacer cariñitos o dormirse frente a la televisión.
 - Incorporar control remoto, luz ambiental y mensajes propios del living.
 
-### Parte 4 — Cocina
+### Parte 4 — Cocina (en progreso)
 
 - Diseñar la cocina completa.
 - Base implementada: cuadrito real de ambos, cactus persistente y cafetera interactiva que prepara café y se ve en vivo en ambos dispositivos.
@@ -316,7 +328,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Implementar cocinar, sentarse y notas/imanes.
 - Crear condiciones y mensajes propios de la cocina.
 
-### Parte 5 — Baño
+### Parte 5 — Baño (en progreso)
 
 - Diseñar el baño completo.
 - Base implementada: la ducha se toca para entrar o salir, muestra a uno o a ambos dentro y sincroniza el estado; la orquídea tiene cuidado diario compartido. Dentro de la ducha se puede levantar el jabón, ofrecer `¿Te lavo el rabito?`, aceptar la propuesta y cerrar o abrir la cortina para un momento íntimo discreto compartido en vivo.
@@ -326,7 +338,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Agregar salpicarse, empañar el espejo, escribir con el dedo y robarle la toalla al otro.
 - Agregar mensajes en el espejo y actividades sincronizadas.
 
-### Parte 6 — Comedor
+### Parte 6 — Comedor (en progreso avanzado)
 
 - Base transitable implementada aunque la habitación siga en construcción.
 - La mesa se puede poner y levantar; su estado queda compartido y persistente.
@@ -337,7 +349,7 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - El comedor tiene un jazmín propio con cuidado diario, crecimiento, sed, marchitez y floración compartidos.
 - Agregar lámpara, cuadro, aparador y los recuerdos de futuras sobremesas.
 
-### Parte 7 — Vida de toda la casa
+### Parte 7 — Vida de toda la casa (pendiente)
 
 - Historial de actividades importantes en el diario.
 - Objetos que interactúen entre habitaciones.
@@ -347,6 +359,19 @@ Resultado: ya será posible entrar a distintos cuartos y buscarse de verdad.
 - Pedido de llamada que pueda abrir WhatsApp cuando ambos lo decidan.
 - Motor único para que la casa hable con prioridades, combinaciones y tiempo de espera, sin ventanas emergentes.
 - Preparar habitaciones futuras.
+
+### Parte 8 — Experiencia futura reservada
+
+Habrá una experiencia narrativa sorpresa que solamente se publicará cuando su recorrido completo, recompensa final, persistencia y recuperación de errores hayan sido validados. La versión de producción no incluirá pantallas, textos, recursos, rutas ni datos incompletos de esta experiencia.
+
+Reglas públicas de esta etapa:
+
+- No usar simplemente `hidden`, CSS, parámetros de URL o `localStorage` para esconderla.
+- Desarrollarla fuera de la rama desplegada y hacer un lanzamiento atómico al completarla.
+- No mostrar avances, botones bloqueados ni habitaciones `próximamente` que revelen la sorpresa.
+- Mantener sus detalles narrativos, desafíos, respuestas y recompensa en el plan privado local excluido de Git.
+- Simular los dos perfiles durante las pruebas sin necesitar que Princesa pruebe una versión incompleta.
+- Exigir una forma segura de reiniciar o recuperar el progreso antes del lanzamiento.
 
 ## Voz de la casa
 
@@ -378,7 +403,7 @@ Cada parte se probará con:
 
 ## Estado actual
 
-La **Parte 1 — Cimientos y búsqueda** y toda la **Parte 2 — Dormitorio completo (2A–2D)** ya fueron implementadas. El próximo paso es la **Parte 3 — Living**, comenzando por agregar la habitación al mapa y construir el sillón con dos lugares independientes.
+La **Parte 1 — Cimientos y búsqueda** y toda la **Parte 2 — Dormitorio completo (2A–2D)** están terminadas y validadas. Cocina, Baño y Comedor tienen bases funcionales; el Comedor es actualmente el más avanzado de los tres. El próximo desarrollo visible es la **Parte 3 — Living**, comenzando por agregar la habitación al mapa y construir el sillón con dos lugares independientes. En paralelo, la **Parte 8** se diseñará de forma privada y no entrará en la versión que usa Princesa hasta estar completamente terminada.
 
 ## Trabajo futuro: autenticación
 

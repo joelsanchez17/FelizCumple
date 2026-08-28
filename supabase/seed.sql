@@ -1,0 +1,2 @@
+-- Datos de desarrollo opcionales.
+-- Mantener este archivo libre de información personal y secretos.
