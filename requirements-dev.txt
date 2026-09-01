@@ -1,3 +1,3 @@
 # Dependencias para las validaciones locales con Chrome.
-selenium==4.47.0
+selenium==4.48.0
 Pillow==11.3.0
