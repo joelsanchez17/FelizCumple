@@ -1,9 +1,12 @@
-const SUPABASE_URL = 'https://xvdexhbasqbhvsuitucr.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_seKLcc9W-48bDasah75j4A_fOm3yMxJ';
+const runtimeConfig = window.LOVE_RUNTIME_CONFIG || {};
+const SUPABASE_URL = runtimeConfig.supabaseUrl;
+const SUPABASE_KEY = runtimeConfig.supabasePublishableKey;
+if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Falta la configuración local de Supabase. Usá npm run dev.');
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const LABEL = { joel: 'Joel 👨🏻‍💻', princesa: 'Princesa 👩🏻‍🔬' };
 
 window._loveClient = client;
+window.dispatchEvent(new CustomEvent('loveauthready'));
 window.partnerOnline = false;
 window.lovePresenceState = { joel: false, princesa: false, locations: {} };
 window.toggleToolbar = () => {};
@@ -224,7 +227,7 @@ async function startLoveRoom() {
     if (previousRoom) {
       try { await client.removeChannel(previousRoom); } catch (error) { console.warn('No se pudo limpiar el canal anterior', error); }
     }
-    const channel = client.channel('room_amor', { config: { presence: { key: `${identity}:${sessionId}` } } });
+    const channel = client.channel('room_amor', { config: { private:true, presence: { key: `${identity}:${sessionId}` } } });
     room = channel;
     window._loveRoom = channel;
     channel

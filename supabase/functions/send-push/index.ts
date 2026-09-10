@@ -19,7 +19,7 @@ Deno.serve(async request => {
 
   const publicKey = Deno.env.get('VAPID_PUBLIC_KEY');
   const privateKey = Deno.env.get('VAPID_PRIVATE_KEY');
-  const subject = Deno.env.get('VAPID_SUBJECT') || 'mailto:joelsanchezdeutsch@gmail.com';
+  const subject = Deno.env.get('VAPID_SUBJECT') || 'mailto:admin@example.invalid';
   if (!publicKey) return json({ error: 'Falta VAPID_PUBLIC_KEY' }, 500);
 
   // El navegador usa este endpoint para crear su PushSubscription.
@@ -28,35 +28,51 @@ Deno.serve(async request => {
   if (!privateKey) return json({ error: 'Falta VAPID_PRIVATE_KEY' }, 500);
 
   try {
-    const payload = await request.json();
+    const authorization = request.headers.get('Authorization');
+    if (!authorization?.startsWith('Bearer ')) return json({ error: 'Sesión requerida' }, 401);
+    const url = Deno.env.get('SUPABASE_URL')!;
+    const authClient = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: authorization } },
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const { data:authData, error:authError } = await authClient.auth.getUser();
+    if (authError || !authData.user) return json({ error: 'Sesión inválida' }, 401);
+
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
+      url,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
+    const { data:member, error:memberError } = await supabase
+      .from('house_members')
+      .select('identity')
+      .eq('user_id', authData.user.id)
+      .maybeSingle();
+    if (memberError) throw memberError;
+    const caller = member?.identity;
+    if (caller !== 'joel' && caller !== 'princesa') return json({ error: 'Cuenta sin membresía' }, 403);
+
+    const payload = await request.json();
 
     if (payload.action === 'subscribe') {
-      const { identity, subscription } = payload;
-      if ((identity !== 'joel' && identity !== 'princesa') ||
-          !subscription?.endpoint || !subscription?.p256dh || !subscription?.auth) {
+      const { subscription } = payload;
+      if (!subscription?.endpoint || !subscription?.p256dh || !subscription?.auth) {
         return json({ error: 'Suscripción inválida' }, 400);
       }
       // Un endpoint solo puede pertenecer a una identidad, incluso después de cambiar perfil.
-      await supabase.from('push_subscriptions').delete().eq('endpoint', subscription.endpoint).neq('identity', identity);
+      await supabase.from('push_subscriptions').delete().eq('endpoint', subscription.endpoint).neq('identity', caller);
       const { error } = await supabase.from('push_subscriptions').upsert({
-        identity,
+        identity: caller,
         endpoint: subscription.endpoint,
         p256dh: subscription.p256dh,
         auth: subscription.auth,
         updated_at: new Date().toISOString()
       }, { onConflict: 'endpoint' });
       if (error) throw error;
-      return json({ subscribed: true, identity });
+      return json({ subscribed: true, identity:caller });
     }
 
     if (payload.action === 'get-drawings') {
-      const identity = payload.identity;
-      if (identity !== 'joel' && identity !== 'princesa') return json({ error: 'Identidad inválida' }, 400);
-      const sender = identity === 'joel' ? 'princesa' : 'joel';
+      const sender = caller === 'joel' ? 'princesa' : 'joel';
       const { data: drawings, error } = await supabase
         .from('drawings')
         .select('id,data,date,created_at')
@@ -68,9 +84,15 @@ Deno.serve(async request => {
     }
 
     const { to, title, body, data, drawing } = payload;
-    if (to !== 'joel' && to !== 'princesa') return json({ error: 'Destino inválido' }, 400);
+    const partner = caller === 'joel' ? 'princesa' : 'joel';
+    if (to !== partner) return json({ error: 'Destino inválido' }, 400);
+    if (typeof title !== 'string' || !title.trim() || title.length > 120 ||
+        typeof body !== 'string' || !body.trim() || body.length > 400) {
+      return json({ error: 'Notificación inválida' }, 400);
+    }
     if (drawing) {
-      if ((drawing.from_identity !== 'joel' && drawing.from_identity !== 'princesa') || !drawing.data) {
+      if (drawing.from_identity !== caller || typeof drawing.data !== 'string' ||
+          !drawing.data.startsWith('data:image/png;base64,') || drawing.data.length > 2_500_000) {
         return json({ error: 'Dibujo inválido' }, 400);
       }
       const { error: drawingError } = await supabase.from('drawings').insert(drawing);
@@ -103,8 +125,8 @@ Deno.serve(async request => {
     if (expired.length) await supabase.from('push_subscriptions').delete().in('endpoint', expired);
     return json({ delivered: delivered > 0, devices: delivered, expired: expired.length });
   } catch (error) {
-    console.error(error);
     const status = error && typeof error === 'object' && 'statusCode' in error ? Number(error.statusCode) : 500;
+    console.error('send-push failed', status || 500);
     return json({ error: error instanceof Error ? error.message : 'Error enviando push' }, status || 500);
   }
 });

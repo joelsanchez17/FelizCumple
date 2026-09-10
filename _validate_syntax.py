@@ -1,7 +1,6 @@
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import subprocess
-import tempfile
 from threading import Thread
 
 
@@ -12,7 +11,7 @@ class QuietHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/__syntax__":
             page = b'''<!doctype html><meta charset="utf-8"><output id="result">PENDING</output><script>
-Promise.all(['realtime.js','together.js','sw.js'].map(async path=>[path,await (await fetch('/'+path)).text()])).then(files=>{
+Promise.all(['realtime.js','together.js','house-story.js','house-story-chapter-one.js','house-story-chapter-two.js','house-story-chapter-three.js','house-story-chapter-four.js','house-story-companion.js','sw.js'].map(async path=>[path,await (await fetch('/'+path)).text()])).then(files=>{
   const failures=files.flatMap(([path,source])=>{try{new Function(source);return []}catch(error){return [path+': '+error.message]}});
   result.textContent=failures.length ? failures.join(' | ') : 'JAVASCRIPT_SYNTAX_OK';
 }).catch(error=>result.textContent='VALIDATOR_FAILED: '+error.message);
@@ -34,13 +33,17 @@ Thread(target=server.serve_forever, daemon=True).start()
 
 try:
     base = f"http://127.0.0.1:{server.server_port}"
-    with tempfile.TemporaryDirectory(prefix="koala-syntax-") as profile:
-        process = subprocess.run([
-            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-            "--headless=new", "--disable-gpu", "--no-sandbox",
-            f"--user-data-dir={profile}", "--virtual-time-budget=3000", "--dump-dom",
-            f"{base}/__syntax__",
-        ], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20)
+    # Reuse an ignored, workspace-local browser profile. Chrome can retain a
+    # handle to a temporary profile on Windows after it exits, which otherwise
+    # makes a passing validation fail while Python attempts to delete it.
+    profile = ROOT / ".selenium-cache" / "syntax-profile"
+    profile.mkdir(parents=True, exist_ok=True)
+    process = subprocess.run([
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        "--headless=new", "--disable-gpu", "--no-sandbox",
+        f"--user-data-dir={profile}", "--virtual-time-budget=3000", "--dump-dom",
+        f"{base}/__syntax__",
+    ], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20)
     output = process.stdout + process.stderr
     if "JAVASCRIPT_SYNTAX_OK" not in output:
         marker = output.find('<output id="result">')

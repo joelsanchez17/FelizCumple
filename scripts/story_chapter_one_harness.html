@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Validación privada del capítulo uno</title>
+  <link rel="stylesheet" href="../house-story.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;padding:18px;color:#5d3b4b;background:#ddebf4;font-family:Arial,sans-serif}
+    #loveHouse{width:min(720px,100%);min-height:620px;margin:auto;padding:18px 0;border-radius:28px;background:#f8eff0;overflow:hidden}
+    .house-entry,.house-room-view{padding:16px}.house-entry[hidden],.house-room-view[hidden]{display:none}
+    .house-map{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.house-map button{min-height:70px;border:1px solid #dbc5ce;border-radius:14px;background:#fff}
+    .house-room-surface{position:relative;height:310px;border-radius:20px;background:linear-gradient(#fff9f5 70%,#d7c4bd 70%);overflow:hidden}
+    .story-object{position:absolute;min-width:90px;min-height:58px;border:1px solid #c9aeb8;border-radius:14px;background:#fff;color:#684456}
+    #houseBed{left:20%;bottom:30px}#kitchenCoffee{right:18%;top:90px}#bathroomShower{left:50%;top:70px;transform:translateX(-50%)}
+  </style>
+</head>
+<body>
+  <section id="loveHouse">
+    <div id="houseEntrance" class="house-entry">
+      <h1>Nuestra casa</h1>
+      <nav class="house-map">
+        <button data-enter-room="bedroom">Dormitorio</button>
+        <button data-enter-room="kitchen">Cocina</button>
+        <button data-enter-room="bathroom">Baño</button>
+      </nav>
+    </div>
+    <div class="house-room-view" data-room-view="bedroom" hidden><button data-enter-room="kitchen">Ir a cocina</button><div class="house-room-surface"><button id="houseBed" class="story-object">Cama</button></div></div>
+    <div class="house-room-view" data-room-view="kitchen" hidden><button data-enter-room="bathroom">Ir al baño</button><div class="house-room-surface"><button id="kitchenCoffee" class="story-object">Cafetera</button></div></div>
+    <div class="house-room-view" data-room-view="bathroom" hidden><button data-enter-room="bedroom">Ir al dormitorio</button><div class="house-room-surface"><button id="bathroomShower" class="story-object">Ducha</button></div></div>
+  </section>
+  <script>
+    const requirements=['signal_bedroom','signal_kitchen','signal_bathroom'];
+    let storyState={available:true,status:'not_started',chapter:0,solvedSteps:[],hintsUsed:{},revision:0};
+    function publish(){window.dispatchEvent(new CustomEvent('housestorychange',{detail:structuredClone(storyState)}));return Promise.resolve(structuredClone(storyState))}
+    window.HouseStoryEngine={
+      flush:()=>Promise.resolve(structuredClone(storyState)),
+      start:()=>{storyState={...storyState,status:'active',chapter:1,revision:storyState.revision+1};return publish()},
+      completeStep:step=>{if(!storyState.solvedSteps.includes(step))storyState.solvedSteps.push(step);if(requirements.every(item=>storyState.solvedSteps.includes(item)))storyState.chapter=2;storyState.revision++;return publish()},
+      useHint:level=>{storyState.hintsUsed={'1':level};storyState.revision++;return publish()}
+    };
+    window.loveIdentity='princesa';
+    document.addEventListener('click',event=>{const room=event.target.closest('[data-enter-room]')?.dataset.enterRoom;if(!room)return;houseEntrance.hidden=true;document.querySelectorAll('[data-room-view]').forEach(view=>view.hidden=view.dataset.roomView!==room)});
+  </script>
+  <script src="../house-story-chapter-one.js"></script>
+  <output id="validationResult" hidden>PENDING</output>
+  <script>
+    if (new URLSearchParams(location.search).has('autotest')) (async()=>{
+      const wait=()=>new Promise(resolve=>setTimeout(resolve,40));
+      const click=async selector=>{document.querySelector(selector)?.click();await wait()};
+      try{
+        await click('[data-story-start]');
+        const describedBefore=document.querySelector('#houseBed')?.getAttribute('aria-describedby')==='houseStoryProgress';
+        await click('[data-story-hint]');
+        await click('[data-story-hint]');
+        await click('[data-story-room="bedroom"]');await click('#houseBed');
+        await click('[data-story-room="kitchen"]');await click('#kitchenCoffee');
+        await click('[data-story-room="bathroom"]');await click('#bathroomShower');
+        const checks=[
+          describedBefore,
+          storyState.chapter===2,
+          storyState.solvedSteps.length===3,
+          storyState.hintsUsed['1']===2,
+          document.querySelector('.house-story-complete'),
+          document.activeElement?.classList.contains('house-story-complete'),
+          document.documentElement.scrollWidth<=document.documentElement.clientWidth
+        ];
+        validationResult.textContent=checks.every(Boolean)?'STORY_CHAPTER_ONE_OK':'STORY_CHAPTER_ONE_FAILED';
+      }catch(error){validationResult.textContent='STORY_CHAPTER_ONE_FAILED: '+error.message}
+    })();
+  </script>
+</body>
+</html>

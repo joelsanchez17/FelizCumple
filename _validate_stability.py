@@ -43,7 +43,7 @@ results["cache_version"] = "love-app-v63-bed-actions" in service_worker_source
 results["house_status_outside_scene"] = "house-status-board" in index_source and "ningún mueble los tape" in together_css_source
 results["shared_invitations_persist"] = "saveHouseDevice('shared_invitation'" in together_source and "5 * 60 * 1000" in together_source
 results["shared_invitations_require_acceptance"] = "answerSharedInvitation(true)" in together_source and "status:accept ? 'accepted' : 'declined'" in together_source
-results["shared_activities_update_both_people"] = "async function saveCoupleActivity" in together_source and "['joel', 'princesa'].map" in together_source
+results["shared_activities_update_both_people"] = "client.rpc('respond_house_invitation'" in together_source and "loadHouseActivities()" in together_source
 results["shared_invitation_push_opens_house"] = together_source.count("'house-invitation'") >= 2
 results["bed_has_synced_affection_actions"] = all(token in together_source for token in ["type:'bed_together'", "animateBedTogetherMotion", "sendBedTogetherMotion"])
 results["bed_actions_have_visible_effects"] = all(token in together_css_source for token in [".is-bed-cuddle", ".is-bed-kiss", ".is-bed-caress", ".house-bed-action-effect"])

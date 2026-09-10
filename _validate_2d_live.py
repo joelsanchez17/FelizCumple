@@ -1,7 +1,9 @@
 from pathlib import Path
 import json
 import os
+import shutil
 import sys
+import tempfile
 import time
 
 from selenium import webdriver
@@ -11,6 +13,8 @@ from selenium.webdriver.chrome.service import Service
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = Path(__file__).resolve().parent
 DRIVER = sorted((Path.home() / ".cache" / "selenium" / "chromedriver" / "win64").glob("*/chromedriver.exe"), reverse=True)[0]
+BASE_URL = os.environ.get("LOVE_TEST_BASE_URL", "http://127.0.0.1:8765")
+PROFILES = []
 
 
 def browser():
@@ -19,11 +23,15 @@ def browser():
     options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
+    profile = tempfile.mkdtemp(prefix="casita-auth-")
+    PROFILES.append(profile)
+    options.add_argument(f"--user-data-dir={profile}")
     options.add_argument("--window-size=393,852")
     options.add_experimental_option("mobileEmulation", {
         "deviceMetrics": {"width": 393, "height": 852, "pixelRatio": 3},
         "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148",
     })
+    options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     options.page_load_strategy = "eager"
     return webdriver.Chrome(service=Service(str(DRIVER)), options=options)
 
@@ -49,14 +57,32 @@ def open_house(driver):
 
 
 def setup(driver, identity):
-    driver.get(f"http://127.0.0.1:8765/index.html?live2d={identity}")
+    driver.get(f"{BASE_URL}/index.html?live2d={identity}&run={time.time()}")
+    login_ready = wait_for(driver, "window._loveClient && document.getElementById('loveLoginEmail') && !document.getElementById('identityModal').hidden")
+    if not login_ready:
+        state = driver.execute_script(
+            "return {ready:document.readyState,hasLogin:!!document.getElementById('loveLoginEmail'),"
+            "hasClient:!!window._loveClient,hasRuntimeUrl:!!window.LOVE_RUNTIME_CONFIG?.supabaseUrl,"
+            "scripts:[...document.scripts].map(s=>s.getAttribute('src')).filter(Boolean)}"
+        )
+        errors = [entry["message"] for entry in driver.get_log("browser") if entry["level"] == "SEVERE"]
+        raise AssertionError({"state": state, "errors": errors})
+    email = f"{identity}.local@casita.test"
     driver.execute_script(
-        "localStorage.setItem('love_identity',arguments[0]);"
-        "localStorage.setItem('birthday_2026_celebrated','1');",
-        identity,
+        "document.getElementById('loveLoginEmail').value=arguments[0];"
+        "document.getElementById('loveLoginPassword').value=arguments[1];"
+        "localStorage.setItem('birthday_2026_celebrated','1');document.getElementById('loveLoginForm').requestSubmit();",
+        email,
+        "casita-local-2026",
     )
-    driver.refresh()
-    time.sleep(4)
+    signed_in = wait_for(driver, f"window.loveIdentity==='{identity}'")
+    if not signed_in:
+        state = driver.execute_script(
+            "return {identity:window.loveIdentity||null,error:document.getElementById('loveLoginError')?.textContent||'',"
+            "modalHidden:document.getElementById('identityModal')?.hidden,submitDisabled:document.getElementById('loveLoginSubmit')?.disabled}"
+        )
+        errors = [entry["message"] for entry in driver.get_log("browser") if entry["level"] == "SEVERE"]
+        raise AssertionError({"login": identity, "state": state, "errors": errors})
     assert open_house(driver)
 
 
@@ -67,7 +93,7 @@ def db_call(driver, body, *args):
 def clear_activities(driver):
     return db_call(
         driver,
-        "const done=arguments[arguments.length-1];window._loveClient.from('house_activities').delete().in('identity',['joel','princesa']).then(({error})=>done(error?{ok:false,error:error.message}:{ok:true}));"
+        "const done=arguments[arguments.length-1];window._loveClient.from('house_activities').delete().eq('identity',window.loveIdentity).then(({error})=>done(error?{ok:false,error:error.message}:{ok:true}));"
     )
 
 
@@ -83,9 +109,9 @@ def set_invitation_status(driver, status, expired=False):
         driver,
         "const status=arguments[0],expired=arguments[1],done=arguments[arguments.length-1];"
         "window._loveClient.from('house_device_states').select('state').eq('room_id','bedroom').eq('device_id','shared_invitation').single().then(async({data,error})=>{"
-        "if(error)return done({ok:false,error:error.message});const now=new Date(),state={...data.state,status,responded_at:now.toISOString(),responded_by:localStorage.getItem('love_identity')};"
+        "if(error)return done({ok:false,error:error.message});const now=new Date(),state={...data.state,status,responded_at:now.toISOString(),responded_by:window.loveIdentity};"
         "if(expired){state.status='pending';state.expires_at=new Date(now.getTime()-1000).toISOString()}"
-        "const result=await window._loveClient.from('house_device_states').upsert({room_id:'bedroom',device_id:'shared_invitation',state,updated_by:localStorage.getItem('love_identity'),updated_at:now.toISOString()},{onConflict:'room_id,device_id'});"
+        "const result=await window._loveClient.from('house_device_states').upsert({room_id:'bedroom',device_id:'shared_invitation',state,updated_by:window.loveIdentity,updated_at:now.toISOString()},{onConflict:'room_id,device_id'});"
         "done(result.error?{ok:false,error:result.error.message}:{ok:true,state});});",
         status,
         expired,
@@ -93,10 +119,10 @@ def set_invitation_status(driver, status, expired=False):
 
 
 def clean_bed(driver, joel, princesa):
-    cleared = clear_activities(driver)
+    cleared = [clear_activities(joel), clear_activities(princesa)]
     for session in (joel, princesa):
         session.execute_script("window.dispatchEvent(new CustomEvent('loverealtimeconnected'))")
-    return cleared.get("ok") and wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')") and wait_for(princesa, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')")
+    return all(item.get("ok") for item in cleared) and wait_for(joel, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')") and wait_for(princesa, "!document.querySelector('[data-avatar-for=joel]').classList.contains('is-in-bed')&&!document.querySelector('[data-avatar-for=princesa]').classList.contains('is-in-bed')")
 
 
 def invite(driver, kind):
@@ -195,15 +221,18 @@ try:
     princesa.execute_script("houseSharedInvitationDecline.click()")
     results["cancellation_synced"] = wait_for(joel, "houseSharedInvitation.hidden") and invitation_row(joel).get("state", {}).get("status") == "cancelled"
 
-    # 5. Caducidad comprobada sin esperar cinco minutos: se adelanta el reloj del registro.
-    results["expiry_invitation_sent"] = invite(joel, "lie_together")
+    # 5. Caducidad comprobada con una invitación local de un segundo.
+    expiry_write = db_call(
+        joel,
+        "const done=arguments[arguments.length-1];window._loveClient.rpc('create_house_invitation',{p_kind:'lie_together',p_ttl_seconds:1}).then(({data,error})=>done(error?{ok:false,error:error.message}:{ok:true,state:data}));"
+    )
+    results["expiry_invitation_sent"] = expiry_write.get("ok", False)
     wait_for(princesa, "!houseSharedInvitation.hidden")
-    expiry_write = set_invitation_status(joel, "pending", expired=True)
     results["expiry_write"] = expiry_write
-    results["expired_invitation_disappears"] = expiry_write.get("ok") and wait_for(joel, "houseSharedInvitation.hidden") and wait_for(princesa, "houseSharedInvitation.hidden")
+    results["expired_invitation_disappears"] = expiry_write.get("ok") and wait_for(joel, "houseSharedInvitation.hidden", 5) and wait_for(princesa, "houseSharedInvitation.hidden", 5)
 
     results["final_activity_cleanup"] = clean_bed(joel, joel, princesa)
-    results["final_invitation_cleanup"] = set_invitation_status(joel, "cancelled").get("ok")
+    results["final_invitation_cleanup"] = results["expired_invitation_disappears"]
     print(json.dumps(results, ensure_ascii=False, indent=2))
     failed = [name for name, value in results.items() if isinstance(value, bool) and not value and name != "real_push_requested"]
     if failed:
@@ -213,3 +242,5 @@ finally:
         joel.quit()
     if princesa:
         princesa.quit()
+    for profile in PROFILES:
+        shutil.rmtree(profile, ignore_errors=True)

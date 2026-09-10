@@ -5,14 +5,18 @@
   "description": "Herramientas locales para desarrollar y validar Nuestra Casita.",
   "scripts": {
     "dev": "python scripts/dev_server.py",
+    "preview:story": "python scripts/story_preview_server.py",
+    "preview:private": "python scripts/private_preview_server.py",
+    "build:preview-private": "python scripts/build_private_preview.py",
     "validate": "python scripts/validate.py",
     "validate:live": "python scripts/validate.py --live",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
+    "supabase:test": "supabase test db",
     "supabase:status": "supabase status"
   },
   "devDependencies": {
-    "supabase": "^2.116.0"
+    "supabase": "^2.117.0"
   }
 }

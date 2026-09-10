@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Validación privada del habitante</title>
+  <link rel="stylesheet" href="../house-story.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;padding:12px;background:#dcebf3;color:#603f4e;font-family:Arial,sans-serif}
+    #loveHouse{width:min(700px,100%);margin:auto;padding:10px;border-radius:25px;background:#f9eff1}
+    .house-room-view[hidden]{display:none}.house-room-view>button{min-height:40px;margin-bottom:8px}
+    .house-room-surface{position:relative;height:330px;overflow:hidden;border-radius:20px;background:linear-gradient(#fff4eb 0 70%,#d7bbb2 70%)}
+    .fake-furniture{position:absolute;left:12%;right:12%;bottom:12%;height:70px;border-radius:20px;background:#9e7083}
+    .house-avatar{position:absolute;z-index:15;left:62%;top:56%;width:48px;height:48px;border:3px solid #fff;border-radius:50%;background:#e8b8c8;box-shadow:0 5px 12px #7655}
+  </style>
+</head>
+<body>
+  <section id="loveHouse" class="both-online">
+    <div class="house-room-view" data-room-view="dining">
+      <button data-go="kitchen">Ir a cocina</button>
+      <div class="house-room-surface" data-room-surface="dining"><i id="diningSofa" class="fake-furniture"></i><i class="house-avatar is-online" data-avatar-for="princesa"></i></div>
+    </div>
+    <div class="house-room-view" data-room-view="kitchen" hidden>
+      <button data-go="dining">Ir a comedor</button>
+      <button data-go="bedroom">Ir a dormitorio</button>
+      <div class="house-room-surface" data-room-surface="kitchen"><i class="fake-furniture"></i></div>
+    </div>
+    <div class="house-room-view" data-room-view="bedroom" hidden>
+      <button data-go="dining">Ir a comedor</button>
+      <div class="house-room-surface" data-room-surface="bedroom"><i class="fake-furniture"></i></div>
+    </div>
+  </section>
+  <script>
+    window.loveIdentity='princesa';
+    const now=()=>new Date().toISOString();
+    let companion={revealed:true,name:null,currentRoom:'dining',isSleeping:false,growthStage:0,stageName:'tiny',care:{hydration:100,affection:100,play:100,mood:'happy',lastWateredAt:now(),lastPettedAt:now(),lastPlayedAt:now()},updatedAt:now()};
+    window.HouseStoryEngine={
+      loadCompanion:()=>Promise.resolve(structuredClone(companion)),
+      updateCompanion:(action,payload)=>{
+        if(action==='name')companion.name=payload.name;
+        if(action==='move'){companion.currentRoom=payload.room;companion.isSleeping=false}
+        if(action==='sleep')companion.isSleeping=payload.sleeping;
+        if(action==='care'){
+          if(payload.kind==='water'){companion.care.hydration=100;companion.care.lastWateredAt=now()}
+          if(payload.kind==='affection'){companion.care.affection=100;companion.care.lastPettedAt=now()}
+          if(payload.kind==='play'){companion.care.play=100;companion.care.lastPlayedAt=now()}
+          companion.care.mood='happy';
+        }
+        companion.updatedAt=now();
+        return Promise.resolve({storyData:structuredClone(companion)});
+      }
+    };
+    window.sendLoveRealtime=()=>Promise.resolve();
+    document.addEventListener('click',event=>{
+      const room=event.target.closest('[data-go]')?.dataset.go;
+      if(!room)return;
+      document.querySelectorAll('[data-room-view]').forEach(view=>view.hidden=view.dataset.roomView!==room);
+      document.querySelector(`[data-room-surface="${room}"]`)?.appendChild(document.querySelector('[data-avatar-for="princesa"]'));
+      window.dispatchEvent(new CustomEvent('lovehouseroomchange',{detail:{roomId:room}}));
+    });
+  </script>
+  <script src="../house-story-companion.js"></script>
+  <output id="validationResult" hidden>PENDING</output>
+  <script>
+    if(new URLSearchParams(location.search).has('autotest'))(async()=>{
+      const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+      try{
+        await wait(150);
+        const initialSit=document.querySelector('[data-room-surface="dining"] img[src$="companion-tiny-sit.png"]');
+        const contextualPanel=document.querySelector('[data-room-surface="dining"]>.house-story-companion-panel.is-here');
+        const startsHidden=!contextualPanel;
+        initialSit?.closest('[data-companion-open]')?.click();await wait(30);
+        const opensBeside=document.querySelector('[data-room-surface="dining"]>.house-story-companion-panel.is-expanded');
+        const careMeters=opensBeside?.querySelectorAll('.house-story-companion-needs>span').length===3;
+        const initialWithoutBed=!document.querySelector('[data-room-surface="dining"] img[src$="companion-tiny-bed.png"]');
+        const withoutPlay=!document.querySelector('[data-companion-motion="play"]')&&!document.body.textContent.includes('Jugar con él');
+        const diningMoment=document.querySelector('[data-companion-motion="sofa"]');
+        diningMoment?.click();await wait(30);
+        const sofaMoment=document.querySelector('.house-story-room-puppy.is-sofa')&&document.body.textContent.includes('ocupó el mejor lugar');
+        const sofaPuppy=document.querySelector('.house-story-room-puppy.is-sofa');
+        const sofaBox=document.querySelector('#diningSofa').getBoundingClientRect();
+        const sofaPuppyBox=sofaPuppy?.getBoundingClientRect();
+        const sofaAnchored=sofaPuppyBox&&Math.abs((sofaPuppyBox.left+sofaPuppyBox.width/2)-(sofaBox.left+sofaBox.width/2))<4;
+        const comeButton=document.querySelector('[data-companion-come]');
+        comeButton?.click();await wait(30);
+        const stayedBeside=document.querySelector('.house-story-room-puppy.is-beside-person')&&sessionStorage.getItem('house_story_companion_beside')==='princesa'&&document.body.textContent.includes('se quedó al lado tuyo');
+        document.querySelector('[data-companion-follow]')?.click();await wait(30);
+        const follows=sessionStorage.getItem('house_story_companion_follows_me')==='princesa'&&document.body.textContent.includes('TE SIGUE POR LA CASA');
+        document.querySelector('[data-go="kitchen"]')?.click();await wait(100);
+        const followedRoom=companion.currentRoom==='kitchen'&&document.body.textContent.includes('TE SIGUE POR LA CASA')&&document.querySelector('.house-story-room-puppy.is-beside-person');
+        document.querySelector('[data-go="dining"]')?.click();await wait(100);
+        document.querySelector('[data-companion-follow]')?.click();await wait(30);
+        const stopped=!sessionStorage.getItem('house_story_companion_follows_me')&&!sessionStorage.getItem('house_story_companion_beside')&&!document.querySelector('.house-story-room-puppy.is-beside-person');
+        document.querySelector('[data-companion-care="affection"]')?.click();await wait(80);
+        const petted=document.querySelector('.house-story-room-puppy.is-petted')&&document.body.textContent.includes('movió la colita entre los dos');
+        document.querySelector('[data-companion-sleep]')?.click();await wait(80);
+        const sleeping=document.querySelector('[data-room-surface="dining"] img[src$="companion-tiny-sleep.png"]');
+        const sleepingBed=document.querySelector('[data-room-surface="dining"] img[src$="companion-tiny-bed.png"]');
+        document.querySelector('[data-go="kitchen"]')?.click();await wait(30);
+        const away=document.body.textContent.includes('está en el comedor');
+        document.querySelector('[data-companion-call]')?.click();await wait(80);
+        const moved=companion.currentRoom==='kitchen'&&document.querySelector('[data-room-surface="kitchen"] img[src$="companion-tiny-sit.png"]');
+        const calledWithoutBed=!document.querySelector('[data-room-surface="kitchen"] img[src$="companion-tiny-bed.png"]');
+        const callReaction=document.body.textContent.includes('vino corriendo y los encontró a los dos');
+        const waterButton=document.querySelector('[data-companion-care="water"]');
+        waterButton?.click();await wait(80);
+        const waterProp=document.querySelector('.house-story-companion-prop.is-water');
+        const waterMoment=waterProp?.parentElement?.classList.contains('house-story-room-puppy')&&document.body.textContent.includes('medio hocico');
+        const playButton=document.querySelector('[data-companion-care="play"]');
+        playButton?.click();await wait(80);
+        const playMoment=document.querySelector('.house-story-room-puppy.is-play .house-story-companion-prop.is-play')&&document.body.textContent.includes('pelotita');
+        window.dispatchEvent(new CustomEvent('lovehouseaction',{detail:{action:'companion_motion',value:{kind:'pet',actor:'joel'},from:'joel'}}));await wait(30);
+        const remotePet=document.body.textContent.includes('movió la colita entre los dos');
+        document.querySelector('[data-companion-rename]')?.click();await wait(20);
+        const form=document.querySelector('[data-companion-name-form]');form.elements.name.value='Nube';form.requestSubmit();await wait(80);
+        const remote={...companion,isSleeping:true,updatedAt:new Date().toISOString()};
+        window.dispatchEvent(new CustomEvent('lovehouseaction',{detail:{action:'companion_update',value:remote,from:'joel'}}));await wait(40);
+        const remoteSleep=document.querySelector('[data-room-surface="kitchen"] img[src$="companion-tiny-sleep.png"]');
+        const remoteBed=document.querySelector('[data-room-surface="kitchen"] img[src$="companion-tiny-bed.png"]');
+        const puppyScale=initialSit?.closest('.house-story-room-puppy')?.getBoundingClientRect().width<=52;
+        const checks=[initialSit,startsHidden,careMeters,opensBeside,initialWithoutBed,withoutPlay,puppyScale,diningMoment,sofaMoment,sofaAnchored,comeButton,stayedBeside,follows,followedRoom,stopped,petted,sleeping,sleepingBed,away,moved,calledWithoutBed,callReaction,waterButton,waterMoment,playButton,playMoment,remotePet,companion.name==='Nube',document.body.textContent.includes('Nube'),remoteSleep,remoteBed,document.documentElement.scrollWidth<=document.documentElement.clientWidth];
+        validationResult.textContent=checks.every(Boolean)?'STORY_COMPANION_OK':'STORY_COMPANION_FAILED';
+      }catch(error){validationResult.textContent='STORY_COMPANION_FAILED: '+error.message}
+    })();
+  </script>
+</body>
+</html>

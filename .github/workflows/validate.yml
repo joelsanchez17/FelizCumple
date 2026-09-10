@@ -30,6 +30,12 @@ jobs:
         run: |
           node --check realtime.js
           node --check together.js
+          node --check house-story.js
+          node --check house-story-chapter-one.js
+          node --check house-story-chapter-two.js
+          node --check house-story-chapter-three.js
+          node --check house-story-chapter-four.js
+          node --check house-story-companion.js
           node --check sw.js
       - name: Python syntax
         run: python -m compileall -q scripts _validate_*.py

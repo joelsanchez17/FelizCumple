@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
   <link rel="stylesheet" href="./together.css?v=43">
   <link rel="stylesheet" href="./app_refresh.css?v=6">
+  <link rel="stylesheet" href="./house-story.css?v=1">
   <meta name="theme-color" content="#ff9a9e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -174,14 +175,16 @@
   </div>
   <div id="identityModal" class="identity-modal" role="dialog" aria-modal="true" aria-labelledby="identityTitle" hidden>
     <div class="identity-card">
-      <div class="identity-heart">💞</div>
-      <h2 id="identityTitle">¿Quién sos?</h2>
-      <p>Elegí tu perfil para conectar este dispositivo.</p>
-      <div class="identity-options">
-        <button type="button" data-identity="joel"><span>Joel 👨🏻‍💻</span><small>Joel abre el suyo</small></button>
-        <button type="button" data-identity="princesa"><span>Princesa 👩🏻‍🔬</span><small>Ella abre el suyo</small></button>
-      </div>
-      <small class="identity-note">Después podés cambiarlo manteniendo presionado el estado durante 3 segundos.</small>
+      <div class="identity-heart" aria-hidden="true">♡</div>
+      <h2 id="identityTitle">Entrar a nuestra casita</h2>
+      <p>Usá tu cuenta para abrir tu lugar.</p>
+      <form id="loveLoginForm" class="identity-login" novalidate>
+        <label>Correo<input id="loveLoginEmail" name="email" type="email" inputmode="email" autocomplete="username" required></label>
+        <label>Contraseña<input id="loveLoginPassword" name="password" type="password" autocomplete="current-password" required minlength="8"></label>
+        <p id="loveLoginError" class="identity-error" role="alert" hidden></p>
+        <button id="loveLoginSubmit" type="submit">Entrar</button>
+      </form>
+      <small class="identity-note">La sesión queda guardada en este dispositivo. Mantené presionado el estado durante 3 segundos para salir.</small>
     </div>
   </div>
   <nav class="bottom-nav" aria-label="Navegación principal">
@@ -531,7 +534,7 @@
           </div>
           <div id="houseAvatarLayer" class="house-avatar-layer" aria-label="Personas dentro de la habitación">
             <div class="house-avatar house-avatar-joel" data-avatar-for="joel" role="button" aria-label="Mover a Joel por la habitación"><img src="perfil_yo.jpg" alt="" draggable="false"></div>
-            <div class="house-avatar house-avatar-princesa" data-avatar-for="princesa" role="button" aria-label="Mover a Princesa por la habitación"><img src="princesa2.jpg" alt="" draggable="false"></div>
+            <div class="house-avatar house-avatar-princesa" data-avatar-for="princesa" role="button" aria-label="Mover a Princesa por la habitación"><img src="assets/princesa-casamiento.jpeg" alt="" draggable="false"></div>
           </div>
         </div>
         <div class="house-status-board" aria-label="Actividad y estado de ánimo">
@@ -585,7 +588,7 @@
             </div>
           </div>
         </div>
-        <section id="houseSharedActivities" class="house-shared-activities" aria-labelledby="houseSharedActivitiesTitle">
+        <section id="houseSharedActivities" class="house-shared-activities" aria-labelledby="houseSharedActivitiesTitle" hidden>
           <div class="house-shared-activities-head">
             <div><span aria-hidden="true">♡</span><strong id="houseSharedActivitiesTitle">Invitaciones para la cama</strong></div>
             <small id="houseSharedActivitiesHint">Las invitaciones esperan una respuesta.</small>
@@ -1935,15 +1938,17 @@
     .identity-heart { font-size:2.4rem; margin-bottom:4px; }
     .identity-card h2 { margin:4px 0 6px; color:#8e244d; font-family:'Cormorant Garamond',serif; font-size:2rem; }
     .identity-card>p { margin:0 0 20px; color:#78616b; }
-    .identity-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .identity-options button { min-height:112px; padding:15px 10px; border:1px solid rgba(233,30,99,.2); border-radius:18px; background:white; color:#5e3446; box-shadow:0 6px 20px rgba(173,57,104,.08); cursor:pointer; transition:.18s; }
-    .identity-options button:active { transform:scale(.97); }
-    .identity-options button:hover { border-color:#e91e63; box-shadow:0 9px 25px rgba(173,57,104,.16); }
-    .identity-options span { display:block; font:700 1.05rem 'Quicksand',sans-serif; margin-bottom:8px; }
-    .identity-options small,.identity-note { color:#9b7a88; line-height:1.4; }
+    .identity-login { display:grid; gap:12px; text-align:left; }
+    .identity-login label { display:grid; gap:6px; color:#795766; font:700 .78rem/1.2 'Quicksand',sans-serif; }
+    .identity-login input { width:100%; min-height:48px; padding:11px 13px; border:1px solid rgba(142,36,77,.2); border-radius:14px; color:#513342; background:#fff; font:600 1rem/1.2 'Quicksand',sans-serif; outline:none; }
+    .identity-login input:focus { border-color:#b43d6b; box-shadow:0 0 0 3px rgba(180,61,107,.12); }
+    .identity-login button { min-height:48px; margin-top:3px; border:0; border-radius:999px; color:#fff; background:linear-gradient(135deg,#ad3563,#7f3157); cursor:pointer; font:700 .95rem/1 'Quicksand',sans-serif; box-shadow:0 8px 20px rgba(127,49,87,.22); }
+    .identity-login button:disabled { opacity:.6; cursor:wait; }
+    .identity-error { margin:0; padding:9px 11px; border-radius:11px; color:#8d284f; background:#fff0f4; font:600 .72rem/1.35 'Quicksand',sans-serif; }
+    .identity-note { color:#9b7a88; line-height:1.4; }
     .identity-note { display:block; margin-top:17px; }
     @keyframes identityIn { from { opacity:0; transform:translateY(16px) scale(.97); } }
-    @media (max-width:390px) { .identity-options { grid-template-columns:1fr; } .identity-options button { min-height:86px; } }
+    @media (max-width:390px) { .identity-card { padding:24px 18px 20px; } }
   </style>
 
   <script>
@@ -4254,45 +4259,126 @@
 
   </script>
   <script src="./assets/vendor/supabase.js?v=2.112.4"></script>
+  <script src="./runtime-config.js?v=1"></script>
+  <script src="./house-story.js?v=1"></script>
+  <script src="./house-story-chapter-one.js?v=1"></script>
+  <script src="./house-story-chapter-two.js?v=1"></script>
+  <script src="./house-story-chapter-three.js?v=1"></script>
+  <script src="./house-story-chapter-four.js?v=1"></script>
+  <script src="./house-story-companion.js?v=1"></script>
   <script>
     (() => {
-      const KEY = 'love_identity';
       const modal = document.getElementById('identityModal');
-      let resolver;
+      const form = document.getElementById('loveLoginForm');
+      const email = document.getElementById('loveLoginEmail');
+      const password = document.getElementById('loveLoginPassword');
+      const submit = document.getElementById('loveLoginSubmit');
+      const errorBox = document.getElementById('loveLoginError');
+      let pendingIdentity;
+      let resolveIdentity;
       const valid = value => value === 'joel' || value === 'princesa';
-      function openModal() {
+
+      function client() {
+        if (!window._loveClient) throw new Error('La conexión todavía no está lista.');
+        return window._loveClient;
+      }
+
+      function showError(message = '') {
+        errorBox.textContent = message;
+        errorBox.hidden = !message;
+      }
+
+      function openModal(message = '') {
         modal.hidden = false;
         document.body.style.overflow = 'hidden';
-        return new Promise(resolve => { resolver = resolve; });
+        showError(message);
+        setTimeout(() => email?.focus(), 80);
+        if (!pendingIdentity) pendingIdentity = new Promise(resolve => { resolveIdentity = resolve; });
+        return pendingIdentity;
       }
-      window.requestLoveIdentity = () => {
-        const saved = localStorage.getItem(KEY);
-        return valid(saved) ? Promise.resolve(saved) : openModal();
-      };
-      modal.querySelectorAll('[data-identity]').forEach(button => button.addEventListener('click', () => {
-        const identity = button.dataset.identity;
-        localStorage.setItem(KEY, identity);
+
+      async function membershipIdentity() {
+        const { data, error } = await client().rpc('current_house_identity');
+        if (error) throw error;
+        return valid(data) ? data : null;
+      }
+
+      function finish(identity) {
+        localStorage.removeItem('love_identity');
         modal.hidden = true;
         document.body.style.overflow = '';
-        resolver?.(identity);
-        resolver = null;
-      }));
+        showError();
+        resolveIdentity?.(identity);
+        resolveIdentity = null;
+        pendingIdentity = null;
+        return identity;
+      }
+
+      window.requestLoveIdentity = async () => {
+        const { data:{ session }, error } = await client().auth.getSession();
+        if (error) return openModal('No pudimos recuperar tu sesión. Volvé a entrar.');
+        if (!session) return openModal();
+        try {
+          const identity = await membershipIdentity();
+          if (identity) return finish(identity);
+          await client().auth.signOut();
+          return openModal('Esta cuenta todavía no tiene un lugar asignado en la casita.');
+        } catch {
+          return openModal('No pudimos verificar tu cuenta. Revisá tu conexión.');
+        }
+      };
+
+      form?.addEventListener('submit', async event => {
+        event.preventDefault();
+        showError();
+        submit.disabled = true;
+        submit.textContent = 'Entrando…';
+        try {
+          const { error } = await client().auth.signInWithPassword({
+            email:email.value.trim(),
+            password:password.value
+          });
+          if (error) throw error;
+          const identity = await membershipIdentity();
+          if (!identity) {
+            await client().auth.signOut();
+            throw new Error('Esta cuenta no está vinculada a la casita.');
+          }
+          password.value = '';
+          finish(identity);
+        } catch (error) {
+          showError(error?.message === 'Invalid login credentials'
+            ? 'El correo o la contraseña no coinciden.'
+            : error?.message || 'No pudimos iniciar sesión.');
+        } finally {
+          submit.disabled = false;
+          submit.textContent = 'Entrar';
+        }
+      });
+
       const capsule = document.getElementById('status-capsule');
       let timer = null, longPressed = false;
       const cancel = () => { clearTimeout(timer); timer = null; };
       capsule?.addEventListener('pointerdown', () => {
         longPressed = false;
-        timer = setTimeout(() => {
+        timer = setTimeout(async () => {
           longPressed = true;
           navigator.vibrate?.([40,40,80]);
-          localStorage.removeItem(KEY);
-          openModal().then(() => location.reload());
+          await client().auth.signOut();
+          localStorage.removeItem('love_identity');
+          location.reload();
         }, 3000);
       });
       ['pointerup','pointercancel','pointerleave'].forEach(type => capsule?.addEventListener(type, cancel));
       capsule?.addEventListener('click', event => {
         if (longPressed) { event.preventDefault(); event.stopImmediatePropagation(); }
       }, true);
+
+      window.addEventListener('loveauthready', () => {
+        client().auth.onAuthStateChange(event => {
+          if (event === 'SIGNED_OUT' && window.loveIdentity) location.reload();
+        });
+      }, { once:true });
     })();
   </script>
   <!-- Supabase realtime solo funciona en http/https, no en file:// -->
@@ -4314,7 +4400,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=38', { updateViaCache: 'none' })
+          navigator.serviceWorker.register('./sw.js?v=39', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});
@@ -5194,7 +5280,7 @@
 
     // Guardar en Supabase, avisar en tiempo real y enviar la notificación push.
     try {
-      const from = window.loveIdentity || localStorage.getItem('love_identity');
+      const from = window.loveIdentity;
       if (!from || !window._loveClient) throw new Error('La identidad todavía no está lista');
       await window._loveRoom?.send({ type:'broadcast', event:'drawing', payload:{ data:dataURL, date, from } });
       await window.sendLovePush?.(
