@@ -48,7 +48,8 @@ Deno.serve(async request => {
       .eq('user_id', authData.user.id)
       .maybeSingle();
     if (memberError) throw memberError;
-    const caller = member?.identity;
+    const metadataIdentity = authData.user.user_metadata?.house_identity;
+    const caller = member?.identity || metadataIdentity;
     if (caller !== 'joel' && caller !== 'princesa') return json({ error: 'Cuenta sin membresía' }, 403);
 
     const payload = await request.json();

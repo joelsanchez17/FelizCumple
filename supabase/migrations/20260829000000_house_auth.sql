@@ -16,9 +16,13 @@ stable
 security definer
 set search_path = public, auth
 as $$
-  select identity
-  from public.house_members
-  where user_id = auth.uid()
+  select coalesce(
+    (select identity from public.house_members where user_id = auth.uid()),
+    case
+      when auth.jwt() -> 'user_metadata' ->> 'house_identity' in ('joel', 'princesa')
+      then auth.jwt() -> 'user_metadata' ->> 'house_identity'
+    end
+  )
 $$;
 
 create or replace function public.is_house_member()

@@ -13,7 +13,7 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles_cleaned.css?v=4">
   <link rel="stylesheet" href="./styles_elegant.css?v=9">
-  <link rel="stylesheet" href="./together.css?v=43">
+  <link rel="stylesheet" href="./together.css?v=44">
   <link rel="stylesheet" href="./app_refresh.css?v=6">
   <link rel="stylesheet" href="./house-story.css?v=1">
   <meta name="theme-color" content="#ff9a9e">
@@ -176,15 +176,14 @@
   <div id="identityModal" class="identity-modal" role="dialog" aria-modal="true" aria-labelledby="identityTitle" hidden>
     <div class="identity-card">
       <div class="identity-heart" aria-hidden="true">♡</div>
-      <h2 id="identityTitle">Entrar a nuestra casita</h2>
-      <p>Usá tu cuenta para abrir tu lugar.</p>
-      <form id="loveLoginForm" class="identity-login" novalidate>
-        <label>Correo<input id="loveLoginEmail" name="email" type="email" inputmode="email" autocomplete="username" required></label>
-        <label>Contraseña<input id="loveLoginPassword" name="password" type="password" autocomplete="current-password" required minlength="8"></label>
-        <p id="loveLoginError" class="identity-error" role="alert" hidden></p>
-        <button id="loveLoginSubmit" type="submit">Entrar</button>
-      </form>
-      <small class="identity-note">La sesión queda guardada en este dispositivo. Mantené presionado el estado durante 3 segundos para salir.</small>
+      <h2 id="identityTitle">¿Quién sos?</h2>
+      <p>Elegí tu perfil para conectar este dispositivo.</p>
+      <div class="identity-options">
+        <button type="button" data-identity="joel"><span>Joel 👨🏻‍💻</span><small>Joel abre el suyo</small></button>
+        <button type="button" data-identity="princesa"><span>Princesa 👩🏻‍🔬</span><small>Ella abre el suyo</small></button>
+      </div>
+      <p id="loveIdentityError" class="identity-error" role="alert" hidden></p>
+      <small class="identity-note">Después podés cambiarlo manteniendo presionado el estado durante 3 segundos.</small>
     </div>
   </div>
   <nav class="bottom-nav" aria-label="Navegación principal">
@@ -1938,17 +1937,18 @@
     .identity-heart { font-size:2.4rem; margin-bottom:4px; }
     .identity-card h2 { margin:4px 0 6px; color:#8e244d; font-family:'Cormorant Garamond',serif; font-size:2rem; }
     .identity-card>p { margin:0 0 20px; color:#78616b; }
-    .identity-login { display:grid; gap:12px; text-align:left; }
-    .identity-login label { display:grid; gap:6px; color:#795766; font:700 .78rem/1.2 'Quicksand',sans-serif; }
-    .identity-login input { width:100%; min-height:48px; padding:11px 13px; border:1px solid rgba(142,36,77,.2); border-radius:14px; color:#513342; background:#fff; font:600 1rem/1.2 'Quicksand',sans-serif; outline:none; }
-    .identity-login input:focus { border-color:#b43d6b; box-shadow:0 0 0 3px rgba(180,61,107,.12); }
-    .identity-login button { min-height:48px; margin-top:3px; border:0; border-radius:999px; color:#fff; background:linear-gradient(135deg,#ad3563,#7f3157); cursor:pointer; font:700 .95rem/1 'Quicksand',sans-serif; box-shadow:0 8px 20px rgba(127,49,87,.22); }
-    .identity-login button:disabled { opacity:.6; cursor:wait; }
+    .identity-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .identity-options button { min-height:112px; padding:15px 10px; border:1px solid rgba(233,30,99,.2); border-radius:18px; background:white; color:#5e3446; box-shadow:0 6px 20px rgba(173,57,104,.08); cursor:pointer; transition:.18s; }
+    .identity-options button:active { transform:scale(.97); }
+    .identity-options button:hover { border-color:#e91e63; box-shadow:0 9px 25px rgba(173,57,104,.16); }
+    .identity-options button:disabled { opacity:.55; cursor:wait; }
+    .identity-options span { display:block; font:700 1.05rem 'Quicksand',sans-serif; margin-bottom:8px; }
+    .identity-options small,.identity-note { color:#9b7a88; line-height:1.4; }
     .identity-error { margin:0; padding:9px 11px; border-radius:11px; color:#8d284f; background:#fff0f4; font:600 .72rem/1.35 'Quicksand',sans-serif; }
     .identity-note { color:#9b7a88; line-height:1.4; }
     .identity-note { display:block; margin-top:17px; }
     @keyframes identityIn { from { opacity:0; transform:translateY(16px) scale(.97); } }
-    @media (max-width:390px) { .identity-card { padding:24px 18px 20px; } }
+    @media (max-width:390px) { .identity-card { padding:24px 18px 20px; } .identity-options { grid-template-columns:1fr; } .identity-options button { min-height:86px; } }
   </style>
 
   <script>
@@ -4268,12 +4268,10 @@
   <script src="./house-story-companion.js?v=1"></script>
   <script>
     (() => {
+      const KEY = 'love_identity';
       const modal = document.getElementById('identityModal');
-      const form = document.getElementById('loveLoginForm');
-      const email = document.getElementById('loveLoginEmail');
-      const password = document.getElementById('loveLoginPassword');
-      const submit = document.getElementById('loveLoginSubmit');
-      const errorBox = document.getElementById('loveLoginError');
+      const errorBox = document.getElementById('loveIdentityError');
+      const choiceButtons = [...modal.querySelectorAll('[data-identity]')];
       let pendingIdentity;
       let resolveIdentity;
       const valid = value => value === 'joel' || value === 'princesa';
@@ -4292,7 +4290,6 @@
         modal.hidden = false;
         document.body.style.overflow = 'hidden';
         showError(message);
-        setTimeout(() => email?.focus(), 80);
         if (!pendingIdentity) pendingIdentity = new Promise(resolve => { resolveIdentity = resolve; });
         return pendingIdentity;
       }
@@ -4304,7 +4301,7 @@
       }
 
       function finish(identity) {
-        localStorage.removeItem('love_identity');
+        localStorage.setItem(KEY, identity);
         modal.hidden = true;
         document.body.style.overflow = '';
         showError();
@@ -4314,47 +4311,40 @@
         return identity;
       }
 
-      window.requestLoveIdentity = async () => {
-        const { data:{ session }, error } = await client().auth.getSession();
-        if (error) return openModal('No pudimos recuperar tu sesión. Volvé a entrar.');
-        if (!session) return openModal();
+      async function startAnonymousSession(identity) {
+        choiceButtons.forEach(button => { button.disabled = true; });
+        showError();
         try {
-          const identity = await membershipIdentity();
+          const { error } = await client().auth.signInAnonymously({
+            options: { data: { house_identity: identity } }
+          });
+          if (error) throw error;
+          const resolved = await membershipIdentity();
+          if (resolved !== identity) throw new Error('No pudimos reconocer este perfil.');
+          return finish(identity);
+        } catch (error) {
+          showError(error?.message || 'No pudimos entrar. Revisá tu conexión e intentá otra vez.');
+          return openModal(error?.message || 'No pudimos entrar. Revisá tu conexión e intentá otra vez.');
+        } finally {
+          choiceButtons.forEach(button => { button.disabled = false; });
+        }
+      }
+
+      window.requestLoveIdentity = async () => {
+        const saved = localStorage.getItem(KEY);
+        const { data:{ session }, error } = await client().auth.getSession();
+        if (error) return valid(saved) ? startAnonymousSession(saved) : openModal();
+        try {
+          const identity = session ? await membershipIdentity() : null;
           if (identity) return finish(identity);
-          await client().auth.signOut();
-          return openModal('Esta cuenta todavía no tiene un lugar asignado en la casita.');
+          if (session) await client().auth.signOut();
+          return valid(saved) ? startAnonymousSession(saved) : openModal();
         } catch {
-          return openModal('No pudimos verificar tu cuenta. Revisá tu conexión.');
+          return valid(saved) ? startAnonymousSession(saved) : openModal('No pudimos entrar. Revisá tu conexión.');
         }
       };
 
-      form?.addEventListener('submit', async event => {
-        event.preventDefault();
-        showError();
-        submit.disabled = true;
-        submit.textContent = 'Entrando…';
-        try {
-          const { error } = await client().auth.signInWithPassword({
-            email:email.value.trim(),
-            password:password.value
-          });
-          if (error) throw error;
-          const identity = await membershipIdentity();
-          if (!identity) {
-            await client().auth.signOut();
-            throw new Error('Esta cuenta no está vinculada a la casita.');
-          }
-          password.value = '';
-          finish(identity);
-        } catch (error) {
-          showError(error?.message === 'Invalid login credentials'
-            ? 'El correo o la contraseña no coinciden.'
-            : error?.message || 'No pudimos iniciar sesión.');
-        } finally {
-          submit.disabled = false;
-          submit.textContent = 'Entrar';
-        }
-      });
+      choiceButtons.forEach(button => button.addEventListener('click', () => startAnonymousSession(button.dataset.identity)));
 
       const capsule = document.getElementById('status-capsule');
       let timer = null, longPressed = false;
@@ -4385,7 +4375,7 @@
   <script>
     if (location.protocol === 'https:' || location.protocol === 'http:') {
       const s = document.createElement('script');
-      s.src = 'realtime.js?v=7';
+      s.src = 'realtime.js?v=8';
       document.head.appendChild(s);
     } else {
       // En file:// simulamos las funciones para que no rompa nada
@@ -4400,7 +4390,7 @@
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js?v=39', { updateViaCache: 'none' })
+          navigator.serviceWorker.register('./sw.js?v=41', { updateViaCache: 'none' })
           .then(reg => {
             console.log('App lista para instalar 📱', reg.scope);
             reg.update().catch(() => {});

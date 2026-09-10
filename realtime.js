@@ -55,8 +55,10 @@ async function subscribeToPush(identity, fromUserGesture = false) {
     const registration = await navigator.serviceWorker.ready;
     let subscription = await registration.pushManager.getSubscription();
     if (!subscription) {
+      const { data:{ session }, error:sessionError } = await client.auth.getSession();
+      if (sessionError || !session?.access_token) throw new Error('La sesión todavía no está lista');
       const response = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` }
       });
       if (!response.ok) throw new Error('No se pudo obtener la clave VAPID pública');
       const { publicKey } = await response.json();
